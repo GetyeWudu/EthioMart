@@ -1,410 +1,178 @@
-# from rest_framework import status
-# from rest_framework.decorators import action
-# from rest_framework.permissions import (
-#     IsAuthenticated,
-#     AllowAny,
-# )
-# from rest_framework.response import Response
-# from rest_framework.viewsets import GenericViewSet
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
+from django.db.models import Count
+from apps.reviews.models import Review, ReviewReply, ReviewHelpfulVote
+from apps.reviews.serializers import ReviewSerializer, ReviewWriteSerializer, ReviewReplySerializer
+from apps.catalog.models import Product
+from apps.orders.models import OrderItem
+from apps.common.permissions import IsOperationalAdmin
+
+class ProductReviewListView(generics.ListAPIView):
+    """Publicly viewable approved reviews for a specific product."""
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        slug = self.kwargs.get('slug')
+        return Review.objects.filter(product__slug=slug, is_approved=True)
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        
+        # Calculate histogram
+        slug = self.kwargs.get('slug')
+        qs = self.get_queryset()
+        distribution = qs.values('rating').annotate(count=Count('id'))
+        
+        hist = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0}
+        for item in distribution:
+            hist[item['rating']] = item['count']
+            
+        # Add to paginated response
+        response.data['rating_distribution'] = hist
+        return response
 
 
-# from apps.reviews.models import Review
-# from apps.reviews.permissions import (
-#     IsReviewOwner,
-#     IsReviewModerator,
-# )
-# from apps.reviews.serializers import (
-#     ReviewReadSerializer,
-#     ReviewCreateSerializer,
-#     ReviewUpdateSerializer,
-#     ReviewVoteSerializer,
-# )
-# from apps.reviews.services import ReviewService
+class ReviewEligibilityView(APIView):
+    """Checks if the current user can review a product."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        if not request.user.is_active:
+            return Response({
+                "eligible": False,
+                "has_reviewed": False,
+                "reason": "Your account is suspended."
+            })
+
+        slug = request.query_params.get('product_slug')
+        if not slug:
+            return Response({"error": "product_slug is required"}, status=400)
+            
+        product = get_object_or_404(Product, slug=slug)
+        user = request.user
+        
+        existing_review = Review.objects.filter(customer=user, product=product).first()
+        if existing_review:
+            return Response({
+                "eligible": False,
+                "has_reviewed": True,
+                "existing_review_id": str(existing_review.id)
+            })
+            
+        has_purchased = OrderItem.objects.filter(
+            vendor_sub_order__order__customer=user,
+            variant__product=product,
+            status='DELIVERED'
+        ).exists()
+        
+        return Response({
+            "eligible": has_purchased,
+            "has_reviewed": False,
+            "existing_review_id": None
+        })
 
 
-# class ReviewViewSet(GenericViewSet):
-#     """
-#     Manage product reviews.
-#     """
+class ReviewCreateView(generics.CreateAPIView):
+    """Creates a new review."""
+    serializer_class = ReviewWriteSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-#     permission_classes = [
-#         IsAuthenticated
-#     ]
+    def create(self, request, *args, **kwargs):
+        if not request.user.is_active:
+            return Response(
+                {"error": "Your account is suspended. Review submissions are disabled."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().create(request, *args, **kwargs)
 
-#     def get_queryset(self):
-#         """
-#         Return approved reviews for public viewing.
-#         Staff sees all.
-#         """
 
-#         if (
-#             self.request.user.is_authenticated
-#             and self.request.user.role
-#             == self.request.user.Role.STAFF
-#         ):
-#             return (
-#                 Review.objects
-#                 .select_related("user", "product")
-#                 .order_by("-created_at")
-#             )
+class CustomerReviewDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """Allows a customer to edit/delete their own review."""
+    serializer_class = ReviewWriteSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-#         return (
-#             Review.objects
-#             .filter(
-#                 status=Review.Status.APPROVED
-#             )
-#             .select_related("user", "product")
-#             .order_by("-created_at")
-#         )
+    def get_queryset(self):
+        return Review.objects.filter(customer=self.request.user)
 
-#     def list(
-#         self,
-#         request,
-#         *args,
-#         **kwargs
-#     ):
-#         """
-#         List reviews for a product.
-#         Filter by product_id query param.
-#         """
 
-#         product_id = request.query_params.get("product_id")
+class CustomerReviewListView(generics.ListAPIView):
+    """Lists a customer's own reviews."""
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-#         queryset = self.get_queryset()
+    def get_queryset(self):
+        return Review.objects.filter(customer=self.request.user)
 
-#         if product_id:
-#             queryset = queryset.filter(product_id=product_id)
 
-#         serializer = ReviewReadSerializer(
-#             queryset,
-#             many=True
-#         )
+class SellerReviewListView(generics.ListAPIView):
+    """Lists reviews for a seller's products."""
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticated] # Should be IsSellerUser but keeping it simple for now
 
-#         return Response(
-#             serializer.data
-#         )
+    def get_queryset(self):
+        # Assuming request.user has vendor_profile
+        vendor = getattr(self.request.user, 'vendor_profile', None)
+        if not vendor:
+            return Review.objects.none()
+        return Review.objects.filter(product__vendor=vendor)
 
-#     def retrieve(
-#         self,
-#         request,
-#         pk=None,
-#         *args,
-#         **kwargs
-#     ):
-#         """Retrieve a specific review."""
 
-#         review = (
-#             self.get_queryset()
-#             .filter(pk=pk)
-#             .first()
-#         )
+class SellerReplyCreateView(APIView):
+    """Allows a seller to reply to a review."""
+    permission_classes = [permissions.IsAuthenticated]
 
-#         if not review:
-#             return Response(
-#                 {
-#                     "detail": (
-#                         "Review not found."
-#                     )
-#                 },
-#                 status=(
-#                     status
-#                     .HTTP_404_NOT_FOUND
-#                 ),
-#             )
+    def post(self, request, pk):
+        vendor = getattr(self.request.user, 'vendor_profile', None)
+        if not vendor:
+            return Response({"error": "Only sellers can reply."}, status=403)
+            
+        review = get_object_or_404(Review, pk=pk)
+        if review.product.vendor != vendor:
+            return Response({"error": "Not your product."}, status=403)
+            
+        body = request.data.get('body')
+        if not body:
+            return Response({"error": "Body is required."}, status=400)
+            
+        reply, created = ReviewReply.objects.update_or_create(
+            review=review,
+            defaults={'seller': vendor, 'body': body}
+        )
+        return Response(ReviewReplySerializer(reply).data)
 
-#         serializer = ReviewReadSerializer(
-#             review
-#         )
 
-#         return Response(
-#             serializer.data
-#         )
+class AdminReviewListView(generics.ListAPIView):
+    """Admin view to list all reviews for moderation."""
+    serializer_class = ReviewSerializer
+    permission_classes = [IsOperationalAdmin]
+    queryset = Review.objects.all()
 
-#     @action(
-#         detail=False,
-#         methods=["post"],
-#         url_path="create",
-#         permission_classes=[
-#             IsAuthenticated
-#         ],
-#     )
-#     def create_review(
-#         self,
-#         request,
-#         *args,
-#         **kwargs
-#     ):
-#         """Create a new review."""
 
-#         serializer = ReviewCreateSerializer(
-#             data=request.data
-#         )
+class AdminModerateReviewView(APIView):
+    """Admin view to approve/reject a review."""
+    permission_classes = [IsOperationalAdmin]
 
-#         serializer.is_valid(
-#             raise_exception=True
-#         )
+    def patch(self, request, pk):
+        review = get_object_or_404(Review, pk=pk)
+        is_approved = request.data.get('is_approved')
+        if is_approved is not None:
+            review.is_approved = bool(is_approved)
+            review.save()
+            return Response({"status": "updated", "is_approved": review.is_approved})
+        return Response({"error": "is_approved field is required."}, status=400)
 
-#         review = ReviewService.create_review(
-#             user=request.user,
-#             product_id=serializer.validated_data["product_id"],
-#             rating=serializer.validated_data["rating"],
-#             title=serializer.validated_data.get("title"),
-#             comment=serializer.validated_data.get("comment"),
-#             order_item_id=serializer.validated_data.get("order_item_id"),
-#         )
 
-#         return Response(
-#             ReviewReadSerializer(
-#                 review
-#             ).data,
-#             status=status.HTTP_201_CREATED,
-#         )
+class ReviewHelpfulView(APIView):
+    """Mark a review as helpful."""
+    permission_classes = [permissions.IsAuthenticated]
 
-#     @action(
-#         detail=True,
-#         methods=["put"],
-#         url_path="update",
-#         permission_classes=[
-#             IsAuthenticated,
-#             IsReviewOwner,
-#         ],
-#     )
-#     def update_review(
-#         self,
-#         request,
-#         pk=None,
-#         *args,
-#         **kwargs
-#     ):
-#         """Update a review (owner only)."""
-
-#         review = (
-#             Review.objects
-#             .filter(pk=pk)
-#             .first()
-#         )
-
-#         if not review:
-#             return Response(
-#                 {
-#                     "detail": (
-#                         "Review not found."
-#                     )
-#                 },
-#                 status=(
-#                     status
-#                     .HTTP_404_NOT_FOUND
-#                 ),
-#             )
-
-#         # Check permission
-#         if review.user != request.user:
-#             return Response(
-#                 {
-#                     "detail": (
-#                         "Permission denied."
-#                     )
-#                 },
-#                 status=(
-#                     status
-#                     .HTTP_403_FORBIDDEN
-#                 ),
-#             )
-
-#         serializer = (
-#             ReviewUpdateSerializer(
-#                 data=request.data
-#             )
-#         )
-
-#         serializer.is_valid(
-#             raise_exception=True
-#         )
-
-#         review = ReviewService.update_review(
-#             review_id=pk,
-#             rating=(
-#                 serializer.validated_data.get(
-#                     "rating"
-#                 )
-#             ),
-#             title=(
-#                 serializer.validated_data.get(
-#                     "title"
-#                 )
-#             ),
-#             comment=(
-#                 serializer.validated_data.get(
-#                     "comment"
-#                 )
-#             ),
-#         )
-
-#         return Response(
-#             ReviewReadSerializer(
-#                 review
-#             ).data,
-#             status=status.HTTP_200_OK,
-#         )
-
-#     @action(
-#         detail=True,
-#         methods=["delete"],
-#         url_path="delete",
-#         permission_classes=[
-#             IsAuthenticated,
-#             IsReviewOwner,
-#         ],
-#     )
-#     def delete_review(
-#         self,
-#         request,
-#         pk=None,
-#         *args,
-#         **kwargs
-#     ):
-#         """Delete a review (owner only)."""
-
-#         review = (
-#             Review.objects
-#             .filter(pk=pk)
-#             .first()
-#         )
-
-#         if not review:
-#             return Response(
-#                 {
-#                     "detail": (
-#                         "Review not found."
-#                     )
-#                 },
-#                 status=(
-#                     status
-#                     .HTTP_404_NOT_FOUND
-#                 ),
-#             )
-
-#         # Check permission
-#         if review.user != request.user:
-#             return Response(
-#                 {
-#                     "detail": (
-#                         "Permission denied."
-#                     )
-#                 },
-#                 status=(
-#                     status
-#                     .HTTP_403_FORBIDDEN
-#                 ),
-#             )
-
-#         ReviewService.delete_review(
-#             review_id=pk
-#         )
-
-#         return Response(
-#             status=(
-#                 status
-#                 .HTTP_204_NO_CONTENT
-#             )
-#         )
-
-#     @action(
-#         detail=True,
-#         methods=["post"],
-#         url_path="approve",
-#         permission_classes=[
-#             IsAuthenticated,
-#             IsReviewModerator,
-#         ],
-#     )
-#     def approve_review(
-#         self,
-#         request,
-#         pk=None,
-#         *args,
-#         **kwargs
-#     ):
-#         """Approve a review (staff only)."""
-
-#         review = ReviewService.approve_review(
-#             review_id=pk
-#         )
-
-#         return Response(
-#             ReviewReadSerializer(
-#                 review
-#             ).data,
-#             status=status.HTTP_200_OK,
-#         )
-
-#     @action(
-#         detail=True,
-#         methods=["post"],
-#         url_path="reject",
-#         permission_classes=[
-#             IsAuthenticated,
-#             IsReviewModerator,
-#         ],
-#     )
-#     def reject_review(
-#         self,
-#         request,
-#         pk=None,
-#         *args,
-#         **kwargs
-#     ):
-#         """Reject a review (staff only)."""
-
-#         review = ReviewService.reject_review(
-#             review_id=pk
-#         )
-
-#         return Response(
-#             ReviewReadSerializer(
-#                 review
-#             ).data,
-#             status=status.HTTP_200_OK,
-#         )
-
-#     @action(
-#         detail=True,
-#         methods=["post"],
-#         url_path="vote",
-#         permission_classes=[
-#             IsAuthenticated
-#         ],
-#     )
-#     def vote_on_review(
-#         self,
-#         request,
-#         pk=None,
-#         *args,
-#         **kwargs
-#     ):
-#         """Vote on review helpfulness."""
-
-#         serializer = ReviewVoteSerializer(
-#             data=request.data
-#         )
-
-#         serializer.is_valid(
-#             raise_exception=True
-#         )
-
-#         review = ReviewService.vote_on_review(
-#             review_id=pk,
-#             user=request.user,
-#             vote_type=(
-#                 serializer.validated_data[
-#                     "vote_type"
-#                 ]
-#             ),
-#         )
-
-#         return Response(
-#             ReviewReadSerializer(
-#                 review
-#             ).data,
-#             status=status.HTTP_200_OK,
-#         )
+    def post(self, request, pk):
+        review = get_object_or_404(Review, pk=pk)
+        _, created = ReviewHelpfulVote.objects.get_or_create(review=review, customer=request.user)
+        if created:
+            review.helpful_count += 1
+            review.save(update_fields=['helpful_count'])
+        return Response({"status": "success", "helpful_count": review.helpful_count})

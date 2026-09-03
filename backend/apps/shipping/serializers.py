@@ -1,92 +1,56 @@
 from rest_framework import serializers
+from .models import ShippingZone, ZoneSubCity, ShippingZoneRate, Shipment, ShipmentEvent
 
-from apps.shipping.models import ShippingMethod, Shipment, ShipmentItem
 
-
-class ShippingMethodSerializer(serializers.ModelSerializer):
+class ZoneSubCitySerializer(serializers.ModelSerializer):
     class Meta:
-        model = ShippingMethod
+        model = ZoneSubCity
+        fields = ['id', 'name', 'code']
+
+
+class ShippingZoneRateSerializer(serializers.ModelSerializer):
+    shipping_class_display = serializers.CharField(source='get_shipping_class_display', read_only=True)
+
+    class Meta:
+        model = ShippingZoneRate
         fields = [
-            "id",
-            "name",
-            "code",
-            "description",
-            "base_cost",
-            "estimated_days_min",
-            "estimated_days_max",
-            "is_active",
+            'id',
+            'shipping_class',
+            'shipping_class_display',
+            'base_fee',
+            'per_kg_rate',
+            'estimated_days_min',
+            'estimated_days_max',
         ]
 
 
-class ShipmentItemSerializer(serializers.ModelSerializer):
+class ShippingZoneSerializer(serializers.ModelSerializer):
+    sub_cities = ZoneSubCitySerializer(many=True, read_only=True)
+    rates = ShippingZoneRateSerializer(many=True, read_only=True)
+
     class Meta:
-        model = ShipmentItem
-        fields = ["id", "product", "quantity", "created_at"]
+        model = ShippingZone
+        fields = ['id', 'name', 'code', 'is_active', 'sub_cities', 'rates']
 
 
-class ShipmentReadSerializer(serializers.ModelSerializer):
-    items = ShipmentItemSerializer(many=True, read_only=True)
-    shipping_method_name = serializers.CharField(
-        source="shipping_method.name",
-        read_only=True,
-    )
+class ShipmentEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShipmentEvent
+        fields = ['status', 'location', 'description', 'created_at']
+
+
+class ShipmentTrackingSerializer(serializers.ModelSerializer):
+    events = ShipmentEventSerializer(many=True, read_only=True)
 
     class Meta:
         model = Shipment
-        fields = [
-            "id",
-            "order",
-            "shipping_method",
-            "shipping_method_name",
-            "status",
-            "recipient_full_name",
-            "recipient_phone",
-            "recipient_address",
-            "recipient_city",
-            "recipient_country",
-            "tracking_number",
-            "carrier_url",
-            "shipped_at",
-            "delivered_at",
-            "carrier_reference",
-            "notes",
-            "items",
-            "created_at",
-            "updated_at",
-        ]
-        read_only_fields = ["order", "shipped_at", "delivered_at"]
+        fields = ['tracking_number', 'carrier_name', 'status', 'current_location', 'events']
 
 
-class ShipmentCreateSerializer(serializers.Serializer):
-    shipping_method = serializers.PrimaryKeyRelatedField(
-        queryset=ShippingMethod.objects.filter(is_active=True),
-    )
-    recipient_full_name = serializers.CharField(max_length=255)
-    recipient_phone = serializers.CharField(max_length=30)
-    recipient_address = serializers.CharField()
-    recipient_city = serializers.CharField(max_length=100)
-    recipient_country = serializers.CharField(max_length=100)
-    tracking_number = serializers.CharField(
-        max_length=100,
+class ShippingCalculateRequestSerializer(serializers.Serializer):
+    zone_id = serializers.UUIDField()
+    cart_items = serializers.ListField(
+        child=serializers.DictField(),
         required=False,
-        allow_blank=True,
+        default=list,
     )
-    carrier_url = serializers.URLField(required=False, allow_blank=True)
-    carrier_reference = serializers.CharField(
-        max_length=255,
-        required=False,
-        allow_blank=True,
-    )
-    notes = serializers.CharField(required=False, allow_blank=True)
-    items = serializers.ListField(child=serializers.DictField(), required=False)
-
-
-class ShipmentUpdateStatusSerializer(serializers.Serializer):
-    status = serializers.ChoiceField(choices=Shipment.Status.choices)
-    tracking_number = serializers.CharField(
-        max_length=100,
-        required=False,
-        allow_blank=True,
-    )
-    carrier_url = serializers.URLField(required=False, allow_blank=True)
-    notes = serializers.CharField(required=False, allow_blank=True)

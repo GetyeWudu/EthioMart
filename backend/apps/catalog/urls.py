@@ -1,0 +1,72 @@
+from django.urls import path
+from apps.catalog.views import (
+    CategoryTreeAPIView,
+    RootCategoryListAPIView,
+    LeafCategoriesView,
+    CategoryDetailAPIView,
+    CategoryBrandsAPIView,
+    CategoryAttributesAPIView,
+    BrandListCreateAPIView,
+    PublicProductListAPIView,
+    PublicProductDetailAPIView,
+    PublicProductRecommendationsAPIView,
+    SellerProductListCreateAPIView,
+    SellerProductDetailAPIView,
+    SellerProductSubmitAPIView,
+    SellerProductImageUploadAPIView,
+    SellerAttributeValueCreateAPIView,
+    AdminCategoryCreateAPIView,
+    AdminCategoryUpdateAPIView,
+    AdminAttributeListCreateAPIView,
+    AdminAttributeUpdateAPIView,
+    AdminAttributeValueCreateAPIView,
+    AdminCategoryAttributeBindAPIView,
+    AdminCategoryAttributeDeleteAPIView,
+    AdminCategoryAttributeListAPIView,
+    AdminProductModerationListAPIView,
+    AdminProductDetailAPIView,
+    AdminProductApproveAPIView,
+    AdminProductRejectAPIView,
+    AdminBrandListCreateAPIView,
+    AdminBrandDetailAPIView,
+)
+
+app_name = "catalog"
+
+urlpatterns = [
+    # 1. Public Storefront
+    path("categories/", CategoryTreeAPIView.as_view(), name="category-tree"),
+    path("categories/root/", RootCategoryListAPIView.as_view(), name="category-root-list"),
+    path("categories/leaf/", LeafCategoriesView.as_view(), name="category-leaf-list"),
+    path("categories/<uuid:pk>/attributes/", CategoryAttributesAPIView.as_view(), name="category-attributes-list"),
+    path("categories/<uuid:pk>/brands/", CategoryBrandsAPIView.as_view(), name="category-brands-list"),
+    path("categories/<slug:slug>/", CategoryDetailAPIView.as_view(), name="category-detail"),
+    path("brands/", BrandListCreateAPIView.as_view(), name="brand-list"),
+    path("products/", PublicProductListAPIView.as_view(), name="public-product-list"),
+    path("products/<slug:slug>/", PublicProductDetailAPIView.as_view(), name="public-product-detail"),
+    path("products/<slug:slug>/recommendations/", PublicProductRecommendationsAPIView.as_view(), name="public-product-recommendations"),
+
+    # 2. Seller Portal
+    path("seller/products/", SellerProductListCreateAPIView.as_view(), name="seller-product-list-create"),
+    path("seller/products/<uuid:pk>/", SellerProductDetailAPIView.as_view(), name="seller-product-detail"),
+    path("seller/products/<uuid:pk>/submit/", SellerProductSubmitAPIView.as_view(), name="seller-product-submit"),
+    path("seller/products/<uuid:pk>/images/", SellerProductImageUploadAPIView.as_view(), name="seller-product-image-upload"),
+    path("seller/attributes/<uuid:pk>/values/", SellerAttributeValueCreateAPIView.as_view(), name="seller-attribute-value-create"),
+
+    # 3. Admin Moderation & Taxonomy
+    path("admin/categories/", AdminCategoryCreateAPIView.as_view(), name="admin-category-create"),
+    path("admin/categories/<uuid:pk>/", AdminCategoryUpdateAPIView.as_view(), name="admin-category-update"),
+    path("admin/attributes/", AdminAttributeListCreateAPIView.as_view(), name="admin-attribute-list-create"),
+    path("admin/attributes/<uuid:pk>/", AdminAttributeUpdateAPIView.as_view(), name="admin-attribute-update"),
+    path("admin/attributes/<uuid:pk>/values/", AdminAttributeValueCreateAPIView.as_view(), name="admin-attribute-value-create"),
+    path("admin/attributes/<uuid:pk>/values/<uuid:val_id>/", AdminAttributeValueCreateAPIView.as_view(), name="admin-attribute-value-delete"),
+    path("admin/category-attributes/", AdminCategoryAttributeListAPIView.as_view(), name="admin-category-attribute-list"),
+    path("admin/categories/<uuid:pk>/attributes/", AdminCategoryAttributeBindAPIView.as_view(), name="admin-category-attribute-bind"),
+    path("admin/category-attributes/<uuid:pk>/", AdminCategoryAttributeDeleteAPIView.as_view(), name="admin-category-attribute-delete"),
+    path("admin/products/", AdminProductModerationListAPIView.as_view(), name="admin-product-moderation-list"),
+    path("admin/products/<uuid:pk>/", AdminProductDetailAPIView.as_view(), name="admin-product-detail"),
+    path("admin/products/<uuid:pk>/approve/", AdminProductApproveAPIView.as_view(), name="admin-product-approve"),
+    path("admin/products/<uuid:pk>/reject/", AdminProductRejectAPIView.as_view(), name="admin-product-reject"),
+    path("admin/brands/", AdminBrandListCreateAPIView.as_view(), name="admin-brand-list-create"),
+    path("admin/brands/<uuid:pk>/", AdminBrandDetailAPIView.as_view(), name="admin-brand-detail"),
+]

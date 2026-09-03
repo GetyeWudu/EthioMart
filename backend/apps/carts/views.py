@@ -1,96 +1,92 @@
-# from rest_framework import status
-# from rest_framework.permissions import IsAuthenticated
-# from rest_framework.response import Response
-# from rest_framework.viewsets import GenericViewSet, ModelViewSet
-# from rest_framework.decorators import action
+from rest_framework import viewsets, status, views
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from django.core.exceptions import ValidationError
+from apps.carts.models import Cart, CartItem
+from apps.carts.serializers import CartSerializer, CartItemSerializer
+from apps.carts.services import CartService
 
-# from apps.carts.models import Cart, CartItem
-# from apps.carts.serializers import (
-#     CartReadSerializer,
-#     CartItemReadSerializer,
-#     CartItemCreateSerializer,
-#     CartItemUpdateSerializer,
-# )
+class CartViewSet(viewsets.ViewSet):
+    permission_classes = [AllowAny]
+    
+    def list(self, request):
+        session_key = request.META.get('HTTP_X_SESSION_KEY')
+        user = request.user if request.user.is_authenticated else None
+        
+        try:
+            cart = CartService.get_or_create_cart(user=user, session_key=session_key)
+            serializer = CartSerializer(cart)
+            return Response(serializer.data)
+        except ValueError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(detail=False, methods=['post'])
+    def merge(self, request):
+        session_key = request.data.get('session_key')
+        if not session_key or not request.user.is_authenticated:
+            return Response({"detail": "Requires authenticated user and session_key."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        cart = CartService.merge_guest_cart(session_key, request.user)
+        if cart:
+            return Response(CartSerializer(cart).data)
+        return Response({"detail": "No guest cart found to merge."}, status=status.HTTP_404_NOT_FOUND)
 
-# class CartViewSet(GenericViewSet):
-#     permission_classes = [IsAuthenticated]
-#     serializer_class = CartReadSerializer
+class CartItemViewSet(viewsets.ModelViewSet):
+    permission_classes = [AllowAny]
+    serializer_class = CartItemSerializer
+    queryset = CartItem.objects.all()
 
-#     def get_queryset(self):
-#         return Cart.objects.filter(
-#             user=self.request.user
-#         ).prefetch_related(
-#             "items__product_variant__product",
-#             "items__product_variant__variant_attribute_values__attribute_value__attribute",
-#         )
+    def get_queryset(self):
+        user = self.request.user if self.request.user.is_authenticated else None
+        session_key = self.request.META.get('HTTP_X_SESSION_KEY')
+        try:
+            cart = CartService.get_or_create_cart(user=user, session_key=session_key)
+            return self.queryset.filter(cart=cart)
+        except ValueError:
+            return self.queryset.none()
 
-#     def get_object(self):
-#         cart, _ = Cart.objects.get_or_create(
-#             user=self.request.user
-#         )
-#         return (
-#             self.get_queryset()
-#             .filter(pk=cart.pk)
-#             .first()
-#         )
+    def create(self, request, *args, **kwargs):
+        if request.user.is_authenticated and not request.user.is_active:
+            return Response(
+                {"detail": "Your account is suspended. Adding items to cart is disabled."},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
-#     def list(self, request, *args, **kwargs):
-#         serializer = self.get_serializer(
-#             self.get_object()
-#         )
-#         return Response(serializer.data)
+        user = request.user if request.user.is_authenticated else None
+        session_key = request.META.get('HTTP_X_SESSION_KEY')
+        try:
+            cart = CartService.get_or_create_cart(user=user, session_key=session_key)
+        except ValueError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-#     @action(
-#         detail=False,
-#         methods=["post"],
-#         url_path="clear",
-#     )
-#     def clear(self, request, *args, **kwargs):
-#         cart = self.get_object()
-#         cart.items.all().delete()
-#         return Response(
-#             status=status.HTTP_204_NO_CONTENT
-#         )
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        variant = serializer.validated_data['variant']
+        quantity = serializer.validated_data.get('quantity', 1)
+        selected_facility = serializer.validated_data.get('selected_facility')
 
+        try:
+            item = CartService.add_item_to_cart(cart, variant, quantity, selected_facility)
+            return Response(CartItemSerializer(item).data, status=status.HTTP_201_CREATED)
+        except ValidationError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-# class CartItemViewSet(ModelViewSet):
-#     permission_classes = [IsAuthenticated]
-
-#     def get_queryset(self):
-#         return (
-#             CartItem.objects.filter(
-#                 cart__user=self.request.user
-#             )
-#             .select_related("cart", "product_variant__product")
-#             .prefetch_related(
-#                 "product_variant__variant_attribute_values__attribute_value__attribute"
-#             )
-#             .order_by("id")
-#         )
-
-#     def get_serializer_class(self):
-#         if self.action in ["list", "retrieve"]:
-#             return CartItemReadSerializer
-#         if self.action == "create":
-#             return CartItemCreateSerializer
-#         return CartItemUpdateSerializer
-
-#     def get_serializer_context(self):
-#         context = super().get_serializer_context()
-#         cart, _ = Cart.objects.get_or_create(
-#             user=self.request.user
-#         )
-#         context["cart"] = cart
-#         return context
-
-#     def create(self, request, *args, **kwargs):
-#         serializer = self.get_serializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         cart_item = serializer.save()
-
-#         read_serializer = CartItemReadSerializer(
-#             cart_item,
-#             context={"request": request},
-#         )
-#         return Response(read_serializer.data, status=status.HTTP_201_CREATED)
+    def update(self, request, *args, **kwargs):
+        if request.user.is_authenticated and not request.user.is_active:
+            return Response(
+                {"detail": "Your account is suspended. Cart modifications are disabled."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        item = self.get_object()
+        quantity = request.data.get('quantity')
+        if quantity is not None:
+            try:
+                quantity = int(quantity)
+                CartService.validate_stock_for_cart_item(item.variant, quantity)
+                item.quantity = quantity
+                item.save()
+            except (ValueError, ValidationError) as e:
+                return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(CartItemSerializer(item).data)

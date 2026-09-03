@@ -1,162 +1,85 @@
-from django.conf import settings
-from django.core.validators import (
-    MinValueValidator,
-    MaxValueValidator,
-)
+import uuid
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.conf import settings
+from apps.common.models import BaseModel
 
-from apps.orders.models import OrderItem
-from apps.products.models.Product import Product
 
-
-class Review(models.Model):
-
-    class Status(models.TextChoices):
-        PENDING = "pending", "Pending"
-        APPROVED = "approved", "Approved"
-        REJECTED = "rejected", "Rejected"
-
-    user = models.ForeignKey(
+class Review(BaseModel):
+    """
+    A customer product review, gated by proof of delivery.
+    One review per customer per product enforced via unique_together.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    product = models.ForeignKey(
+        'catalog.Product',
+        on_delete=models.CASCADE,
+        related_name='reviews'
+    )
+    customer = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="reviews",
+        related_name='reviews'
     )
-
-    product = models.ForeignKey(
-        Product,
-        on_delete=models.PROTECT,
-        related_name="reviews",
-        null=True,
-        blank=True,
+    rating = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        help_text="Star rating from 1 to 5"
     )
-
-    # Link to the purchase order item
-    order_item = models.ForeignKey(
-        OrderItem,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="review",
+    title = models.CharField(max_length=120)
+    body = models.TextField()
+    is_verified_purchase = models.BooleanField(
+        default=True,
+        help_text="True if purchase was validated at submission time"
     )
-
-    rating = models.PositiveIntegerField(
-        validators=[
-            MinValueValidator(1),
-            MaxValueValidator(5),
-        ],
+    is_approved = models.BooleanField(
+        default=True,
+        help_text="Admin moderation flag. False hides the review platform-wide."
     )
-
-    title = models.CharField(
-        max_length=255,
-        blank=True,
-    )
-
-    comment = models.TextField(
-        blank=True,
-    )
-
-    status = models.CharField(
-        max_length=20,
-        choices=Status.choices,
-        default=Status.PENDING,
-    )
-
-    helpful_count = models.PositiveIntegerField(
-        default=0,
-    )
-
-    unhelpful_count = models.PositiveIntegerField(
-        default=0,
-    )
-
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-    )
-
-    updated_at = models.DateTimeField(
-        auto_now=True,
-    )
+    helpful_count = models.PositiveIntegerField(default=0)
 
     class Meta:
-        ordering = ["-created_at"]
-        constraints = [
-            models.UniqueConstraint(
-                fields=["user", "product"],
-                condition=models.Q(
-                    status__in=[
-                        "approved",
-                        "pending",
-                    ]
-                ),
-                name="unique_active_review_per_user_product",
-            ),
-        ]
+        unique_together = ('customer', 'product')
+        ordering = ['-created_at']
         indexes = [
-            models.Index(
-                fields=["product", "-rating"]
-            ),
-            models.Index(
-                fields=["user", "-created_at"]
-            ),
-            models.Index(
-                fields=["status", "-created_at"]
-            ),
+            models.Index(fields=['product', 'is_approved']),
+            models.Index(fields=['customer']),
         ]
 
     def __str__(self):
-        return (
-            f"Review({self.user.email}, "
-            f"{self.product.name}, "
-            f"{self.rating}⭐)"
-        )
+        return f"{self.rating}★ review by {self.customer.email} on {self.product.title[:30]}"
 
 
-class ReviewVote(models.Model):
+class ReviewReply(BaseModel):
     """
-    Track whether users find reviews helpful or not.
+    A seller's single reply to a customer review.
     """
-
-    class VoteType(models.TextChoices):
-        HELPFUL = "helpful", "Helpful"
-        UNHELPFUL = "unhelpful", "Unhelpful"
-
-    review = models.ForeignKey(
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    review = models.OneToOneField(
         Review,
         on_delete=models.CASCADE,
-        related_name="votes",
+        related_name='seller_reply'
     )
-
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+    seller = models.ForeignKey(
+        'vendors.VendorProfile',
         on_delete=models.CASCADE,
-        related_name="review_votes",
+        related_name='review_replies'
     )
-
-    vote_type = models.CharField(
-        max_length=20,
-        choices=VoteType.choices,
-    )
-
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-    )
+    body = models.TextField()
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["review", "user"],
-                name="unique_review_vote_per_user",
-            ),
-        ]
-        indexes = [
-            models.Index(
-                fields=["review", "-created_at"]
-            ),
-        ]
+        ordering = ['-created_at']
 
     def __str__(self):
-        return (
-            f"ReviewVote({self.review_id}, "
-            f"{self.user.email}, "
-            f"{self.vote_type})"
-        )
+        return f"Seller reply on Review {self.review_id}"
+
+
+class ReviewHelpfulVote(BaseModel):
+    """
+    Tracks which customers have marked a review as helpful (prevents double-voting).
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='helpful_votes')
+    customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='helpful_votes')
+
+    class Meta:
+        unique_together = ('review', 'customer')

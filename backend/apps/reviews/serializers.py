@@ -1,72 +1,59 @@
 from rest_framework import serializers
-
-from apps.reviews.models import Review, ReviewVote
+from apps.reviews.models import Review, ReviewReply, ReviewHelpfulVote
 from apps.orders.models import OrderItem
 
+class ReviewReplySerializer(serializers.ModelSerializer):
+    seller_name = serializers.CharField(source='seller.store_name', read_only=True)
 
-class ReviewReadSerializer(serializers.ModelSerializer):
-    user_email = serializers.CharField(source="user.email", read_only=True)
-    product_name = serializers.CharField(source="product.name", read_only=True)
+    class Meta:
+        model = ReviewReply
+        fields = ['id', 'seller_name', 'body', 'created_at']
+        read_only_fields = ['id', 'seller_name', 'created_at']
+
+class ReviewSerializer(serializers.ModelSerializer):
+    customer_name = serializers.SerializerMethodField()
+    seller_reply = ReviewReplySerializer(read_only=True)
 
     class Meta:
         model = Review
         fields = [
-            "id",
-            "user_email",
-            "product",
-            "product_name",
-            "rating",
-            "title",
-            "comment",
-            "status",
-            "helpful_count",
-            "unhelpful_count",
-            "created_at",
-            "updated_at",
-        ]
-        read_only_fields = [
-            "user_email",
-            "product_name",
-            "helpful_count",
-            "unhelpful_count",
-            "status",
-            "created_at",
-            "updated_at",
+            'id', 'product', 'customer_name', 'rating', 'title', 'body',
+            'is_verified_purchase', 'helpful_count', 'created_at', 'seller_reply', 'is_approved'
         ]
 
+    def get_customer_name(self, obj):
+        if obj.customer.first_name and obj.customer.last_name:
+            return f"{obj.customer.first_name[0]}. {obj.customer.last_name}"
+        return "Verified Customer"
 
-class ReviewCreateSerializer(serializers.Serializer):
-    product_id = serializers.IntegerField()
-    rating = serializers.IntegerField(min_value=1, max_value=5)
-    title = serializers.CharField(max_length=255, required=False, allow_blank=True)
-    comment = serializers.CharField(required=False, allow_blank=True)
-    order_item_id = serializers.IntegerField(required=False)
+class ReviewWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ['product', 'rating', 'title', 'body']
 
-    def validate_product_id(self, value):
-        from apps.products.models.product import Product
+    def validate(self, attrs):
+        request = self.context.get('request')
+        product = attrs.get('product')
+        user = request.user
 
-        try:
-            Product.objects.get(id=value)
-        except Product.DoesNotExist:
-            raise serializers.ValidationError("Product not found.")
-        return value
+        # Ensure user has a delivered order for this product
+        has_purchased = OrderItem.objects.filter(
+            vendor_sub_order__order__customer=user,
+            variant__product=product,
+            status='DELIVERED'
+        ).exists()
 
-    def validate_order_item_id(self, value):
-        if value is None:
-            return None
+        if not has_purchased:
+            raise serializers.ValidationError("You must have purchased and received this product to review it.")
 
-        try:
-            OrderItem.objects.get(id=value)
-        except OrderItem.DoesNotExist:
-            raise serializers.ValidationError("Order item not found.")
-        return value
+        # Ensure they haven't already reviewed it
+        if Review.objects.filter(customer=user, product=product).exists():
+            raise serializers.ValidationError("You have already reviewed this product.")
 
+        return attrs
 
-class ReviewUpdateSerializer(serializers.Serializer):
-    rating = serializers.IntegerField(min_value=1, max_value=5, required=False)
-    title = serializers.CharField(max_length=255, required=False, allow_blank=True)
-    comment = serializers.CharField(required=False, allow_blank=True)
-
-
-class ReviewVoteSerializer(serializers.Serializer):
-    vote_type = serializers.ChoiceField(choices=ReviewVote.VoteType.choices)
+    def create(self, validated_data):
+        user = self.context.get('request').user
+        validated_data['customer'] = user
+        validated_data['is_verified_purchase'] = True
+        return super().create(validated_data)

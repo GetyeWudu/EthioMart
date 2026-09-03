@@ -1,0 +1,60 @@
+# =============================================================================
+# GechExpress — Root .gitignore
+# =============================================================================
+
+# Environment Variables & Secrets (CRITICAL)
+.env
+.env.local
+.env.*.local
+*.env
+backend/.env
+frontend/.env.local
+
+# Python compiled bytecode & caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+
+# Django media, staticfiles & local test artifacts
+backend/media/
+backend/staticfiles/
+media/
+staticfiles/
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Temporary / Scratch Test Scripts
+backend/test_guest_*.py
+backend/fix_mock_data.py
+backend/mock_product_response.json
+
+# Node.js & Next.js Build Artifacts
+node_modules/
+frontend/node_modules/
+.next/
+frontend/.next/
+out/
+frontend/out/
+
+# IDE, OS, and System Artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+.gemini/

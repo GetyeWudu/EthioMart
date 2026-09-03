@@ -1,106 +1,178 @@
 from rest_framework import serializers
+from apps.inventory.models import (
+    WarehouseLocation,
+    WarehouseStock,
+    StockMovement,
+)
+from apps.inventory.enums import MovementType, StaffRole
 
-from apps.inventory.models import Inventory, Warehouse
 
+class WarehouseLocationSerializer(serializers.ModelSerializer):
+    sku_count = serializers.SerializerMethodField()
+    total_units = serializers.SerializerMethodField()
 
-class WarehouseSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Warehouse
+        model = WarehouseLocation
         fields = [
             "id",
             "name",
             "code",
-            "address",
             "city",
-            "country",
+            "subcity",
+            "wereda",
+            "street_address",
+            "latitude",
+            "longitude",
+            "contact_name",
+            "contact_phone",
             "is_active",
+            "is_default",
+            "is_pickup_point",
             "created_at",
-            "updated_at",
+            "sku_count",
+            "total_units",
         ]
-        read_only_fields = ["created_at", "updated_at"]
+
+    def get_sku_count(self, obj):
+        return obj.stocks.values("variant_id").distinct().count()
+
+    def get_total_units(self, obj):
+        from django.db.models import Sum
+        return obj.stocks.aggregate(total=Sum("quantity_on_hand"))["total"] or 0
 
 
-class InventoryReadSerializer(serializers.ModelSerializer):
-    warehouse_name = serializers.CharField(
-        source="warehouse.name", read_only=True)
-    warehouse_code = serializers.CharField(
-        source="warehouse.code", read_only=True)
-    product_name = serializers.CharField(source="product.name", read_only=True)
-    variant_sku = serializers.CharField(
-        source="product_variant.sku", read_only=True)
-    available_quantity = serializers.IntegerField(read_only=True)
+class WarehouseCreateSerializer(serializers.ModelSerializer):
+    code = serializers.CharField(max_length=50, required=False, allow_blank=True)
+    city = serializers.CharField(max_length=100, required=True)
+    subcity = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    wereda = serializers.CharField(max_length=50, required=False, allow_blank=True)
+    street_address = serializers.CharField(max_length=255, required=False, allow_blank=True)
+    latitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, allow_null=True)
+    longitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, allow_null=True)
+    contact_name = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    contact_phone = serializers.CharField(max_length=20, required=False, allow_blank=True)
 
     class Meta:
-        model = Inventory
+        model = WarehouseLocation
         fields = [
-            "id",
-            "warehouse",
-            "warehouse_name",
-            "warehouse_code",
-            "product",
-            "product_name",
-            "product_variant",
-            "variant_sku",
-            "quantity",
-            "reserved_quantity",
-            "available_quantity",
-            "created_at",
-            "updated_at",
+            "name",
+            "code",
+            "city",
+            "subcity",
+            "wereda",
+            "street_address",
+            "latitude",
+            "longitude",
+            "contact_name",
+            "contact_phone",
+            "is_default",
+            "is_pickup_point",
         ]
-
-
-class InventoryWriteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Inventory
-        fields = [
-            "id",
-            "warehouse",
-            "product",
-            "quantity",
-            "reserved_quantity",
-            "created_at",
-            "updated_at",
-        ]
-        read_only_fields = ["created_at", "updated_at"]
 
     def validate(self, attrs):
-        quantity = attrs.get("quantity", getattr(self.instance, "quantity", 0))
-        reserved_quantity = attrs.get(
-            "reserved_quantity",
-            getattr(self.instance, "reserved_quantity", 0),
-        )
-
-        if reserved_quantity > quantity:
-            raise serializers.ValidationError(
-                {"reserved_quantity": "Reserved quantity cannot be greater than quantity."}
-            )
-
-        warehouse = attrs.get("warehouse", getattr(
-            self.instance, "warehouse", None))
-        product = attrs.get("product", getattr(self.instance, "product", None))
-
-        if warehouse and product:
-            duplicate_qs = Inventory.objects.filter(
-                warehouse=warehouse,
-                product=product,
-            )
-            if self.instance:
-                duplicate_qs = duplicate_qs.exclude(id=self.instance.id)
-            if duplicate_qs.exists():
-                raise serializers.ValidationError(
-                    {
-                        "non_field_errors": [
-                            "Inventory for this warehouse and product already exists."
-                        ]
-                    }
-                )
-
+        if not attrs.get("name"):
+            raise serializers.ValidationError({"name": "This field is required."})
+        if not attrs.get("city"):
+            raise serializers.ValidationError({"city": "This field is required."})
+            
+        import uuid
+        if not attrs.get("code"):
+            city_prefix = attrs.get("city", "ADD")[:3].upper()
+            attrs["code"] = f"WH-{city_prefix}-{uuid.uuid4().hex[:4].upper()}"
+            
         return attrs
 
 
-class InventoryQuantitySerializer(serializers.Serializer):
+class WarehouseStockSerializer(serializers.ModelSerializer):
+    warehouse_id = serializers.UUIDField(source="warehouse.id", read_only=True)
+    warehouse_name = serializers.CharField(source="warehouse.name", read_only=True)
+    warehouse_code = serializers.CharField(source="warehouse.code", read_only=True)
+    product_id = serializers.UUIDField(source="variant.product.id", read_only=True)
+    product_title = serializers.CharField(source="variant.product.title", read_only=True)
+    variant_id = serializers.UUIDField(source="variant.id", read_only=True)
+    sku = serializers.CharField(source="variant.sku", read_only=True)
+    variant_attributes = serializers.SerializerMethodField()
+    variant_price = serializers.DecimalField(source="variant.price", max_digits=12, decimal_places=2, read_only=True)
+    quantity_available = serializers.IntegerField(read_only=True)
+    status = serializers.SerializerMethodField()
+
+    class Meta:
+        model = WarehouseStock
+        fields = [
+            "id",
+            "product_id",
+            "product_title",
+            "variant_id",
+            "sku",
+            "variant_attributes",
+            "warehouse_id",
+            "warehouse_name",
+            "warehouse_code",
+            "variant_price",
+            "quantity_on_hand",
+            "quantity_reserved",
+            "quantity_available",
+            "low_stock_threshold",
+            "aisle_location",
+            "status",
+            "updated_at",
+        ]
+
+    def get_variant_attributes(self, obj):
+        if not obj.variant.attribute_values.exists():
+            return "Default"
+        attrs = [f"{av.attribute.name}: {av.value}" for av in obj.variant.attribute_values.all()]
+        return " / ".join(attrs)
+
+    def get_status(self, obj):
+        avail = obj.quantity_available
+        if avail <= 0:
+            return "OUT_OF_STOCK"
+        elif avail <= obj.low_stock_threshold:
+            return "LOW_STOCK"
+        return "IN_STOCK"
+
+
+class StockAdjustmentSerializer(serializers.Serializer):
+    warehouse_id = serializers.UUIDField()
+    variant_id = serializers.UUIDField()
+    quantity_delta = serializers.IntegerField()
+    movement_type = serializers.ChoiceField(
+        choices=MovementType.choices,
+        default=MovementType.MANUAL_ADJUSTMENT
+    )
+    notes = serializers.CharField(required=False, allow_blank=True, default="")
+
+
+class StockTransferSerializer(serializers.Serializer):
+    source_warehouse_id = serializers.UUIDField()
+    target_warehouse_id = serializers.UUIDField()
+    variant_id = serializers.UUIDField()
     quantity = serializers.IntegerField(min_value=1)
+    notes = serializers.CharField(required=False, allow_blank=True, default="")
 
 
-class InventoryAdjustSerializer(serializers.Serializer):
-    delta = serializers.IntegerField()
+class StockMovementSerializer(serializers.ModelSerializer):
+    warehouse_name = serializers.CharField(source="warehouse.name", read_only=True)
+    variant_sku = serializers.CharField(source="variant.sku", read_only=True)
+    product_title = serializers.CharField(source="variant.product.title", read_only=True, default="Unknown Product")
+    variant_name = serializers.CharField(source="variant.name", read_only=True, default=None)
+    performed_by_name = serializers.CharField(source="performed_by.email", read_only=True, default=None)
+
+    class Meta:
+        model = StockMovement
+        fields = [
+            "id",
+            "warehouse_name",
+            "variant_sku",
+            "product_title",
+            "variant_name",
+            "movement_type",
+            "quantity_delta",
+            "balance_after",
+            "reference_order_id",
+            "notes",
+            "performed_by_name",
+            "created_at",
+        ]
+

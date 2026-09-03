@@ -1,72 +1,14 @@
+"""
+apps/payments/urls.py
+=====================
+URL routes for Chapa Payment Gateway & Webhook verification.
+"""
+
 from django.urls import path
-
-from apps.payments.views import PaymentViewSet
-
-
-payment_list_view = PaymentViewSet.as_view(
-    {
-        "get": "list",
-    }
-)
-
-
-payment_detail_view = PaymentViewSet.as_view(
-    {
-        "get": "retrieve",
-    }
-)
-
-
-payment_initialize_view = PaymentViewSet.as_view(
-    {
-        "post": "initialize",
-    }
-)
-
-
-payment_callback_view = PaymentViewSet.as_view(
-    {
-        "post": "callback",
-    }
-)
-
-
-payment_refund_view = PaymentViewSet.as_view(
-    {
-        "post": "refund",
-    }
-)
-
+from . import views
 
 urlpatterns = [
-
-    path(
-        "",
-        payment_list_view,
-        name="payment-list",
-    ),
-
-    path(
-        "<int:pk>/",
-        payment_detail_view,
-        name="payment-detail",
-    ),
-
-    path(
-        "initialize/",
-        payment_initialize_view,
-        name="payment-initialize",
-    ),
-
-    path(
-        "callback/",
-        payment_callback_view,
-        name="payment-callback",
-    ),
-
-    path(
-        "<int:pk>/refund/",
-        payment_refund_view,
-        name="payment-refund",
-    ),
+    path("chapa/webhook/", views.handle_chapa_webhook, name="chapa-webhook"),
+    path("verify/<str:tx_ref>/", views.verify_transaction_view, name="chapa-verify"),
+    path("banks/", views.get_supported_banks_view, name="chapa-banks"),
 ]

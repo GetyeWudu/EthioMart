@@ -1,34 +1,11 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from apps.orders.views import OrderViewSet, SellerOrderViewSet
 
-from apps.orders.views import OrderViewSet
-
-
-order_list_view = OrderViewSet.as_view(
-    {
-        "get": "list",
-        "post": "create",
-    }
-)
-
-
-order_detail_view = OrderViewSet.as_view(
-    {
-        "get": "retrieve",
-    }
-)
-
+router = DefaultRouter()
+router.register(r'orders', OrderViewSet, basename='order')
+router.register(r'seller-orders', SellerOrderViewSet, basename='seller-order')
 
 urlpatterns = [
-
-    path(
-        "",
-        order_list_view,
-        name="order-list",
-    ),
-
-    path(
-        "<int:pk>/",
-        order_detail_view,
-        name="order-detail",
-    ),
+    path('', include(router.urls)),
 ]
