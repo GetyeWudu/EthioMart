@@ -349,8 +349,8 @@ class ProductListSerializer(serializers.ModelSerializer):
         if primary and primary.image:
             url = primary.image.url
             if not url.startswith('http'):
-                # Add cloudinary absolute URL prefix if it's missing (though Cloudinary Storage usually provides absolute URLs)
-                pass
+                # Add absolute URL prefix for local development
+                url = f"http://127.0.0.1:8000{url}"
             return url
         return None
 

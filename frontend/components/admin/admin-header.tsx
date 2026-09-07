@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Search, Menu, User, ShieldCheck, Settings, LogOut } from "lucide-react";
+import { MagnifyingGlassIcon, HamburgerMenuIcon, PersonIcon, LockClosedIcon, GearIcon, ExitIcon } from "@radix-ui/react-icons";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -19,22 +19,28 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { NAV_GROUPS } from "./admin-sidebar";
+import { NAV_ITEMS } from "./admin-sidebar";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import useSWR from "swr";
+import api from "@/lib/api";
 import { useAuthStore } from "@/stores/auth-store";
 import { NotificationBell } from "@/components/navigation/notification-bell";
 
+const fetcher = (url: string) => api.get(url).then(res => res.data);
+
 export function AdminHeader() {
   const pathname = usePathname();
+  const { data: analyticsData } = useSWR('/admin/analytics/?range=30d', fetcher);
+  const ops = analyticsData?.operational_counters || {};
 
   return (
     <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-4 border-b border-slate-200/50 bg-white/80 backdrop-blur-xl px-4 shadow-sm dark:border-white/5 dark:bg-slate-950/50 sm:gap-x-6 sm:px-6 lg:px-8">
       {/* Mobile menu button & Sidebar */}
       <Sheet>
         <SheetTrigger render={<Button variant="ghost" size="icon" className="lg:hidden -ml-2 text-slate-500" />}>
-          <Menu className="h-6 w-6" />
+          <HamburgerMenuIcon className="h-6 w-6" />
           <span className="sr-only">Open sidebar</span>
         </SheetTrigger>
         <SheetContent side="left" className="w-72 p-0 flex flex-col border-r border-slate-200/50 bg-white/95 backdrop-blur-xl dark:border-white/5 dark:bg-slate-950/95">
@@ -52,34 +58,47 @@ export function AdminHeader() {
 
           <nav className="flex-1 overflow-y-auto py-6 px-4">
             <div className="space-y-6">
-              {NAV_GROUPS.map((group) => (
-                <div key={group.title}>
-                  <h3 className="px-3 text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
-                    {group.title}
-                  </h3>
-                  <ul className="space-y-1">
-                    {group.items.map((item) => {
-                      const isActive = pathname === item.href || (pathname.startsWith(`${item.href}/`) && item.href !== "/admin");
-                      return (
-                        <li key={item.name}>
-                          <Link
-                            href={item.href}
-                            className={cn(
-                              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
-                              isActive
-                                ? "bg-indigo-50/80 text-indigo-700 shadow-sm ring-1 ring-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:ring-indigo-500/20"
-                                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/40 dark:hover:text-slate-200"
+              <div>
+                <h3 className="px-3 text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                  Main Menu
+                </h3>
+                <ul className="space-y-1">
+                  {NAV_ITEMS.map((item) => {
+                    const isActive = pathname === item.href || (pathname.startsWith(`${item.href}/`) && item.href !== "/admin");
+                    // @ts-ignore
+                    const badgeValue = item.badgeKey ? ops[item.badgeKey] : null;
+                    
+                    return (
+                      <li key={item.name}>
+                        <Link
+                          href={item.href}
+                          className={cn(
+                            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                            isActive
+                              ? "bg-indigo-50/80 text-indigo-700 shadow-sm ring-1 ring-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:ring-indigo-500/20"
+                              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/40 dark:hover:text-slate-200"
+                          )}
+                        >
+                          <item.icon className={cn("h-4 w-4 shrink-0", isActive ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400")} />
+                          <div className="flex flex-1 items-center justify-between">
+                            <span>{item.name}</span>
+                            {badgeValue > 0 && (
+                              <span className={cn(
+                                "flex h-5 items-center justify-center rounded-full px-2 text-[10px] font-bold",
+                                isActive 
+                                  ? "bg-indigo-600 text-white" 
+                                  : "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-400"
+                              )}>
+                                {badgeValue}
+                              </span>
                             )}
-                          >
-                            <item.icon className={cn("h-4 w-4 shrink-0", isActive ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400")} />
-                            {item.name}
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              ))}
+                          </div>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
             </div>
           </nav>
         </SheetContent>
@@ -102,7 +121,7 @@ export function AdminHeader() {
             <label htmlFor="search-field" className="sr-only">
               Search
             </label>
-            <Search
+            <MagnifyingGlassIcon
               className="pointer-events-none absolute left-3 h-4 w-4 text-slate-400"
               aria-hidden="true"
             />
@@ -151,7 +170,7 @@ function AdminProfileDropdown() {
     <DropdownMenu>
       <DropdownMenuTrigger className="flex items-center gap-3 outline-none group hover:opacity-80 transition-opacity">
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
-          <ShieldCheck className="h-4 w-4" />
+          <LockClosedIcon className="h-4 w-4" />
         </div>
         <div className="hidden lg:flex lg:flex-col lg:items-start text-left">
           <span className="text-sm font-semibold leading-none text-slate-900 dark:text-white">
@@ -164,16 +183,16 @@ function AdminProfileDropdown() {
         <DropdownMenuLabel>My Account ({user?.email})</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="cursor-pointer">
-          <User className="mr-2 h-4 w-4 text-slate-500" />
+          <PersonIcon className="mr-2 h-4 w-4 text-slate-500" />
           <span>Profile Details</span>
         </DropdownMenuItem>
         <DropdownMenuItem className="cursor-pointer">
-          <Settings className="mr-2 h-4 w-4 text-slate-500" />
+          <GearIcon className="mr-2 h-4 w-4 text-slate-500" />
           <span>System Settings</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-rose-600 dark:text-rose-500 hover:!text-rose-700 dark:hover:!text-rose-400 hover:!bg-rose-50 dark:hover:!bg-rose-950/50">
-          <LogOut className="mr-2 h-4 w-4" />
+          <ExitIcon className="mr-2 h-4 w-4" />
           <span>Log out completely</span>
         </DropdownMenuItem>
       </DropdownMenuContent>

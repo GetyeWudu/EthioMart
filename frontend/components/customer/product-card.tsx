@@ -11,6 +11,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useCurrentUser } from "@/features/auth/hooks/use-current-user";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { getImageUrl } from "@/lib/api";
 
 export interface ProductCardProps {
   id: string;
@@ -27,6 +28,7 @@ export interface ProductCardProps {
   defaultVariantId?: string;
   hasVariants?: boolean;
   vendorLocation?: string;
+  totalAvailableStock?: number;
 }
 
 export function ProductCard({
@@ -44,6 +46,7 @@ export function ProductCard({
   defaultVariantId,
   hasVariants,
   vendorLocation,
+  totalAvailableStock = 1,
 }: ProductCardProps) {
   const addItem = useCartStore((state) => state.addItem);
   const { toggleWishlist, hasItem } = useWishlistStore();
@@ -56,11 +59,12 @@ export function ProductCard({
   }, []);
 
   const isWishlisted = mounted ? hasItem(id) : false;
+  const isOutOfStock = totalAvailableStock <= 0;
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!defaultVariantId) return;
+    if (!defaultVariantId || isOutOfStock) return;
     try {
       await addItem(defaultVariantId, 1);
       toast.success("Added to cart");
@@ -118,30 +122,18 @@ export function ProductCard({
         <span className="sr-only">Add to wishlist</span>
       </Button>
 
-      {/* Image Container with Floating Quick-Add */}
+      {/* Image Container */}
       <div className="relative h-[150px] sm:h-[190px] w-full overflow-hidden bg-slate-100 dark:bg-slate-800/50">
         <Link href={`/products/${slug}`} className="block h-full w-full">
           <Image
-            src={image || "/placeholder.svg"}
+            src={getImageUrl(image, id)}
             alt={name || "Product image"}
             fill
+            unoptimized
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
           />
         </Link>
-
-        {/* Floating Mobile/Touch Quick-Add Button */}
-        {!hasVariants && !isSuspended && defaultVariantId && (
-          <button
-            type="button"
-            onClick={handleAddToCart}
-            className="absolute bottom-2.5 right-2.5 z-20 h-8 w-8 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-md active:scale-95 transition-all flex items-center justify-center"
-            aria-label="Quick add to cart"
-            title="Quick add to cart"
-          >
-            <ShoppingCart className="w-4 h-4" />
-          </button>
-        )}
       </div>
 
       {/* Content */}
@@ -193,17 +185,14 @@ export function ProductCard({
             </div>
           </div>
 
-          {hasVariants ? (
-            <Link 
-              href={`/products/${slug}`}
-              className="inline-flex items-center justify-center h-7 rounded-xl px-2.5 text-[10px] shadow-sm bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 transition-colors font-bold tracking-wide shrink-0"
-            >
-              Options <ArrowRight className="ml-1 h-3 w-3" />
-            </Link>
-          ) : isSuspended ? (
+          {isSuspended ? (
             <div className="h-7 flex items-center justify-center rounded-xl px-2 text-[10px] bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300 font-bold tracking-wide shrink-0 cursor-not-allowed">
               <AlertTriangle className="mr-1 h-3 w-3" />
               Suspended
+            </div>
+          ) : isOutOfStock ? (
+            <div className="h-7 flex items-center justify-center rounded-xl px-2 text-[10px] bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 font-bold tracking-wide shrink-0 cursor-not-allowed">
+              Out of Stock
             </div>
           ) : (
             <Button 

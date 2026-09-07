@@ -30,14 +30,23 @@ const fetcher = (url: string) => api.get(url).then(res => res.data.results || re
 
 export default function SellerDisputesPage() {
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedDispute, setSelectedDispute] = useState<any | null>(null);
   const [isAccepting, setIsAccepting] = useState(false);
 
   const { data: disputes, error, isLoading } = useSWR('/seller/disputes/', fetcher);
 
-  const filteredDisputes = disputes?.filter((d: any) => 
-    statusFilter === "ALL" ? true : d.status === statusFilter
-  ) || [];
+  const filteredDisputes = disputes?.filter((d: any) => {
+    const matchesStatus = statusFilter === "ALL" || d.status === statusFilter;
+    const searchLower = searchQuery.toLowerCase();
+    const matchesSearch = !searchQuery || 
+      d.id.toLowerCase().includes(searchLower) ||
+      (d.order_number && String(d.order_number).toLowerCase().includes(searchLower)) ||
+      (d.customer_name && d.customer_name.toLowerCase().includes(searchLower)) ||
+      (d.customer_email && d.customer_email.toLowerCase().includes(searchLower));
+      
+    return matchesStatus && matchesSearch;
+  }) || [];
 
   const handleAcceptReturn = async (disputeId: string) => {
     setIsAccepting(true);
@@ -72,7 +81,7 @@ export default function SellerDisputesPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-7xl space-y-6 pt-0">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
@@ -85,75 +94,87 @@ export default function SellerDisputesPage() {
       </div>
 
       {/* Summary KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="border-amber-200/80 bg-amber-50/40 dark:bg-amber-950/20 dark:border-amber-900/40">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Pending Action</p>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white mt-1">
-                {disputes?.filter((d: any) => d.status === 'UNDER_REVIEW').length || 0}
-              </h3>
-            </div>
-            <div className="h-10 w-10 rounded-full bg-amber-100 dark:bg-amber-900/60 flex items-center justify-center text-amber-600 dark:text-amber-300">
-              <ShieldAlert className="h-5 w-5" />
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xs font-semibold text-muted-foreground">Pending Action</CardTitle>
+            <ShieldAlert className="h-4 w-4 text-amber-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl font-bold font-mono text-amber-600">
+              {disputes?.filter((d: any) => d.status === 'UNDER_REVIEW').length || 0}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-rose-200/80 bg-rose-50/40 dark:bg-rose-950/20 dark:border-rose-900/40">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider">Refunded Claims</p>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white mt-1">
-                {disputes?.filter((d: any) => d.status === 'REFUNDED').length || 0}
-              </h3>
-            </div>
-            <div className="h-10 w-10 rounded-full bg-rose-100 dark:bg-rose-900/60 flex items-center justify-center text-rose-600 dark:text-rose-300">
-              <Receipt className="h-5 w-5" />
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xs font-semibold text-muted-foreground">Refunded Claims</CardTitle>
+            <Receipt className="h-4 w-4 text-rose-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl font-bold font-mono text-rose-600">
+              {disputes?.filter((d: any) => d.status === 'REFUNDED').length || 0}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-emerald-200/80 bg-emerald-50/40 dark:bg-emerald-950/20 dark:border-emerald-900/40">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Resolved / Released</p>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white mt-1">
-                {disputes?.filter((d: any) => d.status === 'REJECTED' || d.status === 'CLOSED').length || 0}
-              </h3>
-            </div>
-            <div className="h-10 w-10 rounded-full bg-emerald-100 dark:bg-emerald-900/60 flex items-center justify-center text-emerald-600 dark:text-emerald-300">
-              <CheckCircle2 className="h-5 w-5" />
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xs font-semibold text-muted-foreground">Resolved / Released</CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl font-bold font-mono text-emerald-600">
+              {disputes?.filter((d: any) => d.status === 'REJECTED' || d.status === 'CLOSED').length || 0}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <CardTitle className="text-lg">Customer Claims & Tickets</CardTitle>
-              <CardDescription>All claims submitted within the 48-hour inspection window</CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val || "ALL")}>
-                <SelectTrigger className="w-[190px] rounded-xl">
-                  <Filter className="w-4 h-4 mr-2 text-slate-500" />
-                  <SelectValue placeholder="Filter Status" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl">
-                  <SelectItem value="ALL">All Statuses</SelectItem>
-                  <SelectItem value="UNDER_REVIEW">Under Review (Action Req.)</SelectItem>
-                  <SelectItem value="REFUNDED">Refund Approved</SelectItem>
-                  <SelectItem value="REJECTED">Claim Dismissed</SelectItem>
-                  <SelectItem value="CLOSED">Closed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      <div className="space-y-4">
+        {/* Out of box Title */}
+        <div>
+          <h3 className="font-bold text-lg text-slate-800 dark:text-slate-200">
+            Customer Claims & Tickets
+          </h3>
+          <p className="text-xs text-slate-500">All claims submitted within the 48-hour inspection window</p>
+        </div>
+
+        {/* Toolbar */}
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+          
+          {/* Search Left */}
+          <div className="relative w-full sm:w-96 shrink-0">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search claims, customers, or orders..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 h-10 text-xs border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-slate-900 dark:text-white"
+            />
           </div>
-        </CardHeader>
-        <CardContent>
+
+          {/* Filters Right */}
+          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+            <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val || "ALL")}>
+              <SelectTrigger className="w-full sm:w-[220px] h-10 rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs focus:ring-indigo-500">
+                <SelectValue placeholder="Filter Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL" className="text-xs">All Statuses</SelectItem>
+                <SelectItem value="UNDER_REVIEW" className="text-xs">Under Review (Action Req.)</SelectItem>
+                <SelectItem value="REFUNDED" className="text-xs">Refund Approved</SelectItem>
+                <SelectItem value="REJECTED" className="text-xs">Claim Dismissed</SelectItem>
+                <SelectItem value="CLOSED" className="text-xs">Closed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Table Box */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
           {isLoading ? (
             <div className="flex flex-col justify-center items-center p-12 gap-3">
               <Loader2 className="h-8 w-8 text-primary animate-spin" />
@@ -222,8 +243,8 @@ export default function SellerDisputesPage() {
               </Table>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Inspect Case Modal */}
       <Dialog open={!!selectedDispute} onOpenChange={(open) => !open && setSelectedDispute(null)}>

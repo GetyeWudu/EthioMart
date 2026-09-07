@@ -3,29 +3,24 @@
 import React, { useState } from "react";
 import useSWR from "swr";
 import Link from "next/link";
-import { 
-  TrendingUp, 
-  Wallet, 
-  ShoppingCart, 
-  Package, 
-  Eye, 
-  Plus, 
-  ArrowRight, 
-  Clock, 
-  AlertTriangle, 
-  RotateCw,
-  Truck,
-  CheckCircle2,
-  ShieldCheck,
-  Building2,
-  Lock
-} from "lucide-react";
+import {
+  UpdateIcon,
+  PlusIcon,
+  ClockIcon,
+  ArrowRightIcon,
+  LockClosedIcon,
+  CardStackIcon,
+  ExclamationTriangleIcon,
+  ArchiveIcon,
+  CubeIcon
+} from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useVendorProfile, KYCStatusBanner } from "@/features/vendors";
 import { useAuthStore } from "@/stores/auth-store";
 import { ClerkDashboard } from "@/components/seller/clerk-dashboard";
 import { SalesOverview } from "@/components/seller/sales-overview";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import api from "@/lib/api";
 
 const fetcher = (url: string) => api.get(url).then(res => res.data);
@@ -67,145 +62,93 @@ export default function SellerDashboard() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Merchant Command Center</h1>
+          <h1 className="text-2xl font-serif font-black text-slate-900 dark:text-white tracking-tight">Dashboard Overview</h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Real-time store performance, multi-party escrow balances, and order fulfillment queues.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => mutate()} 
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => mutate()}
             className="h-9 text-xs font-bold gap-1.5"
           >
-            <RotateCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} /> Refresh
+            <UpdateIcon className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} /> Refresh
           </Button>
 
           <Link href="/seller/products/new">
             <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs gap-1.5 shadow-sm">
-              <Plus className="w-3.5 h-3.5" /> Add Product
+              <PlusIcon className="w-3.5 h-3.5" /> Add Product
             </Button>
           </Link>
         </div>
       </div>
 
-      {/* Operational Quick-Action Badges */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <Link 
-          href="/seller/orders?tab=Pending"
-          className="p-3.5 rounded-xl border border-amber-200 bg-amber-50/40 hover:bg-amber-50 dark:border-amber-900/40 dark:bg-amber-950/20 dark:hover:bg-amber-950/40 transition-colors flex items-center justify-between group"
-        >
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">
-              <Clock className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="text-[11px] font-semibold text-amber-900 dark:text-amber-200 block">Pending Dispatch</span>
-              <span className="text-sm font-black text-amber-950 dark:text-white font-mono">{kpis.active_orders} Orders</span>
-            </div>
+      {/* Dashboard Overview KPI Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {/* Card 1: Total Revenue / Earnings */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex justify-between items-start mb-4">
+            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Revenue</h3>
+            <CardStackIcon className="h-4 w-4 text-slate-400" />
           </div>
-          <ArrowRight className="w-4 h-4 text-amber-500 group-hover:translate-x-0.5 transition-transform" />
-        </Link>
-
-        <Link 
-          href="/seller/earnings"
-          className="p-3.5 rounded-xl border border-blue-200 bg-blue-50/40 hover:bg-blue-50 dark:border-blue-900/40 dark:bg-blue-950/20 dark:hover:bg-blue-950/40 transition-colors flex items-center justify-between group"
-        >
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">
-              <Lock className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="text-[11px] font-semibold text-blue-900 dark:text-blue-200 block">In Escrow (48h Hold)</span>
-              <span className="text-sm font-black text-blue-950 dark:text-white font-mono">
-                ETB {kpis.escrow_balance.toLocaleString('en-ET', { minimumFractionDigits: 2 })}
-              </span>
-            </div>
-          </div>
-          <ArrowRight className="w-4 h-4 text-blue-500 group-hover:translate-x-0.5 transition-transform" />
-        </Link>
-
-        <Link 
-          href="/seller/earnings"
-          className="p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/40 transition-colors flex items-center justify-between group"
-        >
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">
-              <Wallet className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="text-[11px] font-semibold text-emerald-900 dark:text-emerald-200 block">Available Payout</span>
-              <span className="text-sm font-black text-emerald-950 dark:text-white font-mono">
-                ETB {kpis.available_balance.toLocaleString('en-ET', { minimumFractionDigits: 2 })}
-              </span>
-            </div>
-          </div>
-          <ArrowRight className="w-4 h-4 text-emerald-500 group-hover:translate-x-0.5 transition-transform" />
-        </Link>
-
-        <Link 
-          href="/seller/inventory?low_stock=true"
-          className="p-3.5 rounded-xl border border-rose-200 bg-rose-50/40 hover:bg-rose-50 dark:border-rose-900/40 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 transition-colors flex items-center justify-between group"
-        >
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-300">
-              <AlertTriangle className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="text-[11px] font-semibold text-rose-900 dark:text-rose-200 block">Low Stock Alerts</span>
-              <span className="text-sm font-black text-rose-950 dark:text-white font-mono">{kpis.low_stock_count} SKUs</span>
-            </div>
-          </div>
-          <ArrowRight className="w-4 h-4 text-rose-500 group-hover:translate-x-0.5 transition-transform" />
-        </Link>
-      </div>
-
-      {/* Metric Cards (ETB) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Total Net Earnings (ETB)</span>
-            <div className="p-2 rounded-xl text-indigo-600 bg-indigo-50 dark:bg-indigo-950/50">
-              <Wallet className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3">
-            <span className="text-xl font-black text-slate-900 dark:text-white font-mono">
+          <div>
+            <div className="text-2xl font-black font-mono text-slate-900 dark:text-white">
               ETB {kpis.total_net_earnings.toLocaleString('en-ET', { minimumFractionDigits: 2 })}
-            </span>
-            <p className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 mt-1">+20.1% vs last month</p>
+            </div>
+            <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-medium">
+              +20.1% from last month
+            </p>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Active Sub-Orders</span>
-            <div className="p-2 rounded-xl text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50">
-              <ShoppingCart className="w-4 h-4" />
-            </div>
+        {/* Card 2: Active Orders */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex justify-between items-start mb-4">
+            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Active Order</h3>
+            <ArchiveIcon className="h-4 w-4 text-slate-400" />
           </div>
-          <div className="mt-3">
-            <span className="text-xl font-black text-slate-900 dark:text-white font-mono">
-              {kpis.active_orders} In Pipeline
-            </span>
-            <p className="text-[11px] text-slate-400 mt-1">{kpis.dispatched_orders} in transit</p>
+          <div>
+            <div className="text-2xl font-black font-mono text-slate-900 dark:text-white">
+              +{kpis.active_orders}
+            </div>
+            <p className="text-xs text-slate-400 mt-1 font-medium">
+              {kpis.dispatched_orders} currently in transit
+            </p>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Products & Units Sold</span>
-            <div className="p-2 rounded-xl text-amber-600 bg-amber-50 dark:bg-amber-950/50">
-              <Package className="w-4 h-4" />
-            </div>
+        {/* Card 3: Total Units Sold */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex justify-between items-start mb-4">
+            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Product</h3>
+            <CubeIcon className="h-4 w-4 text-slate-400" />
           </div>
-          <div className="mt-3">
-            <span className="text-xl font-black text-slate-900 dark:text-white font-mono">
-              {kpis.units_sold} Units
-            </span>
-            <p className="text-[11px] text-slate-400 mt-1">Across all active catalog items</p>
+          <div>
+            <div className="text-2xl font-black font-mono text-slate-900 dark:text-white">
+              {kpis.units_sold.toLocaleString()}
+            </div>
+            <p className="text-xs text-slate-400 mt-1 font-medium">
+              Across all catalog items
+            </p>
+          </div>
+        </div>
+
+        {/* Card 4: Available Balance */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex justify-between items-start mb-4">
+            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Available Pay Out</h3>
+            <CardStackIcon className="h-4 w-4 text-slate-400" />
+          </div>
+          <div>
+            <div className="text-2xl font-black font-mono text-slate-900 dark:text-white">
+              ETB {kpis.available_balance.toLocaleString('en-ET', { minimumFractionDigits: 2 })}
+            </div>
+            <p className="text-xs text-slate-400 mt-1 font-medium">
+              Ready for withdrawal
+            </p>
           </div>
         </div>
       </div>

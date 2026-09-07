@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import useSWR from "swr";
-import { TrendingUp, ArrowUpRight, BarChart3, Calendar, RotateCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import api from "@/lib/api";
 

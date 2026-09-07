@@ -6,21 +6,15 @@ import {
   Badge 
 } from "@/components/ui/badge";
 import { 
-  ShieldAlert, 
-  LogIn, 
-  Edit, 
-  Trash2, 
-  Key, 
-  Settings, 
-  Search, 
-  ExternalLink, 
-  Filter, 
-  Loader2, 
-  Eye, 
-  ShieldCheck, 
-  Smartphone,
-  Globe
-} from "lucide-react";
+  ExclamationTriangleIcon, 
+  EnterIcon, 
+  LockClosedIcon, 
+  GearIcon, 
+  MagnifyingGlassIcon, 
+  UpdateIcon, 
+  EyeOpenIcon, 
+  CheckCircledIcon 
+} from "@radix-ui/react-icons";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
@@ -44,24 +38,24 @@ export function AuditLogTable({ limit }: AuditLogTableProps) {
     const act = (action || "").toLowerCase();
     if (act.includes("suspend") || act.includes("reject") || act.includes("delete")) {
       return {
-        icon: <ShieldAlert className="h-3.5 w-3.5" />,
+        icon: <ExclamationTriangleIcon className="h-3.5 w-3.5" />,
         color: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-400",
       };
     }
     if (act.includes("approve") || act.includes("reactivate") || act.includes("verify")) {
       return {
-        icon: <ShieldCheck className="h-3.5 w-3.5" />,
+        icon: <CheckCircledIcon className="h-3.5 w-3.5" />,
         color: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400",
       };
     }
     if (act.includes("login") || act.includes("auth")) {
       return {
-        icon: <LogIn className="h-3.5 w-3.5" />,
+        icon: <EnterIcon className="h-3.5 w-3.5" />,
         color: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-400",
       };
     }
     return {
-      icon: <Settings className="h-3.5 w-3.5" />,
+      icon: <GearIcon className="h-3.5 w-3.5" />,
       color: "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300",
     };
   };
@@ -88,7 +82,7 @@ export function AuditLogTable({ limit }: AuditLogTableProps) {
           </div>
 
           <div className="relative min-w-[260px]">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <MagnifyingGlassIcon className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input 
               type="text"
               value={searchQuery}
@@ -116,7 +110,7 @@ export function AuditLogTable({ limit }: AuditLogTableProps) {
             {isLoading ? (
               <tr>
                 <td colSpan={6} className="px-5 py-10 text-center text-slate-500">
-                  <Loader2 className="w-5 h-5 animate-spin mx-auto text-indigo-600 mb-2" />
+                  <UpdateIcon className="w-5 h-5 animate-spin mx-auto text-indigo-600 mb-2" />
                   Loading security audit trail...
                 </td>
               </tr>
@@ -167,7 +161,7 @@ export function AuditLogTable({ limit }: AuditLogTableProps) {
                         onClick={() => setSelectedLog(log)}
                         className="h-7 px-2 text-[11px] font-bold text-indigo-600 hover:text-indigo-700 gap-1"
                       >
-                        <Eye className="w-3.5 h-3.5" /> Diff
+                        <EyeOpenIcon className="w-3.5 h-3.5" /> Diff
                       </Button>
                     </td>
                   </tr>
@@ -183,7 +177,7 @@ export function AuditLogTable({ limit }: AuditLogTableProps) {
         <DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto text-xs">
           <DialogHeader>
             <div className="flex items-center gap-2 text-indigo-600">
-              <Key className="w-5 h-5" />
+              <LockClosedIcon className="w-5 h-5" />
               <DialogTitle className="text-base font-black text-slate-900 dark:text-white">
                 Audit Event: {selectedLog?.action}
               </DialogTitle>

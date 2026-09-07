@@ -36,6 +36,7 @@ interface KYCDocUploaderProps {
   onDelete: (docId: string) => Promise<any>;
   isSubmitting?: boolean;
   allowedTypes?: DocumentType[];
+  isEditing?: boolean;
 }
 
 const ALL_DOCUMENT_TYPES: { value: DocumentType; label: string; description: string }[] = [
@@ -82,6 +83,7 @@ export function KYCDocUploader({
   onDelete,
   isSubmitting = false,
   allowedTypes,
+  isEditing = true,
 }: KYCDocUploaderProps) {
   const [selectedType, setSelectedType] = useState<DocumentType>(
     allowedTypes ? allowedTypes[0] : "TIN_CERTIFICATE"
@@ -164,8 +166,9 @@ export function KYCDocUploader({
   return (
     <div className="space-y-6">
       {/* Upload Box */}
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-5 space-y-4">
-        <h4 className="font-semibold text-slate-900 dark:text-white text-sm flex items-center gap-2">
+      {isEditing && (
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-5 space-y-4">
+          <h4 className="font-semibold text-slate-900 dark:text-white text-sm flex items-center gap-2">
           <Upload className="h-4 w-4 text-indigo-500" />
           Upload New KYC Document
         </h4>
@@ -269,6 +272,7 @@ export function KYCDocUploader({
           </Button>
         </div>
       </div>
+      )}
 
       {/* Uploaded Documents List */}
       <div className="space-y-3">
@@ -321,7 +325,8 @@ export function KYCDocUploader({
                     </a>
                   )}
 
-                  {!doc.is_verified && (
+                  {/* Only show delete button if editing and document is not verified */}
+                  {isEditing && !doc.is_verified && (
                     <Button
                       type="button"
                       variant="ghost"

@@ -48,19 +48,30 @@ class TaxonomyService:
     def _dump_node(cls, node: Category) -> Dict[str, Any]:
         """Recursively formats a Category node and its active children."""
         children = [cls._dump_node(child) for child in node.get_children().filter(is_active=True)]
+        
+        from apps.catalog.models import Product
+        from apps.catalog.enums import ProductStatus
+        descendant_ids = [n.id for n in node.get_descendants()] + [node.id]
+        product_count = Product.objects.filter(category_id__in=descendant_ids, status=ProductStatus.ACTIVE).count()
+
+        img_url = node.image.url if node.image else None
+        if img_url and not img_url.startswith('http'):
+            img_url = f"http://127.0.0.1:8000{img_url}"
+
         return {
             "id": str(node.id),
             "name": node.name,
             "name_am": node.name_am,
             "slug": node.slug,
             "icon": node.icon,
-            "image": node.image.url if node.image else None,
+            "image": img_url,
             "commission_rate_override": str(node.commission_rate_override) if node.commission_rate_override else None,
             "effective_commission_rate": str(CommissionService.get_effective_category_commission(node)),
             "is_leaf": node.is_leaf_node(),
             "depth": node.depth,
             "display_order": node.display_order,
             "children": children,
+            "product_count": product_count,
         }
 
     @classmethod

@@ -8,6 +8,7 @@ import { HeroSlider } from "@/components/customer/hero-slider";
 import { catalogService } from "@/features/products/services/catalog-service";
 import { CategoryNode } from "@/features/products/types";
 import { AutoRefresh } from "@/components/customer/auto-refresh";
+import { getImageUrl } from "@/lib/api";
 
 // Ensure this page runs dynamically to always fetch latest products
 export const dynamic = "force-dynamic";
@@ -20,8 +21,14 @@ export default async function CustomerHomePage() {
   try {
     // Fetch categories and products from backend APIs
     const [categoriesRes, productsRes] = await Promise.all([
-      catalogService.getCategoryTree(),
-      catalogService.getPublicProducts({ sort: "trending", page: 1 }), // Assuming sorting works, otherwise just fetch
+      catalogService.getCategoryTree().catch(err => {
+        console.warn("Failed to fetch categories:", err.message);
+        return [];
+      }),
+      catalogService.getPublicProducts({ sort: "trending", page: 1 }).catch(err => {
+        console.warn("Failed to fetch products:", err.message);
+        return { results: [] };
+      }),
     ]);
     categories = categoriesRes || [];
     
@@ -46,7 +53,7 @@ export default async function CustomerHomePage() {
         originalPrice: originalPrice > effectivePrice ? originalPrice : undefined,
         rating: Number(product.avg_rating || 0),
         reviewsCount: Number(product.review_count || 0),
-        image: product.primary_image || "/placeholder.svg",
+        image: getImageUrl(product.primary_image, product.id),
         isNew: false,
         discountPercentage: discountPercentage && discountPercentage > 0 ? discountPercentage : undefined,
         promotionBadge: product.promotion_badge || undefined,
@@ -70,14 +77,14 @@ export default async function CustomerHomePage() {
       // Extract up to 4 images from the products in this category
       const productImages = prodsArray
         .filter((p: any) => p.primary_image)
-        .map((p: any) => p.primary_image)
+        .map((p: any) => getImageUrl(p.primary_image, p.id))
         .slice(0, 4);
         
       const images = productImages.length > 0 
         ? productImages 
-        : (c.image ? [c.image] : [
-            "https://images.unsplash.com/photo-1498049794561-7780e7231661?q=80&w=300&auto=format&fit=crop",
-            "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=300&auto=format&fit=crop",
+        : (c.image ? [getImageUrl(c.image, c.id)] : [
+            getImageUrl(null, c.id + "1"),
+            getImageUrl(null, c.id + "2"),
           ]);
 
       return {
@@ -99,9 +106,9 @@ export default async function CustomerHomePage() {
       id: c.id,
       name: c.name,
       slug: c.slug,
-      images: c.image ? [c.image] : [
-        "https://images.unsplash.com/photo-1498049794561-7780e7231661?q=80&w=300&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=300&auto=format&fit=crop",
+      images: c.image ? [getImageUrl(c.image, c.id)] : [
+        getImageUrl(null, c.id + "1"),
+        getImageUrl(null, c.id + "2"),
       ],
       itemCount: c.product_count || 0
     }));

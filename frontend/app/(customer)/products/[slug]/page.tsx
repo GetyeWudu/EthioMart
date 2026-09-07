@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import { useCurrentUser } from "@/features/auth/hooks/use-current-user";
+import { getImageUrl } from "@/lib/api";
 import { ProductReviews } from "@/components/products/product-reviews";
 import { ProductCard } from "@/components/customer/product-card";
 
@@ -332,7 +333,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                         : "border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500"
                     )}
                   >
-                    <img src={img.image} alt={img.alt_text || `View ${i + 1}`} className="w-full h-full object-cover" />
+                    <img src={getImageUrl(img.image, product.id + i)} alt={img.alt_text || `View ${i + 1}`} className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -340,17 +341,11 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
             {/* Main Image Viewport */}
             <div className="relative flex-1 aspect-square max-h-[560px] rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm group cursor-crosshair">
-              {selectedImage ? (
-                <img
-                  src={selectedImage}
-                  alt={product.title}
-                  className="w-full h-full object-cover object-center transition-transform duration-300 ease-out group-hover:scale-[1.6] origin-center"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-slate-300">
-                  <Sparkles className="w-16 h-16" />
-                </div>
-              )}
+              <img
+                src={getImageUrl(selectedImage || null, product.id)}
+                alt={product.title}
+                className="w-full h-full object-cover object-center transition-transform duration-300 ease-out group-hover:scale-[1.6] origin-center"
+              />
 
               {/* Discount & Brand badges */}
               <div className="absolute top-3 left-3 flex flex-col gap-2 pointer-events-none">

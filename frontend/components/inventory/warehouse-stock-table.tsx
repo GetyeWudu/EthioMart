@@ -4,6 +4,7 @@ import React, { useState, useMemo } from "react";
 import { WarehouseStock, WarehouseLocation } from "@/features/inventory/types";
 import { AlertCircle, ArrowRightLeft, PlusCircle, Search, Filter, Warehouse, CheckCircle2, ShieldAlert, ChevronDown, ChevronRight, PackageOpen } from "lucide-react";
 import { useSearchParams } from "next/navigation";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface WarehouseStockTableProps {
   stocks: WarehouseStock[];
@@ -95,52 +96,34 @@ export function WarehouseStockTable({
   return (
     <div className="space-y-4">
       {/* 1. Header Filter Bar */}
-      <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3 flex-1 min-w-[280px]">
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search by SKU, product title..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-xs border border-gray-300 rounded-lg focus:ring-1 focus:ring-emerald-500 focus:outline-none"
-            />
-          </div>
-
-          <select
-            value={selectedWarehouse}
-            onChange={(e) => setSelectedWarehouse(e.target.value)}
-            className="text-xs px-3 py-2 border border-gray-300 rounded-lg bg-white focus:ring-1 focus:ring-emerald-500 focus:outline-none"
-          >
-            <option value="ALL">All Facilities ({warehouses.length})</option>
-            {warehouses.map((wh) => (
-              <option key={wh.id} value={wh.id}>
-                {wh.name} [{wh.code}]
-              </option>
-            ))}
-          </select>
+      <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="relative w-full sm:w-96 shrink-0">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search by SKU, product title..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-4 h-10 text-xs border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-slate-900 dark:text-white"
+          />
         </div>
 
-        {/* Low Stock Filter Pill */}
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setFilterLowStockOnly(!filterLowStockOnly)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold border transition-all ${
-              filterLowStockOnly
-                ? "bg-amber-500 text-white border-amber-500 shadow-xs"
-                : "bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100"
-            }`}
-          >
-            <AlertCircle className="w-3.5 h-3.5" />
-            <span>Low Stock Alert</span>
-            <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-              filterLowStockOnly ? "bg-amber-700 text-white" : "bg-amber-200 text-amber-900"
-            }`}>
-              {lowStockCount}
-            </span>
-          </button>
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+          <Select value={selectedWarehouse} onValueChange={setSelectedWarehouse}>
+            <SelectTrigger className="w-full sm:w-[220px] h-10 rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs focus:ring-indigo-500">
+              <SelectValue placeholder="All Facilities" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="ALL" className="text-xs">All Facilities ({warehouses.length})</SelectItem>
+                {warehouses.map((wh) => (
+                  <SelectItem key={wh.id} value={wh.id} className="text-xs">
+                    {wh.name} [{wh.code}]
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

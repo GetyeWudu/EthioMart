@@ -29,17 +29,16 @@ export function SalesOverview() {
             Gross sales revenue and net wallet credits after platform commission.
           </p>
         </div>
-        
+
         <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
           {["7d", "30d", "90d", "12m"].map((range) => (
             <button
               key={range}
               onClick={() => setTimeRange(range)}
-              className={`px-2.5 py-1 rounded-lg font-bold uppercase transition-all ${
-                timeRange === range
+              className={`px-2.5 py-1 rounded-lg font-bold uppercase transition-all ${timeRange === range
                   ? "bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-xs"
                   : "text-slate-500 hover:text-slate-900"
-              }`}
+                }`}
             >
               {range}
             </button>

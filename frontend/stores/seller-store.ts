@@ -45,11 +45,18 @@ interface SellerStoreState {
   // Order Actions
   updateOrderStatus: (id: string, status: string) => void;
   updateOrderPayment: (id: string, paymentStatus: string) => void;
+
+  // UI State
+  isSidebarCollapsed: boolean;
+  toggleSidebar: () => void;
 }
 
 export const useSellerStore = create<SellerStoreState>((set) => ({
   products: INITIAL_PRODUCTS,
   orders: ALL_ORDERS,
+  isSidebarCollapsed: false,
+
+  toggleSidebar: () => set((state) => ({ isSidebarCollapsed: !state.isSidebarCollapsed })),
 
   addProduct: (product) => set((state) => ({
     products: [

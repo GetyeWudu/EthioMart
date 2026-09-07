@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { UpdateIcon } from "@radix-ui/react-icons";
 
 interface SalesChartProps {
   timeline?: Array<{
@@ -70,7 +70,7 @@ export function SalesChart({ timeline = [], isLoading = false }: SalesChartProps
   if (isLoading) {
     return (
       <div className="h-64 flex items-center justify-center text-slate-400 text-xs">
-        <Loader2 className="w-5 h-5 animate-spin mr-2 text-indigo-600" />
+        <UpdateIcon className="w-5 h-5 animate-spin mr-2 text-indigo-600" />
         Loading sales data...
       </div>
     );
@@ -97,8 +97,8 @@ export function SalesChart({ timeline = [], isLoading = false }: SalesChartProps
         </div>
 
         {/* SVG Curve */}
-        <svg 
-          viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`} 
+        <svg
+          viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
           className="absolute inset-0 h-full w-full overflow-visible"
           preserveAspectRatio="none"
         >
@@ -129,18 +129,18 @@ export function SalesChart({ timeline = [], isLoading = false }: SalesChartProps
             const isHovered = hoveredIndex === i;
 
             return (
-              <g 
+              <g
                 key={i}
                 onMouseEnter={() => setHoveredIndex(i)}
                 onMouseLeave={() => setHoveredIndex(null)}
                 className="cursor-pointer"
               >
                 <circle cx={x} cy={y} r="25" fill="transparent" />
-                <circle 
-                  cx={x} 
-                  cy={y} 
-                  r={isHovered ? "6" : "4"} 
-                  fill={isHovered ? "#6366f1" : "white"} 
+                <circle
+                  cx={x}
+                  cy={y}
+                  r={isHovered ? "6" : "4"}
+                  fill={isHovered ? "#6366f1" : "white"}
                   stroke="#6366f1"
                   strokeWidth="2.5"
                   className="transition-all duration-200"
@@ -152,10 +152,10 @@ export function SalesChart({ timeline = [], isLoading = false }: SalesChartProps
 
         {/* Tooltip */}
         {hoveredIndex !== null && (
-          <div 
+          <div
             className="absolute z-20 pointer-events-none transition-all duration-150"
-            style={{ 
-              left: `${hoveredIndex * (100 / Math.max(1, data.length - 1))}%`, 
+            style={{
+              left: `${hoveredIndex * (100 / Math.max(1, data.length - 1))}%`,
               top: `${Math.max(10, 100 - (data[hoveredIndex].gmv / maxSales) * 100)}%`,
               transform: 'translate(-50%, -100%)'
             }}
@@ -176,7 +176,7 @@ export function SalesChart({ timeline = [], isLoading = false }: SalesChartProps
       {/* X-Axis Labels */}
       <div className="flex justify-between items-center w-full mt-3 px-1 text-[10px] font-mono text-slate-400">
         {data.map((item, i) => (
-          <span 
+          <span
             key={i}
             className={`transition-colors ${hoveredIndex === i ? "text-indigo-600 font-bold" : ""}`}
           >

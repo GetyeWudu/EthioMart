@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { StockMovement } from "@/features/inventory/types";
 import { Copy, Download, Search, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface StockLedgerTableProps {
   movements: StockMovement[];
@@ -9,16 +10,20 @@ interface StockLedgerTableProps {
 
 export function StockLedgerTable({ movements }: StockLedgerTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [movementFilter, setMovementFilter] = useState("ALL");
 
   const filteredMovements = movements.filter((m) => {
     const term = searchTerm.toLowerCase();
-    return (
+    const matchesSearch =
       m.variant_sku.toLowerCase().includes(term) ||
       (m.product_title && m.product_title.toLowerCase().includes(term)) ||
       (m.reference_order_id && m.reference_order_id.toLowerCase().includes(term)) ||
       m.warehouse_name.toLowerCase().includes(term) ||
-      (m.notes && m.notes.toLowerCase().includes(term))
-    );
+      (m.notes && m.notes.toLowerCase().includes(term));
+      
+    const matchesType = movementFilter === "ALL" || m.movement_type === movementFilter;
+    
+    return matchesSearch && matchesType;
   });
 
   const getMovementBadge = (type: string, display: string) => {
@@ -56,34 +61,53 @@ export function StockLedgerTable({ movements }: StockLedgerTableProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xs overflow-hidden">
+    <div className="space-y-4">
+      {/* Out of box Title */}
+      <h3 className="font-bold text-lg text-slate-800 dark:text-slate-200">
+        Stock Movement Audit Ledger
+      </h3>
+
       {/* Toolbar */}
-      <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h3 className="font-bold text-xs text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-          Stock Movement Audit Ledger
-        </h3>
-        
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search SKU, Product, or Ref..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 pr-4 py-1.5 text-xs border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 w-[240px]"
-            />
-          </div>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-xs font-semibold transition-colors">
-            <Filter className="w-3.5 h-3.5" /> Filter
-          </button>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-xs font-semibold transition-colors">
+      <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+        {/* Search Left */}
+        <div className="relative w-full sm:w-96 shrink-0">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search SKU, Product, or Ref..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-9 pr-4 h-10 text-xs border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-slate-900 dark:text-white"
+          />
+        </div>
+
+        {/* Filters Right */}
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+          <Select value={movementFilter} onValueChange={setMovementFilter}>
+            <SelectTrigger className="w-full sm:w-[180px] h-10 rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs focus:ring-indigo-500">
+              <SelectValue placeholder="All Movements" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="ALL" className="text-xs">All Movements</SelectItem>
+                <SelectItem value="TRANSFER_IN" className="text-xs">Inbound Transfer</SelectItem>
+                <SelectItem value="TRANSFER_OUT" className="text-xs">Outbound Transfer</SelectItem>
+                <SelectItem value="PURCHASE_RECEIPT" className="text-xs">Inbound Receipt</SelectItem>
+                <SelectItem value="ORDER_FULFILLMENT" className="text-xs">Order Shipped</SelectItem>
+                <SelectItem value="ADJUSTMENT" className="text-xs">Stock Adjustment</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+
+          <button className="flex items-center gap-1.5 px-4 h-10 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl text-xs font-semibold transition-colors shadow-sm">
             <Download className="w-3.5 h-3.5" /> Export CSV
           </button>
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      {/* Table Box */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
         <table className="w-full text-left text-xs table-fixed">
           <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 uppercase text-[10px] font-bold tracking-wider border-b border-slate-200 dark:border-slate-800">
             <tr>
@@ -149,5 +173,6 @@ export function StockLedgerTable({ movements }: StockLedgerTableProps) {
         </table>
       </div>
     </div>
+  </div>
   );
 }

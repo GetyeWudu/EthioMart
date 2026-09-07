@@ -5,6 +5,7 @@ import { OrderTable } from "@/components/seller/order-table";
 import { ShoppingCart, PackageOpen, Truck, CheckCircle, XCircle, DollarSign, RefreshCw, Download, ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import useSWR from "swr";
 import api from "@/lib/api";
@@ -35,20 +36,8 @@ export default function OrdersPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6 pt-0">
       
-      {/* Top Back Navigation */}
-      <div className="hidden sm:flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 pb-2 border-b border-slate-200 dark:border-slate-800/60">
-        <Link href="/seller" className="flex items-center hover:text-slate-900 dark:hover:text-white">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Link>
-        <div className="flex flex-col ml-4 border-l border-slate-200 dark:border-slate-700 pl-4">
-          <h1 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">My Orders</h1>
-          <span className="text-xs text-slate-500">Manage and fulfill customer orders</span>
-        </div>
-      </div>
-
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
             <Link href="/seller" className="sm:hidden flex items-center justify-center h-8 w-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
@@ -78,47 +67,59 @@ export default function OrdersPage() {
       ) : (
         <>
 
-      {/* Custom 6-Column Stat Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-        <div className="flex flex-col justify-between p-2.5 sm:p-3 rounded-xl border border-blue-200 bg-white shadow-sm dark:border-blue-900/30 dark:bg-slate-950 h-16 sm:h-20">
-          <div className="flex justify-between items-start">
-            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Total Orders</span>
-            <ShoppingCart className="h-3.5 w-3.5 text-blue-500" />
-          </div>
-          <span className="text-lg sm:text-xl font-bold text-blue-600 dark:text-blue-500">{totalOrders}</span>
-        </div>
+      {/* KPI Stat Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xs font-semibold text-muted-foreground">Total Orders</CardTitle>
+            <ShoppingCart className="h-4 w-4 text-blue-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl font-bold font-mono text-blue-600">{totalOrders}</div>
+          </CardContent>
+        </Card>
         
-        <div className="flex flex-col justify-between p-2.5 sm:p-3 rounded-xl border border-amber-200 bg-white shadow-sm dark:border-amber-900/30 dark:bg-slate-950 h-16 sm:h-20">
-          <div className="flex justify-between items-start">
-            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Pending</span>
-            <PackageOpen className="h-3.5 w-3.5 text-amber-500" />
-          </div>
-          <span className="text-lg sm:text-xl font-bold text-amber-600 dark:text-amber-500">{pendingOrders}</span>
-        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xs font-semibold text-muted-foreground">Pending</CardTitle>
+            <PackageOpen className="h-4 w-4 text-amber-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl font-bold font-mono text-amber-600">{pendingOrders}</div>
+          </CardContent>
+        </Card>
 
-        <div className="flex flex-col justify-between p-2.5 sm:p-3 rounded-xl border border-emerald-200 bg-white shadow-sm dark:border-emerald-900/30 dark:bg-slate-950 h-16 sm:h-20">
-          <div className="flex justify-between items-start">
-            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Ready / Ship</span>
-            <Truck className="h-3.5 w-3.5 text-emerald-500" />
-          </div>
-          <span className="text-lg sm:text-xl font-bold text-emerald-600 dark:text-emerald-500">{readyOrders}</span>
-        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xs font-semibold text-muted-foreground">Ready / Ship</CardTitle>
+            <Truck className="h-4 w-4 text-emerald-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl font-bold font-mono text-emerald-600">{readyOrders}</div>
+          </CardContent>
+        </Card>
         
-        <div className="flex flex-col justify-between p-2.5 sm:p-3 rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950 h-16 sm:h-20">
-          <div className="flex justify-between items-start">
-            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Delivered</span>
-            <CheckCircle className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />
-          </div>
-          <span className="text-lg sm:text-xl font-bold text-slate-700 dark:text-slate-300">{deliveredOrders}</span>
-        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xs font-semibold text-muted-foreground">Delivered</CardTitle>
+            <CheckCircle className="h-4 w-4 text-slate-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl font-bold font-mono text-slate-700 dark:text-slate-300">{deliveredOrders}</div>
+          </CardContent>
+        </Card>
         
-        <div className="flex flex-col justify-between p-2.5 sm:p-3 rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950 h-16 sm:h-20 col-span-2 sm:col-span-1 lg:col-span-2">
-          <div className="flex justify-between items-start">
-            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Net Revenue</span>
-            <DollarSign className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />
-          </div>
-          <span className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white font-serif">{revenue.toFixed(2)} <span className="text-xs sm:text-sm font-sans text-slate-500">ETB</span></span>
-        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xs font-semibold text-muted-foreground">Net Revenue</CardTitle>
+            <DollarSign className="h-4 w-4 text-indigo-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl font-bold font-mono text-indigo-600">
+              {revenue.toFixed(2)} <span className="text-[10px] text-slate-500 font-sans">ETB</span>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <OrderTable orders={orders} onRefresh={() => mutate()} />

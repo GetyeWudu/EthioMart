@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Search, Menu, ShoppingBag, Settings, LogOut } from "lucide-react";
+import { MagnifyingGlassIcon, HamburgerMenuIcon, BackpackIcon, GearIcon, ExitIcon, BellIcon } from "@radix-ui/react-icons";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SellerProfile } from "./seller-profile";
@@ -19,25 +19,30 @@ export function SellerHeader() {
       {/* Mobile menu button */}
       <Sheet>
         <SheetTrigger render={<Button variant="ghost" size="icon" className="lg:hidden -ml-2 text-slate-500" />}>
-          <Menu className="h-6 w-6" />
+          <HamburgerMenuIcon className="h-6 w-6" />
           <span className="sr-only">Open sidebar</span>
         </SheetTrigger>
-        <SheetContent side="left" className="w-64 p-0 flex flex-col border-r border-slate-200/50 bg-white/80 backdrop-blur-xl dark:border-white/5 dark:bg-slate-950/50">
+        <SheetContent side="left" className="w-64 p-0 flex flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
           <SheetTitle className="sr-only">Mobile Navigation</SheetTitle>
           <SheetDescription className="sr-only">Access seller dashboard links</SheetDescription>
           {/* Brand */}
-          <div className="flex h-16 shrink-0 items-center gap-2 border-b border-slate-200/50 px-6 dark:border-white/5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-sm">
-              <ShoppingBag className="h-4 w-4 stroke-[2.5]" />
+          <div className="flex h-16 shrink-0 items-center gap-2 border-b border-slate-200 px-6 dark:border-slate-800">
+            <div className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-indigo-600 text-white shadow-sm">
+              <BackpackIcon className="h-4 w-4 stroke-[2.5]" />
             </div>
-            <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
-              Gech<span className="text-indigo-500 dark:text-indigo-400">Express</span> <span className="font-normal text-slate-500 text-sm">Seller</span>
+            <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+              Gech<span className="text-indigo-600 dark:text-indigo-400">Express</span>
             </span>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto py-4">
-            <ul className="space-y-1 px-3">
+          <nav className="flex-1 overflow-y-auto py-6">
+            <div className="px-6 mb-3">
+              <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Main Menu
+              </p>
+            </div>
+            <ul className="space-y-1.5 px-3">
               {NAV_ITEMS.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
                 return (
@@ -46,13 +51,16 @@ export function SellerHeader() {
                       <Link
                         href={item.href}
                         className={cn(
-                          "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                          "flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all relative overflow-hidden",
                           isActive
-                            ? "bg-gradient-to-r from-indigo-500/10 to-transparent text-indigo-700 dark:from-indigo-500/10 dark:text-indigo-400 border-l-2 border-indigo-600 dark:border-indigo-500 rounded-l-none"
-                            : "text-slate-600 hover:bg-slate-100/50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/30 dark:hover:text-white border-l-2 border-transparent rounded-l-none"
+                            ? "text-indigo-700 bg-indigo-50 rounded-r-xl dark:bg-indigo-500/10 dark:text-indigo-400"
+                            : "text-slate-600 hover:bg-slate-50 rounded-r-xl dark:text-slate-400 dark:hover:bg-slate-800/30 dark:hover:text-white"
                         )}
                       />
                     }>
+                      {isActive && (
+                        <span className="absolute left-0 top-0 bottom-0 w-[3px] bg-indigo-600 dark:bg-indigo-500 rounded-r-full" />
+                      )}
                       <item.icon className={cn("h-4 w-4", isActive ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400")} />
                       {item.name}
                     </SheetClose>
@@ -61,8 +69,6 @@ export function SellerHeader() {
               })}
             </ul>
           </nav>
-
-
         </SheetContent>
       </Sheet>
 
@@ -83,7 +89,7 @@ export function SellerHeader() {
             <label htmlFor="search-field" className="sr-only">
               Search
             </label>
-            <Search
+            <MagnifyingGlassIcon
               className="pointer-events-none absolute left-3 h-4 w-4 text-slate-400"
               aria-hidden="true"
             />

@@ -136,6 +136,7 @@ export default function NewProductPage() {
 
   // Form State
   const [title, setTitle] = useState("");
+  const [baseSku, setBaseSku] = useState("");
   const [suggestedCategory, setSuggestedCategory] = useState("");
   const [isSuggestingCustomCategory, setIsSuggestingCustomCategory] = useState(false);
   const [selectedBrandId, setSelectedBrandId] = useState("");
@@ -147,6 +148,17 @@ export default function NewProductPage() {
   const [variantAttributes, setVariantAttributes] = useState<CategoryAttributeBinding[]>([]);
   const [activeVariantAttributes, setActiveVariantAttributes] = useState<string[]>([]);
   
+  const [skuRandomizer] = useState(() => Math.floor(1000 + Math.random() * 9000));
+  
+  useEffect(() => {
+    if (title.length > 2 || selectedCategoryPath.length > 0) {
+      const prefix = vendorStoreName ? vendorStoreName.substring(0, 3).toUpperCase() : "GECH";
+      const cat = selectedCategoryPath.length > 0 ? selectedCategoryPath[selectedCategoryPath.length - 1].name.substring(0, 3).toUpperCase() : "GEN";
+      const titlePrefix = title.length > 0 ? title.substring(0, 3).toUpperCase().replace(/[^A-Z]/g, 'X') : "ITM";
+      setBaseSku(`${prefix}-${cat}-${titlePrefix}-${skuRandomizer}`);
+    }
+  }, [title, selectedCategoryPath, vendorStoreName, skuRandomizer]);
+
   const toggleActiveAttribute = (id: string) => {
     setActiveVariantAttributes(prev => prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]);
   };
@@ -216,6 +228,18 @@ export default function NewProductPage() {
       inventoryService.getWarehouses().catch(() => []),
     ]).then(([tree, bnds, profile, whs]) => {
       setCategoryTree(tree || []);
+      
+      // Default Electronics category if not already set by draft
+      if (tree && tree.length > 0) {
+        const electronicsNode = tree.find((c: any) => c.name.toLowerCase().includes('electronic'));
+        if (electronicsNode && selectedCategoryPath.length === 0) {
+          setSelectedCategoryPath([electronicsNode]);
+          catalogService.getCategoryAttributes(electronicsNode.id).then(attrs => {
+            setVariantAttributes(attrs || []);
+            setActiveVariantAttributes((attrs || []).map((a: any) => a.attribute.id));
+          }).catch(() => {});
+        }
+      }
       setAllBrands(bnds || []);
       setScopedBrands(bnds || []); // default all brands until category chosen
       if (whs && whs.length > 0) {
@@ -669,41 +693,7 @@ export default function NewProductPage() {
 
   return (
     <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 pb-20">
-      {/* ─── STICKY TOP ACTION HEADER ─── */}
-      <div className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="h-16 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/seller/products"
-                className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-300">
-                <ArrowLeft className="w-4 h-4" />
-              </Link>
-              <div>
-                <h1 className="text-lg font-black text-slate-900 dark:text-white leading-tight">Create Listing</h1>
-                <p className="text-[10px] text-slate-500 font-medium">Add a new product to your catalog</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Link href="/seller/products"
-                className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
-                Cancel
-              </Link>
-              <button 
-                type="submit" 
-                form="product-form"
-                disabled={loading}
-                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md disabled:opacity-50 transition-all flex items-center gap-2"
-              >
-                {loading ? (
-                  <><div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</>
-                ) : (
-                  <><CheckCircle2 className="w-4 h-4" /> Submit Review</>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
         
@@ -717,80 +707,108 @@ export default function NewProductPage() {
         
         <form id="product-form" onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-8 relative">
 
-          {/* ─── WIZARD PROGRESS ─── */}
-          <div className="flex items-center justify-between mb-8 px-4">
-            {[
-              { step: 1, title: "Taxonomy & Brand" },
-              { step: 2, title: "Details & Media" },
-              { step: 3, title: "Logistics & Hub" },
-              { step: 4, title: "Strategy & Variants" }
-            ].map((s) => (
-              <div key={s.step} className="flex flex-col items-center gap-2 relative z-10 flex-1">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 ${
-                  currentStep === s.step ? "bg-indigo-600 text-white shadow-md ring-4 ring-indigo-50 dark:ring-indigo-900/30" :
-                  currentStep > s.step ? "bg-emerald-500 text-white" :
-                  "bg-slate-200 dark:bg-slate-800 text-slate-500"
-                }`}>
-                  {currentStep > s.step ? <CheckCircle2 className="w-5 h-5" /> : s.step}
-                </div>
-                <span className={`text-[11px] font-bold uppercase tracking-wider ${
-                  currentStep === s.step ? "text-indigo-900 dark:text-indigo-300" :
-                  currentStep > s.step ? "text-emerald-600 dark:text-emerald-400" :
-                  "text-slate-400"
-                }`}>{s.title}</span>
+          {/* Form Container */}
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-3xl overflow-hidden">
+            
+            {/* Unified Form Header */}
+            <div className="bg-gradient-to-r from-indigo-600 to-blue-600 px-6 py-5 sm:px-8 flex items-center justify-between gap-4">
+              <h2 className="text-xl font-bold text-white">
+                {currentStep === 1 && "Category & Brand"}
+                {currentStep === 2 && "Product Details"}
+                {currentStep === 3 && "Shipping & Location"}
+                {currentStep === 4 && "Pricing & Variants"}
+              </h2>
+
+              {/* Minimal Stepper (Clickable Pagination) */}
+              <div className="flex items-center">
+                {[1, 2, 3, 4].map((step) => (
+                  <div key={step} className="flex items-center">
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep(step)}
+                      className={cn(
+                        "w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs transition-all hover:scale-105 active:scale-95 border",
+                        currentStep === step ? "bg-white text-indigo-600 border-white shadow-md ring-4 ring-white/30" :
+                        currentStep > step ? "bg-emerald-400 text-white border-emerald-400 hover:bg-emerald-500" :
+                        "bg-white/10 text-indigo-200 border-indigo-300/30 hover:bg-white/20 hover:text-white"
+                      )}
+                    >
+                      {currentStep > step ? <CheckCircle2 className="w-4 h-4" /> : step}
+                    </button>
+                    {step < 4 && (
+                      <div className={cn(
+                        "w-6 h-[2px] mx-1 rounded-full transition-colors",
+                        currentStep > step ? "bg-emerald-400" : "bg-white/20"
+                      )} />
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-            {/* Progress Line */}
-            <div className="absolute top-5 left-[12%] right-[12%] h-1 bg-slate-200 dark:bg-slate-800 -z-10 rounded-full">
-              <div className="h-full bg-emerald-500 rounded-full transition-all duration-500" style={{ width: `${((currentStep - 1) / 3) * 100}%` }} />
             </div>
-          </div>
+
+            {/* Form Body Container */}
+            <div className="p-6 sm:p-10 border-t border-slate-100 dark:border-slate-800">
 
 
           {/* ─── STEP 1: TAXONOMY & BRAND ─── */}
           <div className={currentStep === 1 ? 'block animate-in fade-in slide-in-from-bottom-4 duration-500' : 'hidden'}>
-            <div className="space-y-6">
-{/* ─── CARD 1: TAXONOMY & CATEGORY ─── */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <Compass className="w-4 h-4 text-indigo-600" />
-                Taxonomy &amp; Category
-              </h3>
+            <div className="space-y-8">
               
-              <div className="space-y-3">
-                {Array.from({ length: selectedCategoryPath.length + 1 }).map((_, levelIndex) => {
-                  if (isSuggestingCustomCategory && levelIndex > selectedCategoryPath.length) return null;
+              {/* ROW 1: Name and SKU */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Product Name*</label>
+                  <input type="text" required placeholder="e.g. Classic Black Tuxedo Suit for Men" value={title} onChange={(e) => setTitle(e.target.value)}
+                    className="w-full text-sm px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all hover:border-slate-300 dark:hover:border-slate-700 shadow-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Base SKU (Auto-generated)</label>
+                  <div className="flex gap-2">
+                    <input type="text" value={baseSku} readOnly placeholder="Auto-generating..."
+                      className="w-full text-sm px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none shadow-sm cursor-not-allowed font-mono font-bold" />
+                  </div>
+                </div>
+              </div>
 
-                  const options = levelIndex === 0 ? categoryTree : (selectedCategoryPath[levelIndex - 1]?.children || []);
-                  
-                  if (levelIndex === 0 && options.length === 0) return null;
+              {/* ROW 2: Category */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* MAIN CATEGORY */}
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Main Category*</label>
+                    <select 
+                      required
+                      value={selectedCategoryPath.length > 0 ? selectedCategoryPath[0].id : ""}
+                      onChange={(e) => handleCategoryLevelChange(0, e.target.value)}
+                      className="w-full text-sm px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all shadow-sm"
+                    >
+                      <option value="">-- Select Main Category --</option>
+                      {categoryTree.map((c) => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                      ))}
+                    </select>
+                  </div>
 
-                  const selectedId = (isSuggestingCustomCategory && levelIndex === selectedCategoryPath.length) 
-                    ? "create_new" 
-                    : (selectedCategoryPath[levelIndex]?.id || "");
-
-                  return (
-                    <div key={`cat-level-${levelIndex}`}>
-                      <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">
-                        {levelIndex === 0 ? "Department (Level 1)" : `Subcategory (Level ${levelIndex + 1})`}
-                      </label>
-                      <select 
-                        required={levelIndex === 0} 
-                        value={selectedId} 
-                        onChange={(e) => handleCategoryLevelChange(levelIndex, e.target.value)}
-                        className="w-full text-xs px-3 py-2.5 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-semibold"
-                      >
-                        <option value="">-- Select {levelIndex === 0 ? "Department" : "Subcategory"} --</option>
-                        {options.map((c) => (
-                          <option key={c.id} value={c.id}>{c.name}</option>
-                        ))}
-                        {levelIndex > 0 && (
-                          <option value="create_new" className="font-bold text-indigo-600">+ Add Custom Category</option>
-                        )}
-                      </select>
-                    </div>
-                  );
-                })}
+                  {/* SUBCATEGORY 1 */}
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Subcategory*</label>
+                    <select 
+                      required
+                      disabled={selectedCategoryPath.length === 0}
+                      value={selectedCategoryPath.length > 1 ? selectedCategoryPath[1].id : (isSuggestingCustomCategory ? "create_new" : "")}
+                      onChange={(e) => handleCategoryLevelChange(1, e.target.value)}
+                      className="w-full text-sm px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all shadow-sm disabled:opacity-50"
+                    >
+                      <option value="">-- Select Subcategory --</option>
+                      {selectedCategoryPath.length > 0 && selectedCategoryPath[0].children?.map((c) => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                      ))}
+                      {selectedCategoryPath.length > 0 && (
+                        <option value="create_new" className="font-bold text-indigo-600">+ Add Custom Category</option>
+                      )}
+                    </select>
+                  </div>
+                </div>
 
                 {isSuggestingCustomCategory && (
                   <div className="pt-2 animate-in fade-in slide-in-from-top-2">
@@ -803,7 +821,7 @@ export default function NewProductPage() {
                       placeholder="e.g., Traditional Wear / Men's Tilf"
                       value={suggestedCategory}
                       onChange={(e) => setSuggestedCategory(e.target.value)}
-                      className="w-full text-xs px-3 py-2.5 border border-indigo-200 dark:border-indigo-900/40 rounded-xl bg-indigo-50/30 dark:bg-indigo-950/20 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                      className="w-full text-sm px-4 py-3 border border-indigo-200 dark:border-indigo-900/40 rounded-xl bg-indigo-50/30 dark:bg-indigo-950/20 text-slate-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all shadow-sm"
                     />
                     <p className="text-[10px] text-slate-400 mt-1">
                       Type the category and subcategory you need, separated by a slash ( / ). We'll place it in the closest match for now.
@@ -812,62 +830,40 @@ export default function NewProductPage() {
                 )}
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">Brand (Optional)</label>
-                <select value={selectedBrandId} onChange={(e) => setSelectedBrandId(e.target.value)}
-                  className="w-full text-xs px-3 py-2.5 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+              {/* ROW 3: Brand and Variant Toggle */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Brand (Optional)</label>
+                  <select value={selectedBrandId} onChange={(e) => setSelectedBrandId(e.target.value)}
+                  className="w-full text-sm px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all hover:border-slate-300 dark:hover:border-slate-700 shadow-sm">
                   <option value="">[ Unbranded / Generic ]</option>
                   <option value="create_new" className="font-bold text-indigo-600">+ Create New Brand</option>
                   {scopedBrands.map((b) => (
                     <option key={b.id} value={b.id}>{b.name}</option>
                   ))}
                 </select>
+                  {/* New Brand Logic */}
+                </div>
+                
               </div>
 
-              {selectedBrandId === "create_new" && (
-                <div>
-                  <label className="block text-[11px] font-bold text-emerald-600 uppercase tracking-wide mb-1">New Brand Name</label>
-                  <input
-                    type="text"
-                    placeholder="Type your custom brand name..."
-                    value={newBrandName}
-                    onChange={(e) => setNewBrandName(e.target.value)}
-                    className="w-full text-xs px-3 py-2.5 border border-emerald-200 dark:border-emerald-900/40 rounded-xl bg-emerald-50/30 dark:bg-emerald-950/20 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                  />
-                  <p className="text-[10px] text-emerald-600 mt-1">This brand will be exclusive to your store.</p>
-                </div>
-              )}
-            </div>
-
-            
-            </div>
+</div>
           </div>
-
-
           {/* ─── STEP 2: DETAILS & MEDIA ─── */}
           <div className={currentStep === 2 ? 'block animate-in fade-in slide-in-from-bottom-4 duration-500' : 'hidden'}>
             <div className="space-y-6">
 {/* ─── SECTION 1: BASIC DETAILS ─── */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-5">
-              <h2 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <Layers className="w-4 h-4 text-indigo-600" />
-                1. Basic Information
-              </h2>
+            <div className="space-y-5">
               
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Product Title*</label>
-                <input type="text" required placeholder="e.g. Classic Black Tuxedo Suit for Men" value={title} onChange={(e) => setTitle(e.target.value)}
-                  className="w-full text-sm px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all" />
-              </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Short Summary</label>
+                <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Short Summary</label>
                 <input type="text" placeholder="Key selling points in 1 sentence..." value={shortDescription} onChange={(e) => setShortDescription(e.target.value)}
-                  className="w-full text-xs px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all" />
+                  className="w-full text-sm px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all hover:border-slate-300 dark:hover:border-slate-700 shadow-sm" />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Detailed Description (Rich Text/MD)*</label>
+                <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Detailed Description (Rich Text/MD)*</label>
                 <textarea rows={5} required placeholder="Comprehensive product specifications, features, warranty, and compatibility..." value={description} onChange={(e) => setDescription(e.target.value)}
                   className="w-full text-xs p-4 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all leading-relaxed" />
               </div>
@@ -904,7 +900,7 @@ export default function NewProductPage() {
 
             
             {/* ─── SECTION 3: MEDIA GALLERY ─── */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm">
+            <div className="pt-6 mt-6 border-t border-slate-200 dark:border-slate-800">
               <ProductImageUploader images={images} onChange={setImages} />
             </div>
           </div>
@@ -914,13 +910,9 @@ export default function NewProductPage() {
           <div className={currentStep === 3 ? 'block animate-in fade-in slide-in-from-bottom-4 duration-500' : 'hidden'}>
             <div className="space-y-6">
 {/* ─── SECTION 2: 1-CLICK PACKAGE SIZE PRESETS & SHIPPING ─── */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-6">
+            <div className="space-y-6">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div>
-                  <h2 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <Package className="w-4 h-4 text-indigo-600" />
-                    2. Package Size Presets &amp; Shipping Tier
-                  </h2>
                   <p className="text-[11px] text-slate-500 mt-0.5">Click a standard preset to auto-fill logistics weights and dimensions for courier line-haul.</p>
                 </div>
                 <div className="flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 rounded-full text-[10px] font-bold">
@@ -1047,7 +1039,7 @@ export default function NewProductPage() {
                     {shippingClass !== "DIGITAL" && (
                       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-2">
                         <div>
-                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Weight (kg)</label>
+                          <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Weight (kg)</label>
                           <input
                             type="number"
                             step="0.01"
@@ -1062,7 +1054,7 @@ export default function NewProductPage() {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Length (cm)</label>
+                          <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Length (cm)</label>
                           <input
                             type="number"
                             step="0.1"
@@ -1077,7 +1069,7 @@ export default function NewProductPage() {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Width (cm)</label>
+                          <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Width (cm)</label>
                           <input
                             type="number"
                             step="0.1"
@@ -1092,7 +1084,7 @@ export default function NewProductPage() {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Height (cm)</label>
+                          <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Height (cm)</label>
                           <input
                             type="number"
                             step="0.1"
@@ -1115,18 +1107,14 @@ export default function NewProductPage() {
 
             
 {/* ─── CARD 2: INBOUND LOGISTICS HUB ─── */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <Warehouse className="w-4 h-4 text-indigo-600" />
-                Inbound Logistics Hub
-              </h3>
+            <div className="space-y-4 pt-6 mt-6 border-t border-slate-200 dark:border-slate-800">
               
               <div>
-                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">Receiving Facility</label>
+                <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Fulfillment Location</label>
                 <select 
                   value={selectedWarehouseId} 
                   onChange={(e) => setSelectedWarehouseId(e.target.value)}
-                  className="w-full text-xs px-3 py-2.5 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-semibold">
+                  className="w-full text-sm px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all hover:border-slate-300 dark:hover:border-slate-700 shadow-sm">
                   {warehouses.map((w) => (
                     <option key={w.id} value={w.id}>{w.name} {w.code ? `[${w.code}]` : ''}</option>
                   ))}
@@ -1144,262 +1132,230 @@ export default function NewProductPage() {
           {/* ─── STEP 4: STRATEGY & VARIANTS ─── */}
           <div className={currentStep === 4 ? 'block animate-in fade-in slide-in-from-bottom-4 duration-500' : 'hidden'}>
             <div className="space-y-6">
-<div className="mt-8">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-6">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <h2 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <Package className="w-4 h-4 text-indigo-600" />
-                3. Strategy &amp; Variants
-              </h2>
               
-              {/* Strategy Toggle */}
-              <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
-                {([
-                  { type: "SIMPLE" as ProductType, label: "Single SKU" },
-                  { type: "CONFIGURABLE_VARIANT" as ProductType, label: "Multi-Variant" },
-                ] as const).map(({ type, label }) => (
-                  <button key={type} type="button" onClick={() => setProductType(type)}
-                    className={cn("px-4 py-1.5 rounded-lg text-xs font-bold transition-all",
-                      productType === type
-                        ? "bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 shadow-sm"
-                        : "text-slate-500 hover:text-slate-700")}>
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {productType === "SIMPLE" ? (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {[
-                  { label: "Selling Price (ETB)*", placeholder: "e.g. 85000", value: price, onChange: setPrice, required: true },
-                  { label: "Compare-at Price (ETB)", placeholder: "e.g. 95000", value: compareAtPrice, onChange: setCompareAtPrice, required: false },
-                  { label: "Initial Stock (Units)*", placeholder: "e.g. 15", value: initialStock, onChange: setInitialStock, required: true },
-                ].map((field) => (
-                  <div key={field.label}>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">{field.label}</label>
-                    <input type="number" required={field.required} placeholder={field.placeholder} value={field.value} onChange={(e) => field.onChange(e.target.value)}
-                      className="w-full text-xs px-4 py-2.5 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-bold" />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {/* Dimension Generator */}
-                {variantAttributes.length === 0 ? (
-                  <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-500 text-center">
-                    Select a taxonomy category first to configure dimensions.
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    {/* Variant Opt-In Builder */}
-                    <div className="bg-slate-50 dark:bg-slate-900/50 p-5 rounded-2xl border border-indigo-100 dark:border-indigo-900/30">
-                      <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-2">How would you like to create variants?</h3>
-                      <p className="text-xs text-slate-500 mb-4">Suggested standard dimensions for this category:</p>
-                      
-                      <div className="space-y-3">
-                        {variantAttributes.map(binding => (
-                          <label key={`optin-${binding.id}`} className="flex items-center gap-3 cursor-pointer group">
-                            <input
-                              type="checkbox"
-                              className="hidden"
-                              checked={activeVariantAttributes.includes(binding.attribute.id)}
-                              onChange={() => toggleActiveAttribute(binding.attribute.id)}
-                            />
-                            <div className={cn(
-                              "w-5 h-5 rounded border flex items-center justify-center transition-all",
-                              activeVariantAttributes.includes(binding.attribute.id)
-                                ? "bg-indigo-600 border-indigo-600"
-                                : "bg-white border-slate-300 group-hover:border-indigo-400"
-                            )}>
-                              {activeVariantAttributes.includes(binding.attribute.id) && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
-                            </div>
-                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                              {binding.attribute.name}
-                            </span>
-                          </label>
-                        ))}
-                      </div>
+              {/* === UNIFIED PRICING & VARIANTS CARD === */}
+              <div className="space-y-6 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                
+                {/* 1. BASE PRICING (ALWAYS AT TOP) */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Selling Price*</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">ETB</span>
+                      <input type="number" required placeholder="85000" value={price} onChange={(e) => setPrice(e.target.value)}
+                        className="w-full text-lg font-bold pl-14 pr-4 py-3.5 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-300 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-600 transition-all shadow-sm" />
                     </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Discount Price</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">ETB</span>
+                      <input type="number" placeholder="95000 (Optional)" value={compareAtPrice} onChange={(e) => setCompareAtPrice(e.target.value)}
+                        className="w-full text-lg font-bold pl-14 pr-4 py-3.5 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-300 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all shadow-sm" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Available Stock*</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">QTY</span>
+                      <input type="number" required placeholder="15" value={initialStock} onChange={(e) => setInitialStock(e.target.value)}
+                        className="w-full text-lg font-bold pl-14 pr-4 py-3.5 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-300 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all shadow-sm" />
+                    </div>
+                  </div>
+                </div>
 
-                    {/* Dimension Generator */}
-                    {activeVariantAttributes.length > 0 && (
-                      <div className="space-y-5 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Dimension Generator</h3>
+                {/* 2. VARIATIONS STRATEGY (BOTTOM) */}
+                <div className="pt-6 border-t border-slate-200 dark:border-slate-800 space-y-4">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Variations Strategy</label>
+                    <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-fit">
+                      {([
+                        { type: "SIMPLE" as ProductType, label: "No Variants (Simple)" },
+                        { type: "CONFIGURABLE_VARIANT" as ProductType, label: "Has Variants (Colors/Sizes)" },
+                      ] as const).map(({ type, label }) => (
+                        <button key={type} type="button" onClick={() => setProductType(type)}
+                          className={cn("px-4 py-1.5 rounded-lg text-xs font-bold transition-all",
+                            productType === type
+                              ? "bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 shadow-sm"
+                              : "text-slate-500 hover:text-slate-700")}>
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-[10px] text-slate-500 mt-1">Toggle whether this product comes in different colors, sizes, or configurations.</p>
+                  </div>
+
+                  {/* DIMENSIONS GENERATOR & MATRIX */}
+                  {productType === "CONFIGURABLE_VARIANT" && (
+                    <div className="space-y-6 pt-4">
+                      {variantAttributes.length === 0 ? (
+                        <div className="p-6 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm text-slate-500 text-center font-medium shadow-sm">
+                          Select a taxonomy category in Step 1 first to configure variant dimensions.
                         </div>
-                        {variantAttributes.filter(b => activeVariantAttributes.includes(b.attribute.id)).map((binding) => {
-                          const isColorAttr = binding.attribute.name.toLowerCase().includes("color");
-                      const selectedCount = (selectedAttrValues[binding.attribute.id] || []).length;
-                      
-                      const selectedValuesText = binding.attribute.values
-                        .filter(v => (selectedAttrValues[binding.attribute.id] || []).includes(v.id))
-                        .map(v => v.value)
-                        .join(', ');
-
-                      return (
-                        <div key={binding.id} className="space-y-2 relative">
-                          <div className="flex items-center justify-between">
-                            <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide flex items-center gap-1.5">
-                              <span>{binding.attribute.name}</span>
-                              {binding.is_required && (
-                                <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800">
-                                  * Required
-                                </span>
-                              )}
-                            </label>
+                      ) : (
+                        <div className="space-y-8">
+                          {/* Variant Opt-In Builder */}
+                          <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-indigo-100 dark:border-indigo-900/30 shadow-sm">
+                            <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-2">What kind of variations does this product have?</h3>
+                            <p className="text-sm text-slate-500 mb-6">Select the options that apply to this product (e.g., Color Only, Size Only, or both Color & Size):</p>
+                            
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                              {variantAttributes.map(binding => (
+                                <label key={`optin-${binding.id}`} className="flex items-center gap-3 cursor-pointer group p-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl hover:border-indigo-400 dark:hover:border-indigo-500 transition-all shadow-sm">
+                                  <input
+                                    type="checkbox"
+                                    className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                                    checked={activeVariantAttributes.includes(binding.attribute.id)}
+                                    onChange={() => toggleActiveAttribute(binding.attribute.id)}
+                                  />
+                                  <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                                    {binding.attribute.name}
+                                  </span>
+                                </label>
+                              ))}
+                            </div>
                           </div>
-                          
-                          <button 
-                            type="button" 
-                            onClick={() => setOpenDropdownId(openDropdownId === binding.attribute.id ? null : binding.attribute.id)}
-                            className="w-full flex items-center justify-between px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-950 text-sm font-semibold transition-all hover:border-indigo-400">
-                            <span className="flex items-center gap-2">
-                              {isColorAttr ? <Sparkles className="w-4 h-4 text-indigo-500" /> : <LayersIcon className="w-4 h-4 text-indigo-500" />}
-                              {selectedCount > 0 ? (
-                                <span className="text-slate-900 dark:text-white truncate max-w-[200px] sm:max-w-[300px] text-left">
-                                  {selectedCount} Selected <span className="text-slate-400 font-normal">({selectedValuesText})</span>
-                                </span>
-                              ) : (
-                                <span className="text-slate-400">Select {binding.attribute.name.toLowerCase()}...</span>
-                              )}
-                            </span>
-                            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${openDropdownId === binding.attribute.id ? "rotate-180" : ""}`} />
-                          </button>
 
-                          {openDropdownId === binding.attribute.id && (
-                            <div className="absolute z-20 top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl p-4 max-h-72 overflow-y-auto animate-in fade-in slide-in-from-top-2">
-                              {/* Standard & Custom Option Pills */}
-                              <div className="flex flex-wrap gap-2">
-                                {binding.attribute.values.map((v) => {
-                                  const isChecked = (selectedAttrValues[binding.attribute.id] || []).includes(v.id);
+                          {/* Dimension Generator */}
+                          {activeVariantAttributes.length > 0 && (
+                            <div className="space-y-6 bg-white dark:bg-slate-950 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                              <div className="flex items-center justify-between mb-2">
+                                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Configure Options</h3>
+                              </div>
+                              <div className="space-y-6">
+                                {variantAttributes.filter(b => activeVariantAttributes.includes(b.attribute.id)).map((binding) => {
                                   return (
-                                    <button
-                                      key={v.id}
-                                      type="button"
-                                      onClick={() => handleToggleAttrValue(binding.attribute.id, v.id)}
-                                      className={cn(
-                                        "px-3.5 py-1.5 rounded-xl border text-xs font-bold transition-all",
-                                        isChecked
-                                          ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
-                                          : "bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-indigo-400"
-                                      )}
-                                    >
-                                      {v.value}
-                                    </button>
+                                    <div key={binding.id} className="space-y-3">
+                                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide flex items-center gap-2">
+                                        <span>{binding.attribute.name}</span>
+                                        <span className="px-2 py-0.5 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-full text-[9px]">* REQUIRED</span>
+                                      </label>
+                                      <div className="flex flex-col gap-3">
+                                        <select 
+                                          className="w-full text-sm px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all shadow-sm"
+                                          onChange={(e) => {
+                                            const valId = e.target.value;
+                                            if (!valId) return;
+                                            setSelectedAttrValues(prev => ({ 
+                                              ...prev, 
+                                              [binding.attribute.id]: prev[binding.attribute.id]?.includes(valId) 
+                                                ? prev[binding.attribute.id] 
+                                                : [...(prev[binding.attribute.id] || []), valId] 
+                                            }));
+                                            e.target.value = "";
+                                          }}
+                                        >
+                                          <option value="">Select {binding.attribute.name.toLowerCase()}...</option>
+                                          {binding.attribute.values && binding.attribute.values.map((val: any) => (
+                                            <option key={val.id} value={val.id} disabled={(selectedAttrValues[binding.attribute.id] || []).includes(val.id)}>
+                                              {val.value}
+                                            </option>
+                                          ))}
+                                        </select>
+
+                                        {/* Selected Pills */}
+                                        {(selectedAttrValues[binding.attribute.id] || []).length > 0 && (
+                                          <div className="flex flex-wrap gap-2 p-3 border border-slate-100 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-900/50">
+                                            {(selectedAttrValues[binding.attribute.id] || []).map(valId => {
+                                              const v = binding.attribute.values?.find((x: any) => x.id === valId);
+                                              if (!v) return null;
+                                              return (
+                                                <span key={valId} className="flex items-center gap-2 px-3 py-1.5 bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 rounded-lg text-sm font-bold shadow-sm">
+                                                  {v.value}
+                                                  <button type="button" className="hover:text-rose-500" onClick={() => {
+                                                    setSelectedAttrValues(prev => ({ 
+                                                      ...prev, 
+                                                      [binding.attribute.id]: (prev[binding.attribute.id] || []).filter(id => id !== valId) 
+                                                    }));
+                                                  }}>
+                                                    <X className="w-3.5 h-3.5" />
+                                                  </button>
+                                                </span>
+                                              );
+                                            })}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
                                   );
                                 })}
                               </div>
-
-                              {/* Inline Custom Value Adder */}
-                              <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2">
-                                <input
-                                  type="text"
-                                  value={customAttrInputs[binding.attribute.id] || ""}
-                                  onChange={(e) =>
-                                    setCustomAttrInputs((prev) => ({ ...prev, [binding.attribute.id]: e.target.value }))
-                                  }
-                                  onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                      e.preventDefault();
-                                      handleAddCustomAttrValue(binding.attribute.id);
-                                    }
-                                  }}
-                                  placeholder={`+ Add custom ${binding.attribute.name.toLowerCase()}...`}
-                                  className="flex-1 text-xs px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-900 dark:text-white placeholder:text-slate-400"
-                                />
-                                <button
-                                  type="button"
-                                  onClick={() => handleAddCustomAttrValue(binding.attribute.id)}
-                                  disabled={!customAttrInputs[binding.attribute.id]?.trim()}
-                                  className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all disabled:opacity-40"
-                                >
-                                  Add
-                                </button>
-                              </div>
                             </div>
                           )}
-                        </div>
-                      );
-                    })}
-                      </div>
-                    )}
-
-                    <div className="my-6 border-t border-dashed border-slate-200 dark:border-slate-800" />
-
-                    {customDimensions.map((dim) => (
-                      <div key={dim.id} className="relative p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm space-y-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
-                            Custom Dimension
-                          </label>
-                          <button type="button" onClick={() => removeCustomDimension(dim.id)} className="text-slate-400 hover:text-rose-500 transition-colors p-1">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                        
-                        <div>
-                          <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Dimension Name (e.g., Material, Style, Fit)</label>
-                          <input 
-                            type="text" 
-                            value={dim.name} 
-                            onChange={(e) => updateCustomDimensionName(dim.id, e.target.value)} 
-                            placeholder="Type dimension name..."
-                            className="w-full text-sm px-4 py-2.5 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500/20 outline-none font-semibold text-slate-900 dark:text-white"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Dimension Values (Type and press Enter or Add)</label>
-                          <div className="w-full min-h-[46px] p-2 border border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-950 flex flex-wrap gap-2 items-center focus-within:ring-2 focus-within:ring-indigo-500/20">
-                            {dim.values.map((v) => (
-                              <span key={v} className="flex items-center gap-1.5 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-lg text-xs font-bold">
-                                {v}
-                                <button type="button" onClick={() => removeCustomDimensionValue(dim.id, v)} className="hover:text-rose-500"><X className="w-3 h-3" /></button>
-                              </span>
-                            ))}
-                            <div className="flex-1 flex items-center gap-2 min-w-[200px]">
-                              <input 
-                                type="text" 
-                                value={dim.currentInput} 
-                                onChange={(e) => updateCustomDimensionInput(dim.id, e.target.value)} 
-                                onKeyDown={(e) => addCustomDimensionValue(dim.id, e)} 
-                                placeholder="Add value..."
-                                className="flex-1 bg-transparent border-none focus:outline-none text-sm text-slate-900 dark:text-white placeholder:text-slate-400"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => addCustomDimensionValue(dim.id)}
-                                disabled={!dim.currentInput.trim()}
-                                className="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 rounded-lg text-xs font-bold transition-all disabled:opacity-30"
-                              >
-                                Add
-                              </button>
+                          
+                          <div className="border-t border-dashed border-slate-200 dark:border-slate-800 my-4" />
+                          
+                          {customDimensions.map((dim) => (
+                            <div key={dim.id} className="relative p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm space-y-4">
+                              <div className="flex items-center justify-between mb-2">
+                                <label className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide">
+                                  Custom Measurement / Dimension
+                                </label>
+                                <button type="button" onClick={() => setCustomDimensions(prev => prev.filter(d => d.id !== dim.id))} className="text-slate-400 hover:text-rose-500 transition-colors p-1">
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mb-2">Dimension Name</label>
+                                  <input 
+                                    type="text" 
+                                    value={dim.name} 
+                                    onChange={(e) => setCustomDimensions(prev => prev.map(d => d.id === dim.id ? { ...d, name: e.target.value } : d))}
+                                    placeholder="e.g. Material, Style, Fit..."
+                                    className="w-full text-sm px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all font-semibold text-slate-900 dark:text-white shadow-sm"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase mb-2">Options (Press Enter to Add)</label>
+                                  <div className="w-full min-h-[46px] p-2 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 flex flex-wrap gap-2 items-center focus-within:ring-4 focus-within:ring-indigo-500/10 focus-within:border-indigo-600 shadow-sm">
+                                    {dim.values.map((v) => (
+                                      <span key={v} className="flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 rounded-lg text-sm font-bold shadow-sm">
+                                        {v}
+                                        <button type="button" onClick={() => setCustomDimensions(prev => prev.map(d => d.id === dim.id ? { ...d, values: d.values.filter(val => val !== v) } : d))} className="hover:text-rose-500"><X className="w-3 h-3" /></button>
+                                      </span>
+                                    ))}
+                                    <input 
+                                      type="text" 
+                                      value={dim.currentInput} 
+                                      onChange={(e) => setCustomDimensions(prev => prev.map(d => d.id === dim.id ? { ...d, currentInput: e.target.value } : d))}
+                                      onKeyDown={(e) => {
+                                        if (e.key === "Enter" && dim.currentInput.trim()) {
+                                          e.preventDefault();
+                                          setCustomDimensions(prev => prev.map(d => d.id === dim.id ? { ...d, values: [...d.values, d.currentInput.trim()], currentInput: "" } : d));
+                                        }
+                                      }} 
+                                      placeholder="Type here..."
+                                      className="flex-1 min-w-[120px] bg-transparent border-none focus:outline-none text-sm text-slate-900 dark:text-white placeholder:text-slate-400 ml-2"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
                             </div>
+                          ))}
+
+                          <button type="button" onClick={() => setCustomDimensions(prev => [...prev, { id: Math.random().toString(), name: "", values: [], currentInput: "" }])} className="w-full py-4 border-2 border-dashed border-indigo-200 dark:border-indigo-800/60 rounded-2xl text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors flex items-center justify-center gap-2 shadow-sm">
+                            <Plus className="w-5 h-5" /> Add Custom Measurement / Advanced Dimension
+                          </button>
+
+                          <div className="pt-6 border-t border-slate-200 dark:border-slate-800">
+                            <ProductVariantMatrix
+                              variants={variants}
+                              storeCode={vendorStoreName}
+                              categoryCode={selectedCategoryPath.length > 0 ? (selectedCategoryPath[selectedCategoryPath.length - 1].slug || "CAT").substring(0, 4).toUpperCase() : "CAT"}
+                              onChange={setVariants}
+                            />
                           </div>
                         </div>
-                      </div>
-                    ))}
-
-                    <button type="button" onClick={addCustomDimension} className="w-full py-4 border-2 border-dashed border-indigo-200 dark:border-indigo-800/60 rounded-2xl text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors flex items-center justify-center gap-2 mt-2">
-                      <Plus className="w-5 h-5" /> Add Another Custom Variant Dimension
-                    </button>
-                  </div>
-                )}
-
-                {/* Unified Variant Matrix */}
-                <ProductVariantMatrix
-                  variants={variants}
-                  storeCode={vendorStoreName}
-                  categoryCode={selectedCategoryPath.length > 0 ? (selectedCategoryPath[selectedCategoryPath.length - 1].slug || "CAT").substring(0, 4).toUpperCase() : "CAT"}
-                  onChange={setVariants}
-                />
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
-            </div>
-          </div>
               
           {/* ─── FINAL REVIEW CARD ─── */}
-          <div className="bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 rounded-3xl p-6 shadow-sm">
+          <div className="bg-indigo-50/30 dark:bg-indigo-950/20 border border-indigo-100/50 dark:border-indigo-900/30 rounded-xl p-5">
                 <h3 className="text-sm font-bold text-indigo-900 dark:text-indigo-300 flex items-center gap-2 mb-4">
                   <CheckCircle2 className="w-5 h-5 text-indigo-600" />
                   Final Review Summary
@@ -1431,6 +1387,9 @@ export default function NewProductPage() {
             </div>
           </div>
 
+
+            </div>
+          </div>
 
           {/* ─── WIZARD NAVIGATION ─── */}
           <div className="flex items-center justify-between pt-8 mt-8 border-t border-slate-200 dark:border-slate-800">

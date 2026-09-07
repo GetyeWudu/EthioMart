@@ -76,8 +76,8 @@ export const useCartStore = create<CartStore>()(
             serverSubtotal: res.data.subtotal || 0,
             serverAutomaticDiscount: res.data.automatic_discount || 0
           });
-        } catch (error) {
-          console.error("Failed to initialize cart", error);
+        } catch (error: any) {
+          console.warn("Failed to initialize cart", error?.message || error);
         } finally {
           set({ isLoading: false });
         }
@@ -96,7 +96,7 @@ export const useCartStore = create<CartStore>()(
           }, { headers });
           await get().initializeCart();
         } catch (error) {
-          console.error("Failed to add item", error);
+          console.warn("Failed to add item", error?.message || error);
           throw error;
         } finally {
           set({ isLoading: false });
@@ -112,7 +112,7 @@ export const useCartStore = create<CartStore>()(
           await api.patch(`/carts/items/${itemId}/`, { quantity }, { headers });
           await get().initializeCart();
         } catch (error) {
-          console.error("Failed to update item", error);
+          console.warn("Failed to update item", error?.message || error);
           throw error;
         }
       },
@@ -132,7 +132,7 @@ export const useCartStore = create<CartStore>()(
           
           await get().initializeCart();
         } catch (error) {
-          console.error("Failed to update item variant", error);
+          console.warn("Failed to update item variant", error?.message || error);
           throw error;
         } finally {
           set({ isLoading: false });
@@ -147,7 +147,7 @@ export const useCartStore = create<CartStore>()(
           await api.delete(`/carts/items/${itemId}/`, { headers });
           await get().initializeCart();
         } catch (error) {
-          console.error("Failed to remove item", error);
+          console.warn("Failed to remove item", error?.message || error);
         }
       },
 

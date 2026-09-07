@@ -92,7 +92,13 @@ export const catalogService = {
   // -------------------------------------------------------------
   // Seller Portal APIs
   // -------------------------------------------------------------
-  getSellerProducts: async (params?: { status?: string; search?: string; archived?: string }): Promise<ProductListItem[]> => {
+  getSellerProducts: async (params?: { 
+    status?: string; 
+    search?: string; 
+    archived?: string;
+    category?: string;
+    ordering?: string;
+  }): Promise<ProductListItem[]> => {
     return apiClient<ProductListItem[]>("/catalog/seller/products/", { params });
   },
 

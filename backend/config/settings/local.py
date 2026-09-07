@@ -98,3 +98,13 @@ CSRF_TRUSTED_ORIGINS = [
 # Logging (Console)
 # ---------------------------------------------------------------------------
 LOGGING["handlers"]["console"]["level"] = "DEBUG"
+
+# Override media storage for local dev since Cloudinary keys are missing
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}

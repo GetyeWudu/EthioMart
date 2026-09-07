@@ -9,6 +9,7 @@ import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import api from "@/lib/api";
 
@@ -16,6 +17,7 @@ export function OrderTable({ orders = [], onRefresh }: { orders?: any[], onRefre
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams?.get("tab") || "All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("Newest First");
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -84,40 +86,74 @@ export function OrderTable({ orders = [], onRefresh }: { orders?: any[], onRefre
 
     if (activeTab === "All") return matchesSearch;
     
-    // Check if any item in the order has the activeTab status
     const matchesStatus = order.items?.some((item: any) => item.status === activeTab);
     return matchesSearch && matchesStatus;
   });
 
+  const sortedOrders = [...filteredOrders].sort((a, b) => {
+    if (sortBy === "Newest First") {
+      return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+    }
+    if (sortBy === "Oldest First") {
+      return new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime();
+    }
+    if (sortBy === "Highest Amount") {
+      return parseFloat(b.sub_total || "0") - parseFloat(a.sub_total || "0");
+    }
+    if (sortBy === "Lowest Amount") {
+      return parseFloat(a.sub_total || "0") - parseFloat(b.sub_total || "0");
+    }
+    return 0;
+  });
+
   return (
-    <div className="bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
       
       {/* Table Toolbar */}
-      <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex flex-col gap-4">
+      <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
         
-        {/* Search & Filters Row */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
-          <Tabs defaultValue="All" value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-auto">
-            <TabsList className="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-1">
-              <TabsTrigger value="All" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 text-xs sm:text-sm">All</TabsTrigger>
-              <TabsTrigger value="PENDING" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 text-xs sm:text-sm">Pending</TabsTrigger>
-              <TabsTrigger value="READY_FOR_DISPATCH" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 text-xs sm:text-sm">Ready</TabsTrigger>
-              <TabsTrigger value="DISPATCHED" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 text-xs sm:text-sm">Dispatched</TabsTrigger>
-              <TabsTrigger value="DELIVERED" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 text-xs sm:text-sm">Delivered</TabsTrigger>
-            </TabsList>
-          </Tabs>
-          
-          <div className="flex gap-2 w-full sm:w-auto">
-            <div className="relative flex-1 sm:w-64">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
-              <Input
-                placeholder="Search orders..."
-                className="pl-9 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 h-9 text-sm"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </div>
+        {/* Search Left */}
+        <div className="relative w-full sm:w-96 shrink-0">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search orders, customers, or SKUs..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-4 h-10 text-xs border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-500 transition-all outline-none text-slate-900 dark:text-white"
+          />
+        </div>
+
+        {/* Filters Right */}
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+          <Select value={activeTab} onValueChange={setActiveTab}>
+            <SelectTrigger className="w-full sm:w-[160px] h-10 rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs focus:ring-indigo-500">
+              <SelectValue placeholder="All Statuses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="All" className="text-xs">All Statuses</SelectItem>
+                <SelectItem value="PENDING" className="text-xs">Pending</SelectItem>
+                <SelectItem value="READY_FOR_DISPATCH" className="text-xs">Ready for Dispatch</SelectItem>
+                <SelectItem value="DISPATCHED" className="text-xs">Dispatched</SelectItem>
+                <SelectItem value="DELIVERED" className="text-xs">Delivered</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-full sm:w-[160px] h-10 rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs focus:ring-indigo-500">
+              <SelectValue placeholder="Sort By" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="Newest First" className="text-xs">Newest First</SelectItem>
+                <SelectItem value="Oldest First" className="text-xs">Oldest First</SelectItem>
+                <SelectItem value="Highest Amount" className="text-xs">Highest Amount</SelectItem>
+                <SelectItem value="Lowest Amount" className="text-xs">Lowest Amount</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -134,7 +170,7 @@ export function OrderTable({ orders = [], onRefresh }: { orders?: any[], onRefre
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
-            {filteredOrders.length === 0 ? (
+            {sortedOrders.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-5 py-10 text-center text-slate-500">
                   <div className="flex flex-col items-center justify-center">
@@ -144,7 +180,7 @@ export function OrderTable({ orders = [], onRefresh }: { orders?: any[], onRefre
                 </td>
               </tr>
             ) : (
-              filteredOrders.map((order) => (
+              sortedOrders.map((order) => (
                 <tr key={order.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
                   <td className="px-5 py-4 align-top">
                     <div className="flex items-center gap-1.5 flex-wrap mb-1.5">

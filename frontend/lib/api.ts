@@ -6,6 +6,42 @@
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
+export function getImageUrl(path: string | undefined | null, seed: string = "default"): string {
+  if (!path) {
+    const fallbacks = [
+      "1505740420928-5e560c06d30e",
+      "1523275335684-37898b6baf30",
+      "1526170375885-4d8ecf77b99f",
+      "1542291026-7eec264c27ff",
+      "1572635196237-14b3f281503f",
+      "1505739998589-00fc191ce01d",
+      "1583394838336-acd977736f90",
+      "1611186871348-b1ce696e52c9",
+      "1524805444758-089113d48a6d",
+      "1546868871-7041f2a55e12",
+      "1581539250439-c96689b516dd",
+      "1593640408182-31c70c8268f5",
+      "1603302576837-37561b2e2302",
+      "1525966222134-fcfa99b8ae77",
+      "1584916201218-f4242ceb4809",
+      "1608248543803-ba4f8c70ae0b",
+      "1627384113743-6bd5a479fffd",
+    ];
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+      hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const selectedId = fallbacks[Math.abs(hash) % fallbacks.length];
+    return `https://images.unsplash.com/photo-${selectedId}?q=80&w=600&auto=format&fit=crop`;
+  }
+  
+  if (path.startsWith("http")) return path;
+  
+  // Extract base URL from API_URL (e.g. "http://127.0.0.1:8000")
+  const baseUrl = API_URL.split("/api/")[0];
+  return `${baseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
+}
+
 export interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | boolean | undefined>;
 }
@@ -143,7 +179,9 @@ async function handleResponse<T>(response: Response): Promise<T> {
     let message = "";
 
     // 1. Check for standard DRF 'errors' array or string
-    if (Array.isArray(errorData?.errors)) {
+    if (Array.isArray(errorData)) {
+      message = errorData.join(" ");
+    } else if (Array.isArray(errorData?.errors)) {
       message = errorData.errors.join(" ");
     } else if (typeof errorData?.errors === "string") {
       message = errorData.errors;
@@ -165,7 +203,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
     // 3. Check for DRF field validation dictionary (e.g. {"sku": ["..."], "title": ["..."]})
     else if (typeof errorData === "object" && errorData !== null) {
       const fieldErrors = Object.entries(errorData)
-        .map(([field, errs]) => `${field}: ${Array.isArray(errs) ? errs.join(", ") : errs}`)
+        .map(([field, errs]) => `${field !== 'non_field_errors' ? field + ': ' : ''}${Array.isArray(errs) ? errs.join(", ") : errs}`)
         .join(" | ");
       if (fieldErrors) {
         message = fieldErrors;
