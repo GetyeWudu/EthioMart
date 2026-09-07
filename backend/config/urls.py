@@ -57,6 +57,7 @@ urlpatterns = [
     path("api/v1/vendors/", include("apps.vendors.urls")),
     path("api/v1/admin/vendors/", include("apps.vendors.admin_urls")),
     path("api/v1/admin/payments/", include("apps.payments.admin_urls")),
+    path("api/v1/admin/inventory/", include("apps.inventory.admin_urls")),
     path("api/v1/admin/", include("apps.orders.admin_urls")),
     path("api/v1/admin/customers/", include([
         path("", include("apps.users.admin_urls")),

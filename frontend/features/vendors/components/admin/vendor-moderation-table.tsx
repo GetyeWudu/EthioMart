@@ -1,147 +1,271 @@
 /**
  * frontend/features/vendors/components/admin/vendor-moderation-table.tsx
  * ====================================================================
- * Admin vendor moderation table with search, status pills, trust tiers,
- * and quick-navigation to review vendor details.
+ * Admin vendor moderation table with search on the left, inline dropdowns
+ * on the right, trust tier badges, and quick-navigation to review vendor details.
+ * Enterprise production-grade styling.
  */
 
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Store,
   Search,
-  CheckCircle2,
-  Clock,
-  AlertTriangle,
-  XCircle,
-  ChevronRight,
-  Sparkles,
-  ShieldCheck,
-  ShieldAlert,
+  RotateCcw,
+  X,
+  Loader2,
+  Trash2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { KYCStatusBadge, TrustTierBadge } from "../kyc/kyc-status-badge";
-import { AdminVendorListItem, VendorStatus } from "../../types";
+import { DeleteVendorIssueDialog } from "./vendor-action-dialogs";
+import { vendorService } from "../../services/vendor-service";
+import { AdminVendorListItem } from "../../types";
+import { cn } from "@/lib/utils";
 
 interface VendorModerationTableProps {
   vendors: AdminVendorListItem[];
   totalCount: number;
   filters: { status?: string; vendor_type?: string; tier?: string; search?: string };
   onFilterChange: (key: string, value: string) => void;
+  onResetFilters?: () => void;
+  onDeleteSuccess?: () => void;
   isLoading?: boolean;
 }
-
-const STATUS_PILLS = [
-  { value: "ALL", label: "All Stores" },
-  { value: "PENDING_REVIEW", label: "Pending KYC", badgeClass: "bg-amber-500 text-white" },
-  { value: "APPROVED", label: "Approved" },
-  { value: "REJECTED", label: "Rejected" },
-  { value: "SUSPENDED", label: "Suspended" },
-  { value: "DRAFT", label: "Draft" },
-];
 
 export function VendorModerationTable({
   vendors,
   totalCount,
   filters,
   onFilterChange,
+  onResetFilters,
+  onDeleteSuccess,
   isLoading = false,
 }: VendorModerationTableProps) {
-  return (
-    <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-950/70 backdrop-blur-xl shadow-sm overflow-hidden">
-      {/* Header & Filter Controls */}
-      <div className="p-6 border-b border-slate-100 dark:border-slate-800/80 space-y-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-              Vendor Moderation Queue
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-              Review regulatory KYC documents, manage store statuses, and configure commission rates.
-            </p>
-          </div>
+  const router = useRouter();
+  const [vendorToDelete, setVendorToDelete] = useState<AdminVendorListItem | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
-          <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+  const handleDeleteConfirm = async (reason: string, category?: string) => {
+    if (!vendorToDelete) return;
+    setIsDeleting(true);
+    try {
+      await vendorService.suspendVendor(
+        vendorToDelete.id,
+        `Sanctioned & Terminated [${category}]: ${reason}`
+      );
+      setVendorToDelete(null);
+      if (onDeleteSuccess) {
+        onDeleteSuccess();
+      } else if (onResetFilters) {
+        onResetFilters();
+      }
+    } catch (err: any) {
+      throw err;
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const hasActiveFilters = Boolean(
+    (filters.status && filters.status !== "ALL") ||
+    (filters.tier && filters.tier !== "ALL") ||
+    (filters.vendor_type && filters.vendor_type !== "ALL") ||
+    Boolean(filters.search && filters.search.trim() !== "")
+  );
+
+  const handleReset = () => {
+    if (onResetFilters) {
+      onResetFilters();
+    } else {
+      onFilterChange("status", "ALL");
+      onFilterChange("tier", "ALL");
+      onFilterChange("vendor_type", "ALL");
+      onFilterChange("search", "");
+    }
+  };
+
+  return (
+    <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/90 shadow-xs backdrop-blur-md overflow-hidden">
+      {/* Enterprise Filter Toolbar: Search on LEFT, Inline Dropdowns on RIGHT */}
+      <div className="p-4 sm:px-6 sm:py-3.5 border-b border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/40">
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+          
+          {/* LEFT: Search Bar */}
+          <div className="relative flex-1 max-w-sm sm:max-w-md">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
             <Input
               value={filters.search || ""}
               onChange={(e) => onFilterChange("search", e.target.value)}
-              placeholder="Search store or email..."
-              className="pl-10 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-xs sm:text-sm rounded-xl"
+              placeholder="Search store name, merchant email, or TIN..."
+              className="pl-9.5 pr-8 h-9.5 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-xs sm:text-sm rounded-xl placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-indigo-500/20 focus-visible:border-indigo-500 transition-all font-normal shadow-2xs"
             />
-          </div>
-        </div>
-
-        {/* Status Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
-          {STATUS_PILLS.map((pill) => {
-            const isActive = (filters.status || "ALL") === pill.value;
-            return (
+            {filters.search && (
               <button
-                key={pill.value}
-                onClick={() => onFilterChange("status", pill.value)}
-                className={`px-3.5 py-1.5 rounded-xl font-medium transition-all shrink-0 ${
-                  isActive
-                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/10"
-                    : "bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800"
-                }`}
+                type="button"
+                onClick={() => onFilterChange("search", "")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5 rounded-full transition-colors"
+                title="Clear search"
               >
-                {pill.label}
+                <X className="h-3.5 w-3.5" />
               </button>
-            );
-          })}
+            )}
+          </div>
+
+          {/* RIGHT: Inline Dropdowns */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+            {/* Status Dropdown */}
+            <Select
+              value={filters.status || "ALL"}
+              onValueChange={(val) => onFilterChange("status", val || "ALL")}
+            >
+              <SelectTrigger className="h-9.5 text-xs rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs font-medium hover:bg-slate-50 dark:hover:bg-slate-800/80 px-3 min-w-[130px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl text-xs">
+                <SelectItem value="ALL">All Statuses</SelectItem>
+                <SelectItem value="PENDING_REVIEW">Pending KYC</SelectItem>
+                <SelectItem value="APPROVED">Approved</SelectItem>
+                <SelectItem value="SUSPENDED">Suspended</SelectItem>
+                <SelectItem value="REJECTED">Rejected</SelectItem>
+                <SelectItem value="DRAFT">Draft</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Trust Tier Dropdown */}
+            <Select
+              value={filters.tier || "ALL"}
+              onValueChange={(val) => onFilterChange("tier", val || "ALL")}
+            >
+              <SelectTrigger className="h-9.5 text-xs rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs font-medium hover:bg-slate-50 dark:hover:bg-slate-800/80 px-3 min-w-[125px]">
+                <SelectValue placeholder="Trust Tier" />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl text-xs">
+                <SelectItem value="ALL">All Trust Tiers</SelectItem>
+                <SelectItem value="VIP">VIP Merchant</SelectItem>
+                <SelectItem value="TRUSTED">Trusted Merchant</SelectItem>
+                <SelectItem value="PROBATION">Probation Tier</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Merchant Type Dropdown */}
+            <Select
+              value={filters.vendor_type || "ALL"}
+              onValueChange={(val) => onFilterChange("vendor_type", val || "ALL")}
+            >
+              <SelectTrigger className="h-9.5 text-xs rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs font-medium hover:bg-slate-50 dark:hover:bg-slate-800/80 px-3 min-w-[120px]">
+                <SelectValue placeholder="Merchant Type" />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl text-xs">
+                <SelectItem value="ALL">All Types</SelectItem>
+                <SelectItem value="PLATFORM">Direct Platform</SelectItem>
+                <SelectItem value="THIRD_PARTY">3rd-Party</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Reset Filters action */}
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleReset}
+                className="h-9.5 px-2.5 text-xs text-slate-500 hover:text-slate-900 dark:hover:text-white rounded-xl gap-1.5 hover:bg-slate-200/50 dark:hover:bg-slate-800 transition-colors"
+                title="Reset all filters"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Reset</span>
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Table Content */}
       <div className="overflow-x-auto">
         <table className="w-full text-sm text-left">
-          <thead className="bg-slate-50/50 dark:bg-slate-900/40 text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 text-xs uppercase tracking-wider font-semibold">
+          <thead className="bg-slate-50/70 dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 border-b border-slate-200/80 dark:border-slate-800/80 text-[11px] uppercase tracking-wider font-semibold">
             <tr>
-              <th className="px-6 py-4">Store Name & Merchant</th>
-              <th className="px-6 py-4">Status</th>
-              <th className="px-6 py-4">Trust Tier</th>
-              <th className="px-6 py-4">Type</th>
-              <th className="px-6 py-4">Commission</th>
-              <th className="px-6 py-4">Created</th>
-              <th className="px-6 py-4 text-right">Actions</th>
+              <th className="px-6 py-3.5">Store Name & Merchant</th>
+              <th className="px-6 py-3.5">Status</th>
+              <th className="px-6 py-3.5">Trust Tier</th>
+              <th className="px-6 py-3.5">Type</th>
+              <th className="px-6 py-3.5">Commission</th>
+              <th className="px-6 py-3.5">Registered</th>
+              <th className="px-6 py-3.5 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
             {isLoading ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-slate-400 text-xs">
-                  Loading vendors...
+                <td colSpan={7} className="px-6 py-16 text-center text-slate-400 text-xs">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <Loader2 className="w-5 h-5 animate-spin text-indigo-600" />
+                    <span>Loading moderation queue...</span>
+                  </div>
                 </td>
               </tr>
             ) : vendors.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-slate-400 text-xs">
-                  No vendors found matching the selected filters.
+                <td colSpan={7} className="px-6 py-16 text-center">
+                  <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
+                    <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800/60 flex items-center justify-center text-slate-400 mb-3">
+                      <Search className="w-5 h-5" />
+                    </div>
+                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                      No merchants found
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-4">
+                      No stores matched your active filters or search query.
+                    </p>
+                    {hasActiveFilters && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={handleReset}
+                        className="text-xs rounded-xl h-8 gap-1.5 border-slate-200 dark:border-slate-800"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        Reset All Filters
+                      </Button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ) : (
               vendors.map((vendor) => (
                 <tr
                   key={vendor.id}
-                  className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors"
+                  className="group hover:bg-slate-50/70 dark:hover:bg-slate-900/40 transition-colors cursor-pointer"
+                  onClick={() => router.push(`/admin/vendors/${vendor.id}`)}
                 >
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400 shrink-0 font-bold">
-                        <Store className="h-5 w-5" />
+                    <Link
+                      href={`/admin/vendors/${vendor.id}`}
+                      className="flex items-center gap-3 group/store cursor-pointer"
+                    >
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100/60 text-indigo-600 dark:from-indigo-950/60 dark:to-indigo-900/30 dark:text-indigo-400 shrink-0 font-bold border border-indigo-100/80 dark:border-indigo-900/50 shadow-2xs group-hover/store:border-indigo-400 group-hover/store:scale-105 transition-all">
+                        <Store className="h-4 w-4" />
                       </div>
                       <div className="min-w-0">
-                        <span className="font-semibold text-slate-900 dark:text-white block truncate">
+                        <span className="font-semibold text-slate-900 dark:text-white block truncate text-xs sm:text-sm group-hover/store:text-indigo-600 dark:group-hover/store:text-indigo-400 transition-colors">
                           {vendor.store_name}
                         </span>
-                        <span className="text-xs text-slate-500 truncate block">
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 truncate block mt-0.5 font-mono">
                           {vendor.seller_email}
                         </span>
                       </div>
-                    </div>
+                    </Link>
                   </td>
 
                   <td className="px-6 py-4">
@@ -152,29 +276,42 @@ export function VendorModerationTable({
                     <TrustTierBadge tier={vendor.tier} />
                   </td>
 
-                  <td className="px-6 py-4 text-xs font-medium text-slate-600 dark:text-slate-300">
-                    {vendor.vendor_type === "PLATFORM" ? "Direct Platform" : "3rd-Party"}
+                  <td className="px-6 py-4">
+                    <span
+                      className={cn(
+                        "inline-flex items-center px-2 py-0.5 rounded-lg text-[11px] font-medium border",
+                        vendor.vendor_type === "PLATFORM"
+                          ? "bg-indigo-50/70 text-indigo-700 border-indigo-200/60 dark:bg-indigo-950/40 dark:text-indigo-300 dark:border-indigo-800/40"
+                          : "bg-slate-50 text-slate-600 border-slate-200/80 dark:bg-slate-900/60 dark:text-slate-400 dark:border-slate-800"
+                      )}
+                    >
+                      {vendor.vendor_type === "PLATFORM" ? "Direct Platform" : "3rd-Party"}
+                    </span>
                   </td>
 
                   <td className="px-6 py-4 text-xs font-mono font-semibold text-slate-800 dark:text-slate-200">
                     {vendor.commission_rate}%
                   </td>
 
-                  <td className="px-6 py-4 text-xs text-slate-500">
+                  <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400 font-mono">
                     {new Date(vendor.created_at).toLocaleDateString()}
                   </td>
 
                   <td className="px-6 py-4 text-right">
-                    <Link href={`/admin/vendors/${vendor.id}`}>
+                    <div className="flex items-center justify-end">
                       <Button
                         size="sm"
-                        variant="outline"
-                        className="text-xs gap-1 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400"
+                        variant="ghost"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setVendorToDelete(vendor);
+                        }}
+                        className="h-8 w-8 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 dark:hover:text-rose-400 rounded-lg transition-colors"
+                        title={`Issue sanction & delete ${vendor.store_name}`}
                       >
-                        Review
-                        <ChevronRight className="h-3.5 w-3.5" />
+                        <Trash2 className="h-3.5 w-3.5" />
                       </Button>
-                    </Link>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -182,6 +319,31 @@ export function VendorModerationTable({
           </tbody>
         </table>
       </div>
+
+      {/* Enterprise Table Footer Summary */}
+      <div className="px-6 py-3 border-t border-slate-200/80 dark:border-slate-800/80 bg-slate-50/40 dark:bg-slate-900/30 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+        <span>
+          Showing <span className="font-semibold text-slate-700 dark:text-slate-300">{vendors.length}</span> of{" "}
+          <span className="font-semibold text-slate-700 dark:text-slate-300">{totalCount}</span> merchants
+        </span>
+        {hasActiveFilters && (
+          <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+            Filtered results active
+          </span>
+        )}
+      </div>
+
+      {/* Issue Card Confirmation Dialog for Deletion/Sanction */}
+      {vendorToDelete && (
+        <DeleteVendorIssueDialog
+          isOpen={Boolean(vendorToDelete)}
+          onClose={() => setVendorToDelete(null)}
+          onConfirm={handleDeleteConfirm}
+          storeName={vendorToDelete.store_name}
+          sellerEmail={vendorToDelete.seller_email}
+          isPending={isDeleting}
+        />
+      )}
     </div>
   );
 }

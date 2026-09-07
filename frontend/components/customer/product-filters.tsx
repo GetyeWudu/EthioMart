@@ -1,18 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import {
-  X,
-  Check,
   Filter,
   Flame,
   CheckCircle2,
-  Tag,
   SlidersHorizontal,
-  ChevronDown,
   RotateCcw,
+  Tag,
+  ShoppingBag
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +19,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 export interface FilterCategory {
   id: string;
@@ -124,157 +129,24 @@ export function ProductFilters({
   ].filter(Boolean).length;
 
   const FilterControls = () => (
-    <div className="space-y-6">
-      {/* ── Deals & Inventory Toggles ── */}
-      <div className="space-y-2.5">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-          Deals &amp; Availability
-        </h4>
-        <div className="flex flex-col gap-2">
-          {/* On Sale */}
-          <button
-            type="button"
-            onClick={() => updateParam("deals", currentDeals ? null : "true")}
-            className={`flex items-center justify-between p-2.5 rounded-xl border text-xs font-semibold transition-all ${
-              currentDeals
-                ? "bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400"
-                : "bg-slate-50 dark:bg-slate-800/40 border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100"
-            }`}
-          >
-            <span className="flex items-center gap-2">
-              <Flame className="w-4 h-4 text-rose-500" />
-              On Sale / Promotions Only
-            </span>
-            <div
-              className={`w-4 h-4 rounded-md border flex items-center justify-center ${
-                currentDeals ? "bg-rose-500 border-rose-500 text-white" : "border-slate-300 dark:border-slate-600"
-              }`}
-            >
-              {currentDeals && <Check className="w-3 h-3" />}
-            </div>
-          </button>
-
-          {/* In Stock */}
-          <button
-            type="button"
-            onClick={() => updateParam("in_stock", currentInStock ? null : "true")}
-            className={`flex items-center justify-between p-2.5 rounded-xl border text-xs font-semibold transition-all ${
-              currentInStock
-                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
-                : "bg-slate-50 dark:bg-slate-800/40 border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100"
-            }`}
-          >
-            <span className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-              In Stock Only
-            </span>
-            <div
-              className={`w-4 h-4 rounded-md border flex items-center justify-center ${
-                currentInStock ? "bg-emerald-500 border-emerald-500 text-white" : "border-slate-300 dark:border-slate-600"
-              }`}
-            >
-              {currentInStock && <Check className="w-3 h-3" />}
-            </div>
-          </button>
+    <div className="w-full flex flex-col gap-6">
+      {/* ── Categories (Static) ── */}
+      <div className="w-full">
+        <div className="flex items-center justify-between mb-3 border-b border-slate-100 dark:border-slate-800/80 pb-3">
+          <span className="text-sm font-bold text-slate-900 dark:text-slate-100">Categories</span>
         </div>
-      </div>
-
-      {/* ── Price Range (ETB) ── */}
-      <div className="space-y-3">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-          Price Range (ETB)
-        </h4>
-
-        {/* Quick Brackets */}
-        <div className="grid grid-cols-2 gap-1.5">
-          {PRICE_BRACKETS.map((b) => {
-            const isSelected =
-              String(b.min ?? "") === (currentMinPrice || "") &&
-              String(b.max ?? "") === (currentMaxPrice || "");
-            return (
-              <button
-                key={b.label}
-                type="button"
-                onClick={() =>
-                  isSelected ? setPriceBracket(undefined, undefined) : setPriceBracket(b.min, b.max)
-                }
-                className={`py-2 px-2.5 rounded-xl border text-[11px] font-semibold text-center transition-all ${
-                  isSelected
-                    ? "bg-primary text-white border-primary shadow-sm"
-                    : "bg-slate-50 dark:bg-slate-800/40 border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100"
-                }`}
-              >
-                {b.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Custom Min/Max Inputs */}
-        <form onSubmit={handleApplyCustomPrice} className="pt-1 space-y-2">
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 font-bold">ETB</span>
-              <input
-                type="number"
-                placeholder="Min"
-                value={minInput}
-                onChange={(e) => setMinInput(e.target.value)}
-                className="w-full h-8 pl-9 pr-2 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-            </div>
-            <span className="text-slate-400 text-xs">-</span>
-            <div className="relative flex-1">
-              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 font-bold">ETB</span>
-              <input
-                type="number"
-                placeholder="Max"
-                value={maxInput}
-                onChange={(e) => setMaxInput(e.target.value)}
-                className="w-full h-8 pl-9 pr-2 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-            </div>
-          </div>
-          <Button
-            type="submit"
-            size="sm"
-            variant="outline"
-            className="w-full h-8 text-xs font-semibold rounded-lg"
-          >
-            Apply Price Filter
-          </Button>
-        </form>
-      </div>
-
-      {/* ── Departments / Categories ── */}
-      <div className="space-y-2.5">
-        <div className="flex items-center justify-between">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-            Departments
-          </h4>
-          {currentCategory && (
-            <button
-              type="button"
-              onClick={() => updateParam("category", null)}
-              className="text-[11px] font-semibold text-primary hover:underline"
-            >
-              All
-            </button>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-1 max-h-[300px] overflow-y-auto pr-1 -mr-1 custom-scrollbar">
+        <div className="flex flex-col gap-1 max-h-[280px] overflow-y-auto pr-2 custom-scrollbar">
           <button
             type="button"
             onClick={() => updateParam("category", null)}
-            className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all text-left ${
+            className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-all text-left group ${
               !currentCategory
                 ? "bg-primary/10 text-primary dark:bg-primary/20 font-bold"
-                : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800/60"
+                : "text-slate-600 font-medium hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/60"
             }`}
           >
-            <span>All Departments</span>
-            {!currentCategory && <Check className="w-3.5 h-3.5 text-primary" />}
+            <span>All Categories</span>
+            {!currentCategory && <div className="w-2 h-2 rounded-full bg-primary" />}
           </button>
 
           {categories.map((category) => {
@@ -284,17 +156,17 @@ export function ProductFilters({
                 key={category.id}
                 type="button"
                 onClick={() => updateParam("category", category.id)}
-                className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all text-left ${
+                className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs transition-all text-left group ${
                   isActive
                     ? "bg-primary/10 text-primary dark:bg-primary/20 font-bold"
-                    : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800/60"
+                    : "text-slate-600 font-medium hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/60"
                 }`}
               >
-                <span className="truncate">{category.label}</span>
+                <span className="truncate group-hover:translate-x-1 transition-transform">{category.label}</span>
                 {isActive ? (
-                  <Check className="w-3.5 h-3.5 text-primary shrink-0" />
+                  <div className="w-2 h-2 rounded-full bg-primary" />
                 ) : category.count !== undefined && category.count > 0 ? (
-                  <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 shrink-0">
+                  <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
                     {category.count}
                   </span>
                 ) : null}
@@ -303,53 +175,145 @@ export function ProductFilters({
           })}
         </div>
       </div>
+
+      <Accordion className="w-full">
+        {/* ── Deals & Availability ── */}
+        <AccordionItem value="availability" className="border-b border-slate-100 dark:border-slate-800/80">
+          <AccordionTrigger className="hover:no-underline py-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-slate-900 dark:text-slate-100">Availability</span>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="space-y-4 pb-4">
+            <div className="flex items-center justify-between group">
+              <div className="flex flex-col gap-0.5">
+                <Label htmlFor="deals-toggle" className="text-sm font-semibold flex items-center gap-1.5 cursor-pointer group-hover:text-rose-500 transition-colors">
+                  <Flame className="w-4 h-4 text-rose-500" /> On Sale / Promotions
+                </Label>
+                <span className="text-[11px] text-slate-500">Only show discounted items</span>
+              </div>
+              <Switch
+                id="deals-toggle"
+                checked={currentDeals}
+                onCheckedChange={(checked) => updateParam("deals", checked ? "true" : null)}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between group">
+              <div className="flex flex-col gap-0.5">
+                <Label htmlFor="stock-toggle" className="text-sm font-semibold flex items-center gap-1.5 cursor-pointer group-hover:text-emerald-500 transition-colors">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" /> In Stock Only
+                </Label>
+                <span className="text-[11px] text-slate-500">Hide out of stock items</span>
+              </div>
+              <Switch
+                id="stock-toggle"
+                checked={currentInStock}
+                onCheckedChange={(checked) => updateParam("in_stock", checked ? "true" : null)}
+              />
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        {/* ── Price Range ── */}
+        <AccordionItem value="price" className="border-b border-slate-100 dark:border-slate-800/80">
+          <AccordionTrigger className="hover:no-underline py-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-slate-900 dark:text-slate-100">Price Range</span>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="space-y-5 pb-4">
+            <div className="grid grid-cols-2 gap-2">
+              {PRICE_BRACKETS.map((b) => {
+                const isSelected =
+                  String(b.min ?? "") === (currentMinPrice || "") &&
+                  String(b.max ?? "") === (currentMaxPrice || "");
+                return (
+                  <button
+                    key={b.label}
+                    type="button"
+                    onClick={() =>
+                      isSelected ? setPriceBracket(undefined, undefined) : setPriceBracket(b.min, b.max)
+                    }
+                    className={`py-2 px-3 rounded-lg border text-xs font-semibold text-center transition-all duration-200 ${
+                      isSelected
+                        ? "bg-primary text-white border-primary shadow-sm scale-[1.02]"
+                        : "bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+                    }`}
+                  >
+                    {b.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <form onSubmit={handleApplyCustomPrice} className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1 group">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 font-bold group-focus-within:text-primary transition-colors">ETB</span>
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    value={minInput}
+                    onChange={(e) => setMinInput(e.target.value)}
+                    className="w-full h-10 pl-10 pr-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  />
+                </div>
+                <span className="text-slate-400 font-medium text-sm">-</span>
+                <div className="relative flex-1 group">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 font-bold group-focus-within:text-primary transition-colors">ETB</span>
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    value={maxInput}
+                    onChange={(e) => setMaxInput(e.target.value)}
+                    className="w-full h-10 pl-10 pr-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  />
+                </div>
+              </div>
+              <Button
+                type="submit"
+                size="sm"
+                className="w-full h-10 text-xs font-bold rounded-xl shadow-sm"
+              >
+                Apply Custom Price
+              </Button>
+            </form>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
 
   return (
     <>
       {/* ── Mobile Sticky Trigger Pill (Screens < lg) ── */}
-      <div className="lg:hidden mb-4">
+      <div className="lg:hidden mb-6">
         <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
-          <SheetTrigger className="w-full h-11 rounded-2xl border border-slate-200 dark:border-slate-800 font-bold text-xs flex items-center justify-between px-4 shadow-sm bg-white dark:bg-slate-900">
+          <SheetTrigger className="w-full h-12 rounded-2xl border border-slate-200 dark:border-slate-800 font-bold text-sm flex items-center justify-between px-5 shadow-sm bg-white dark:bg-slate-900 transition-all hover:bg-slate-50">
             <div className="flex items-center gap-2">
-              <SlidersHorizontal className="w-4 h-4 text-primary" />
-              <span>Filters &amp; Price Range</span>
+              <span>Shopping Options</span>
             </div>
-            {activeCount > 0 && (
-              <span className="h-5 px-2 rounded-full bg-primary text-white text-[10px] font-extrabold flex items-center justify-center">
-                {activeCount} Active
-              </span>
-            )}
           </SheetTrigger>
-          <SheetContent side="bottom" className="max-h-[85vh] rounded-t-3xl p-6 overflow-y-auto">
-            <SheetHeader className="pb-4 border-b border-slate-100 dark:border-slate-800">
+          <SheetContent side="bottom" className="max-h-[85vh] rounded-t-3xl p-0 overflow-hidden flex flex-col">
+            <SheetHeader className="p-6 pb-4 border-b border-slate-100 dark:border-slate-800 shrink-0">
               <div className="flex items-center justify-between">
-                <SheetTitle className="text-base font-black">
-                  Filters &amp; Refinements
+                <SheetTitle className="text-lg font-black font-serif">
+                  Shopping Options
                 </SheetTitle>
-                {activeCount > 0 && (
-                  <button
-                    type="button"
-                    onClick={handleClearAll}
-                    className="text-xs font-bold text-rose-500 flex items-center gap-1"
-                  >
-                    <RotateCcw className="w-3 h-3" /> Reset
-                  </button>
-                )}
               </div>
             </SheetHeader>
 
-            <div className="py-4">
+            <div className="p-6 overflow-y-auto flex-1">
               <FilterControls />
             </div>
 
-            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 sticky bottom-0 bg-white dark:bg-slate-900 pb-2">
+            <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0">
               <Button
                 onClick={() => setIsMobileOpen(false)}
-                className="w-full h-12 rounded-2xl font-bold text-sm bg-primary text-white shadow-lg"
+                className="w-full h-12 rounded-xl font-bold text-sm bg-primary hover:bg-primary/90 text-white shadow-md transition-all"
               >
-                Apply Filters {totalProducts !== undefined ? `(${totalProducts} Found)` : ""}
+                View {totalProducts !== undefined ? `${totalProducts} Results` : "Results"}
               </Button>
             </div>
           </SheetContent>
@@ -357,26 +321,17 @@ export function ProductFilters({
       </div>
 
       {/* ── Desktop Sidebar Container (Screens >= lg) ── */}
-      <div className="hidden lg:flex flex-col gap-6 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/60 backdrop-blur-sm sticky top-24">
+      <div className="hidden lg:flex flex-col rounded-3xl border border-slate-200/60 bg-white shadow-xl shadow-slate-200/20 dark:border-slate-800 dark:bg-slate-900/60 dark:shadow-none backdrop-blur-xl sticky top-28 overflow-hidden">
         {/* Header & Reset */}
-        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-4">
-          <h3 className="font-extrabold text-base text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-            <SlidersHorizontal className="w-4 h-4 text-primary" />
-            Filters
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 p-6 bg-slate-50/50 dark:bg-slate-900/50">
+          <h3 className="font-extrabold text-lg text-slate-900 dark:text-white tracking-tight flex items-center gap-2.5 font-serif">
+            Shopping Options
           </h3>
-          {activeCount > 0 && (
-            <button
-              type="button"
-              onClick={handleClearAll}
-              className="inline-flex items-center gap-1 text-xs font-semibold text-rose-500 hover:text-rose-600 dark:text-rose-400 transition-colors"
-            >
-              <RotateCcw className="w-3 h-3" />
-              Reset ({activeCount})
-            </button>
-          )}
         </div>
 
-        <FilterControls />
+        <div className="p-6 pt-2">
+          <FilterControls />
+        </div>
       </div>
     </>
   );

@@ -55,7 +55,7 @@ export default function SellerProductsPage() {
       const q = searchQuery.toLowerCase();
       result = result.filter(p => 
         p.title.toLowerCase().includes(q) || 
-        (p.sku && p.sku.toLowerCase().includes(q))
+        ((p as any).sku && (p as any).sku.toLowerCase().includes(q))
       );
     }
 
@@ -278,7 +278,7 @@ export default function SellerProductsPage() {
             Filters
           </div>
 
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <Select value={categoryFilter} onValueChange={(val) => setCategoryFilter(val || "ALL")}>
             <SelectTrigger className="w-full sm:w-[160px] h-10 rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs focus:ring-indigo-500">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
@@ -292,7 +292,7 @@ export default function SellerProductsPage() {
             </SelectContent>
           </Select>
 
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val || "ALL")}>
             <SelectTrigger className="w-full sm:w-[150px] h-10 rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs focus:ring-indigo-500">
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
@@ -308,7 +308,7 @@ export default function SellerProductsPage() {
             </SelectContent>
           </Select>
 
-          <Select value={sortBy} onValueChange={setSortBy}>
+          <Select value={sortBy} onValueChange={(val) => setSortBy(val || "Newest First")}>
             <SelectTrigger className="w-full sm:w-[160px] h-10 rounded-xl border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400 font-semibold text-xs focus:ring-indigo-500">
               <SelectValue />
             </SelectTrigger>

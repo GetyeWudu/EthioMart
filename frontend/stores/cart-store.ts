@@ -95,7 +95,7 @@ export const useCartStore = create<CartStore>()(
             selected_facility: facilityId
           }, { headers });
           await get().initializeCart();
-        } catch (error) {
+        } catch (error: any) {
           console.warn("Failed to add item", error?.message || error);
           throw error;
         } finally {
@@ -111,7 +111,7 @@ export const useCartStore = create<CartStore>()(
           
           await api.patch(`/carts/items/${itemId}/`, { quantity }, { headers });
           await get().initializeCart();
-        } catch (error) {
+        } catch (error: any) {
           console.warn("Failed to update item", error?.message || error);
           throw error;
         }
@@ -131,7 +131,7 @@ export const useCartStore = create<CartStore>()(
           }, { headers });
           
           await get().initializeCart();
-        } catch (error) {
+        } catch (error: any) {
           console.warn("Failed to update item variant", error?.message || error);
           throw error;
         } finally {
@@ -146,7 +146,7 @@ export const useCartStore = create<CartStore>()(
           
           await api.delete(`/carts/items/${itemId}/`, { headers });
           await get().initializeCart();
-        } catch (error) {
+        } catch (error: any) {
           console.warn("Failed to remove item", error?.message || error);
         }
       },

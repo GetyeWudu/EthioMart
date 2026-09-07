@@ -7,7 +7,8 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import {
   Search,
   User,
@@ -37,7 +38,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AdminCustomerItem, CustomerFilterParams } from "../../types";
-import { CustomerDetailsModal } from "./customer-details-modal";
 
 interface CustomerTableProps {
   customers: AdminCustomerItem[];
@@ -68,8 +68,22 @@ export function CustomerTable({
   onToggleStatus,
   onVerifyEmail,
 }: CustomerTableProps) {
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+  const router = useRouter();
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+  const [statusOpen, setStatusOpen] = useState(false);
+  const [sortOpen, setSortOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setStatusOpen(false);
+        setSortOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const formatETB = (val: string | number) => {
     const num = typeof val === "string" ? parseFloat(val) : val;
@@ -134,96 +148,115 @@ export function CustomerTable({
 
   return (
     <>
-      <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl shadow-sm overflow-hidden">
+      <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl shadow-sm relative z-10">
         {/* Top Control Bar */}
-        <div className="p-6 border-b border-slate-100 dark:border-slate-800/80 space-y-4 bg-slate-50/50 dark:bg-slate-900/40">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                Platform Customers
-                <span className="text-xs px-2.5 py-0.5 rounded-full font-mono bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/60">
-                  {totalCount} Total
-                </span>
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                Global overview of all registered buyers, lifetime order values, and account status controls.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2.5 w-full sm:w-auto">
-              <div className="relative flex-1 sm:w-72">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <Input
-                  value={filters.search || ""}
-                  onChange={(e) => onFilterChange("search", e.target.value)}
-                  placeholder="Search buyer name, email, phone..."
-                  className="pl-10 pr-8 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-xs sm:text-sm rounded-xl"
-                />
-                {filters.search && (
-                  <button
-                    onClick={() => onFilterChange("search", "")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                )}
-              </div>
-
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleExportCSV}
-                disabled={customers.length === 0}
-                className="gap-2 border-slate-200 dark:border-slate-800 rounded-xl text-xs shrink-0"
+        <div className="p-4 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/40 rounded-t-3xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          
+          {/* Left: Search Bar */}
+          <div className="relative w-full sm:w-72 shrink-0">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              value={filters.search || ""}
+              onChange={(e) => onFilterChange("search", e.target.value)}
+              placeholder="Search buyer name, email, phone..."
+              className="pl-10 pr-8 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-xs sm:text-sm rounded-xl"
+            />
+            {filters.search && (
+              <button
+                onClick={() => onFilterChange("search", "")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
               >
-                <Download className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Export CSV</span>
-              </Button>
-            </div>
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
 
-          {/* Status Filter Pills & Ordering */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
-              {STATUS_PILLS.map((pill) => {
-                const isActive = (filters.status || "ALL") === pill.value;
-                return (
-                  <button
-                    key={pill.value}
-                    onClick={() => onFilterChange("status", pill.value)}
-                    className={`px-3.5 py-1.5 rounded-xl font-medium transition-all shrink-0 ${
-                      isActive
-                        ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/10 font-semibold"
-                        : "bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800"
-                    }`}
-                  >
-                    {pill.label}
-                  </button>
-                );
-              })}
+          {/* Right: Dropdowns & Export */}
+          <div ref={dropdownRef} className="flex items-center justify-end gap-2 shrink-0 w-full sm:w-auto">
+            {/* Status Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => { setStatusOpen(!statusOpen); setSortOpen(false); }}
+                className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              >
+                {STATUS_PILLS.find((p) => p.value === (filters.status || "ALL"))?.label || "Status"}
+              </button>
+
+              {statusOpen && (
+                <div className="absolute right-0 top-full mt-1.5 z-[200] w-48 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 shadow-lg py-1 text-xs">
+                  {STATUS_PILLS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => {
+                        onFilterChange("status", opt.value);
+                        setStatusOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-900 transition font-medium ${
+                        (filters.status || "ALL") === opt.value
+                          ? "text-indigo-600 dark:text-indigo-400"
+                          : "text-slate-700 dark:text-slate-300"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
-              <ArrowUpDown className="h-3.5 w-3.5 text-slate-400" />
-              <select
-                value={filters.ordering || "-created_at"}
-                onChange={(e) => onFilterChange("ordering", e.target.value)}
-                aria-label="Sort customers"
-                className="bg-slate-100 dark:bg-slate-900 border-none text-xs text-slate-700 dark:text-slate-300 rounded-xl px-3 py-1.5 focus:ring-1 focus:ring-indigo-500 font-medium cursor-pointer"
+            {/* Sort Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => { setSortOpen(!sortOpen); setStatusOpen(false); }}
+                className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
               >
-                <option value="-created_at">Joined: Newest First</option>
-                <option value="created_at">Joined: Oldest First</option>
-                <option value="-total_spent">Spend: Highest First</option>
-                <option value="total_spent">Spend: Lowest First</option>
-                <option value="-total_orders">Orders: Most First</option>
-                <option value="first_name">Name: A to Z</option>
-              </select>
+                Sort By
+              </button>
+
+              {sortOpen && (
+                <div className="absolute right-0 top-full mt-1.5 z-[200] w-48 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 shadow-lg py-1 text-xs">
+                  {[
+                    { val: "-created_at", lbl: "Joined: Newest First" },
+                    { val: "created_at", lbl: "Joined: Oldest First" },
+                    { val: "-total_spent", lbl: "Spend: Highest First" },
+                    { val: "total_spent", lbl: "Spend: Lowest First" },
+                    { val: "-total_orders", lbl: "Orders: Most First" },
+                    { val: "first_name", lbl: "Name: A to Z" },
+                  ].map((opt) => (
+                    <button
+                      key={opt.val}
+                      onClick={() => {
+                        onFilterChange("ordering", opt.val);
+                        setSortOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-900 transition font-medium ${
+                        (filters.ordering || "-created_at") === opt.val
+                          ? "text-indigo-600 dark:text-indigo-400"
+                          : "text-slate-700 dark:text-slate-300"
+                      }`}
+                    >
+                      {opt.lbl}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportCSV}
+              disabled={customers.length === 0}
+              className="gap-2 border-slate-200 dark:border-slate-800 rounded-xl text-xs shrink-0 py-1.5 h-auto"
+            >
+              <Download className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Export</span>
+            </Button>
           </div>
         </div>
 
         {/* Table Content */}
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-b-3xl pb-2">
           <table className="w-full text-sm text-left">
             <thead className="bg-slate-50 dark:bg-slate-900/80 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 uppercase tracking-wider text-xs font-semibold">
               <tr>
@@ -288,7 +321,7 @@ export function CustomerTable({
                     <tr
                       key={customer.id}
                       className="hover:bg-slate-50/70 dark:hover:bg-slate-900/30 transition-colors group cursor-pointer"
-                      onClick={() => setSelectedCustomerId(customer.id)}
+                      onClick={() => router.push(`/admin/customers/${customer.id}`)}
                     >
                       {/* Customer Details */}
                       <td className="px-6 py-4">
@@ -365,7 +398,7 @@ export function CustomerTable({
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-52 rounded-2xl p-1.5 shadow-xl border-slate-200 dark:border-slate-800">
                             <DropdownMenuItem
-                              onClick={() => setSelectedCustomerId(customer.id)}
+                              onClick={() => router.push(`/admin/customers/${customer.id}`)}
                               className="gap-2 text-xs font-semibold rounded-xl cursor-pointer py-2"
                             >
                               <User className="h-4 w-4 text-indigo-600" />
@@ -422,15 +455,6 @@ export function CustomerTable({
         </div>
       </div>
 
-      {/* Slide-over Profile Details Modal */}
-      <CustomerDetailsModal
-        customerId={selectedCustomerId}
-        isOpen={Boolean(selectedCustomerId)}
-        onClose={() => setSelectedCustomerId(null)}
-        onStatusChanged={() => {
-          onFilterChange("status", filters.status || "ALL");
-        }}
-      />
-    </>
+      </>
   );
 }

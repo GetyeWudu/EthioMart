@@ -214,13 +214,20 @@ export default function AdminAttributesPage() {
 
   const filteredAttributes = attributes.filter((a) => a.name.toLowerCase().includes(attrSearch.toLowerCase()));
 
+  const totalAttributes = attributes.length;
+  const totalBindings = bindings.length;
+  const variantCreators = bindings.filter(b => b.is_variant_creator).length;
+  const filterableFacets = bindings.filter(b => b.is_filterable).length;
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white">Dynamic Attribute Matrix</h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <h1 className="text-2xl sm:text-3xl font-sans font-black tracking-tight text-slate-900 dark:text-white">
+            Dynamic Attribute Matrix
+          </h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Define global product specifications, manage value swatches, and bind variant-creators to leaf taxonomy categories.
           </p>
         </div>
@@ -230,8 +237,78 @@ export default function AdminAttributesPage() {
             className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all"
           >
             <Plus className="w-4 h-4" />
-            <span>New Attribute</span>
+            <span>Create Attribute</span>
           </button>
+          <button
+            onClick={() => { setErrorMsg(null); setBindModalOpen(true); }}
+            className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all"
+          >
+            <LinkIcon className="w-4 h-4" />
+            <span>Bind to Category</span>
+          </button>
+        </div>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Total Attributes</span>
+            <div className="p-2 rounded-xl text-indigo-600 bg-indigo-50 dark:bg-indigo-950/50">
+              <Database className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <span className="text-2xl font-black text-slate-900 dark:text-white font-mono tracking-tight">
+              {totalAttributes}
+            </span>
+            <p className="text-[11px] text-slate-400 mt-1">Specifications defined</p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Category Bindings</span>
+            <div className="p-2 rounded-xl text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50">
+              <Layers className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <span className="text-2xl font-black text-slate-900 dark:text-white font-mono tracking-tight">
+              {totalBindings}
+            </span>
+            <p className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1 font-semibold">Taxonomy mappings</p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Variant Creators</span>
+            <div className="p-2 rounded-xl text-purple-600 bg-purple-50 dark:bg-purple-950/50">
+              <Sparkles className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <span className="text-2xl font-black text-slate-900 dark:text-white font-mono tracking-tight">
+              {variantCreators}
+            </span>
+            <p className="text-[11px] text-purple-600 dark:text-purple-400 mt-1 font-semibold">SKU generator axes</p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Filter Facets</span>
+            <div className="p-2 rounded-xl text-blue-600 bg-blue-50 dark:bg-blue-950/50">
+              <Filter className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <span className="text-2xl font-black text-slate-900 dark:text-white font-mono tracking-tight">
+              {filterableFacets}
+            </span>
+            <p className="text-[11px] text-slate-400 mt-1">Searchable facets</p>
+          </div>
         </div>
       </div>
 

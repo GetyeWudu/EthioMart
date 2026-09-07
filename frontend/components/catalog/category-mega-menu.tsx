@@ -13,6 +13,7 @@ import {
   ArrowRight,
   ShieldCheck,
 } from "lucide-react";
+import { getImageUrl } from "@/lib/api";
 
 const GLOBAL_FALLBACK_BRANDS = [
   { id: "1", name: "Apple", slug: "apple", logo: null },
@@ -21,7 +22,7 @@ const GLOBAL_FALLBACK_BRANDS = [
   { id: "4", name: "Samsung", slug: "samsung", logo: null },
 ];
 
-export function CategoryMegaMenu() {
+export function CategoryMegaMenu({ headerSolid = true }: { headerSolid?: boolean }) {
   const [categories, setCategories] = useState<CategoryNode[]>([]);
   const [activeRoot, setActiveRoot] = useState<CategoryNode | null>(null);
   const [activeBrands, setActiveBrands] = useState<any[]>([]);
@@ -64,11 +65,14 @@ export function CategoryMegaMenu() {
     >
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs transition-all shadow-sm active:scale-95"
+        className={`group relative inline-flex h-9 w-max items-center justify-center gap-1.5 px-4 py-2 text-sm font-medium transition-colors focus:outline-none duration-300 bg-transparent hover:bg-transparent focus:bg-transparent data-[active]:bg-transparent ${
+          headerSolid
+            ? "text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400"
+            : "text-slate-200 hover:text-white"
+        }`}
         aria-expanded={isOpen}
       >
-        <Layers className="w-4 h-4" />
-        <span>All Categories</span>
+        <span>Categories</span>
         <ChevronRight className={`w-3.5 h-3.5 transition-transform duration-200 ${isOpen ? "rotate-90" : ""}`} />
       </button>
 
@@ -78,7 +82,7 @@ export function CategoryMegaMenu() {
           <div className="w-[28%] bg-slate-50 dark:bg-slate-900/60 border-r border-slate-200/80 dark:border-slate-800 py-3 flex flex-col justify-between">
             <div>
               <div className="px-5 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Departments
+                Categories
               </div>
               <div className="flex-1 overflow-y-auto max-h-[420px] scrollbar-none space-y-0.5 px-2">
                 {categories.slice(0, 8).map((cat) => {
@@ -105,7 +109,7 @@ export function CategoryMegaMenu() {
                               : "bg-slate-200/60 dark:bg-slate-800 text-slate-500"
                           }`}
                         >
-                          <Icon className="w-3.5 h-3.5" />
+                          <img src={getImageUrl(cat.image, cat.id)} alt={cat.name} className="w-full h-full object-cover rounded-xl" />
                         </div>
                         <span className="truncate">{cat.name}</span>
                       </div>

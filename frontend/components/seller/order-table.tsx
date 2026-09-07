@@ -126,7 +126,7 @@ export function OrderTable({ orders = [], onRefresh }: { orders?: any[], onRefre
 
         {/* Filters Right */}
         <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-          <Select value={activeTab} onValueChange={setActiveTab}>
+          <Select value={activeTab} onValueChange={(val) => setActiveTab(val || "All")}>
             <SelectTrigger className="w-full sm:w-[160px] h-10 rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs focus:ring-indigo-500">
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
@@ -141,7 +141,7 @@ export function OrderTable({ orders = [], onRefresh }: { orders?: any[], onRefre
             </SelectContent>
           </Select>
 
-          <Select value={sortBy} onValueChange={setSortBy}>
+          <Select value={sortBy} onValueChange={(val) => setSortBy(val || "Newest First")}>
             <SelectTrigger className="w-full sm:w-[160px] h-10 rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs focus:ring-indigo-500">
               <SelectValue placeholder="Sort By" />
             </SelectTrigger>

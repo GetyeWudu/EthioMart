@@ -74,14 +74,7 @@ export function AuditLogTable({ limit }: AuditLogTableProps) {
     <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900/50 overflow-hidden">
       {!limit && (
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800 gap-4 bg-slate-50/50 dark:bg-slate-900/50">
-          <div>
-            <h2 className="font-bold text-slate-900 dark:text-white text-base">System Audit Trail & Security Logs</h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Cryptographic and administrative activity ledger across staff and system actions.
-            </p>
-          </div>
-
-          <div className="relative min-w-[260px]">
+          <div className="relative w-full sm:w-72">
             <MagnifyingGlassIcon className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input 
               type="text"
@@ -90,6 +83,10 @@ export function AuditLogTable({ limit }: AuditLogTableProps) {
               placeholder="Search action, actor email, IP..."
               className="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
             />
+          </div>
+
+          <div>
+            <h2 className="font-bold text-slate-900 dark:text-white text-base text-right">System Audit Trail &amp; Security Logs</h2>
           </div>
         </div>
       )}

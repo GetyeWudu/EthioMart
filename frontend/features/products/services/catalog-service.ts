@@ -161,7 +161,7 @@ export const catalogService = {
   // Admin Moderation & Taxonomy APIs
 
   // -------------------------------------------------------------
-  getAdminProducts: async (params?: { status?: string; search?: string; page?: number }): Promise<{ success: boolean; pagination: { count: number; total_pages: number; current_page: number; next: string | null; previous: string | null; }; results: ProductListItem[] }> => {
+  getAdminProducts: async (params?: { status?: string; search?: string; page?: number; category?: string }): Promise<{ success: boolean; pagination: { count: number; total_pages: number; current_page: number; next: string | null; previous: string | null; }; results: ProductListItem[] }> => {
     return apiClient<{ success: boolean; pagination: { count: number; total_pages: number; current_page: number; next: string | null; previous: string | null; }; results: ProductListItem[] }>("/catalog/admin/products/", { params });
   },
 

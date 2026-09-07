@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { ShoppingBag, ShoppingCart, Heart, Search, Menu, User, LogOut, ChevronDown, ChevronRight, Sun, Moon, Monitor, Home, Grid, PlusCircle, LogIn, Flame } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -29,8 +29,9 @@ import { CategoryNode } from "@/features/products/types";
 
 const NAV_LINKS = [
   { name: "Home", href: "/" },
+  { name: "Categories", href: "/categories" },
   { 
-    name: "Shop", 
+    name: "Products", 
     href: "/products",
     subItems: [
       { name: "All Products", href: "/products" },
@@ -314,7 +315,6 @@ export function CustomerHeader() {
 
             {/* Desktop Navigation (Moved next to logo) */}
             <div className="hidden xl:flex items-center ml-4 gap-2">
-              <CategoryMegaMenu />
               <NavigationMenu>
                 <NavigationMenuList className="gap-1">
                   {NAV_LINKS.map((link) => {

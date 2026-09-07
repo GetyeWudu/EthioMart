@@ -175,26 +175,94 @@ export default function AdminBrandsPage() {
     return matchesSearch && matchesVertical && matchesStatus;
   });
 
+  const totalBrands = brands.length;
+  const verifiedBrands = brands.filter((b) => b.is_verified).length;
+  const scopedBrands = brands.filter((b) => b.categories && b.categories.length > 0).length;
+  const globalBrands = brands.filter((b) => !b.categories || b.categories.length === 0).length;
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-            <Award className="w-6 h-6 text-indigo-500" />
+          <h1 className="text-2xl sm:text-3xl font-sans font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+            <Award className="w-7 h-7 text-indigo-600 dark:text-indigo-400" />
             Brand Registry
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Manage verified brands and scope them to root category verticals. Brands with no categories assigned are global.
           </p>
         </div>
         <button
           onClick={openCreateModal}
-          className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all"
+          className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all"
         >
           <Plus className="w-4 h-4" />
           Register Brand
         </button>
+      </div>
+
+      {/* Brand Registry KPI Deck */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Registered Brands</span>
+            <div className="p-2 rounded-xl text-indigo-600 bg-indigo-50 dark:bg-indigo-950/50">
+              <Award className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <span className="text-2xl font-black text-slate-900 dark:text-white font-mono tracking-tight">
+              {totalBrands}
+            </span>
+            <p className="text-[11px] text-slate-400 mt-1">Platform brand directory</p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Verified Trademarked</span>
+            <div className="p-2 rounded-xl text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50">
+              <Check className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <span className="text-2xl font-black text-slate-900 dark:text-white font-mono tracking-tight">
+              {verifiedBrands}
+            </span>
+            <p className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1 font-semibold">Official brand registry</p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Vertical-Scoped</span>
+            <div className="p-2 rounded-xl text-blue-600 bg-blue-50 dark:bg-blue-950/50">
+              <ChevronRight className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <span className="text-2xl font-black text-slate-900 dark:text-white font-mono tracking-tight">
+              {scopedBrands}
+            </span>
+            <p className="text-[11px] text-blue-600 dark:text-blue-400 mt-1 font-semibold">Specific category bound</p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Global Universal</span>
+            <div className="p-2 rounded-xl text-purple-600 bg-purple-50 dark:bg-purple-950/50">
+              <Globe className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <span className="text-2xl font-black text-slate-900 dark:text-white font-mono tracking-tight">
+              {globalBrands}
+            </span>
+            <p className="text-[11px] text-purple-600 dark:text-purple-400 mt-1 font-semibold">Cross-category scope</p>
+          </div>
+        </div>
       </div>
 
       {/* Toolbar: Search and Filters */}

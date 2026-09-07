@@ -108,7 +108,7 @@ export default function AdminSettingsPage() {
         </div>
         <div className="flex-1 text-center sm:text-left">
           <div className="flex items-center justify-center sm:justify-start gap-2">
-            <h1 className="text-xl font-black text-slate-900 dark:text-white">Global Platform Settings</h1>
+            <h1 className="text-2xl font-sans font-black tracking-tight text-slate-900 dark:text-white">Global Platform Settings</h1>
             <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] font-bold">
               Production Active
             </Badge>
@@ -116,6 +116,69 @@ export default function AdminSettingsPage() {
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Configure financial rules, escrow dispute hold windows, Chapa payment rails, and platform security policies.
           </p>
+        </div>
+      </div>
+
+      {/* Settings Summary Deck */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Platform Status</span>
+            <div className="p-1.5 rounded-xl text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50">
+              <Shield className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="mt-2">
+            <span className="text-lg font-black text-slate-900 dark:text-white font-mono tracking-tight">
+              {maintenanceMode ? "Maintenance" : "Live Operational"}
+            </span>
+            <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5 font-semibold">Storefront accessible</p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Base Commission</span>
+            <div className="p-1.5 rounded-xl text-indigo-600 bg-indigo-50 dark:bg-indigo-950/50">
+              <CreditCard className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="mt-2">
+            <span className="text-lg font-black text-slate-900 dark:text-white font-mono tracking-tight">
+              {baseCommission}%
+            </span>
+            <p className="text-[10px] text-slate-400 mt-0.5">Platform intermediation</p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Escrow Hold Window</span>
+            <div className="p-1.5 rounded-xl text-amber-600 bg-amber-50 dark:bg-amber-950/50">
+              <Clock className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="mt-2">
+            <span className="text-lg font-black text-slate-900 dark:text-white font-mono tracking-tight">
+              {escrowHoldHours} Hours
+            </span>
+            <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-0.5 font-semibold">Dispute cooling period</p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Payment Gateway</span>
+            <div className="p-1.5 rounded-xl text-blue-600 bg-blue-50 dark:bg-blue-950/50">
+              <Globe className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div className="mt-2">
+            <span className="text-lg font-black text-slate-900 dark:text-white font-mono tracking-tight">
+              Chapa {chapaEnv.toUpperCase()}
+            </span>
+            <p className="text-[10px] text-blue-600 dark:text-blue-400 mt-0.5 font-semibold">Telebirr, CBE, Cards</p>
+          </div>
         </div>
       </div>
 

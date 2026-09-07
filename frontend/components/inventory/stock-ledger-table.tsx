@@ -83,7 +83,7 @@ export function StockLedgerTable({ movements }: StockLedgerTableProps) {
 
         {/* Filters Right */}
         <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-          <Select value={movementFilter} onValueChange={setMovementFilter}>
+          <Select value={movementFilter} onValueChange={(val) => setMovementFilter(val || "ALL")}>
             <SelectTrigger className="w-full sm:w-[180px] h-10 rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs focus:ring-indigo-500">
               <SelectValue placeholder="All Movements" />
             </SelectTrigger>

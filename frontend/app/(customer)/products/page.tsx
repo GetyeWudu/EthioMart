@@ -2,10 +2,11 @@ import Link from "next/link";
 import { ProductCard } from "@/components/customer/product-card";
 import { ProductFilters } from "@/components/customer/product-filters";
 import { SortDropdown } from "@/components/customer/sort-dropdown";
-import { ActiveFilterChips } from "@/components/customer/active-filter-chips";
+
 import { Search, Sparkles, PackageOpen } from "lucide-react";
 import { catalogService } from "@/features/products/services/catalog-service";
 import { AutoRefresh } from "@/components/customer/auto-refresh";
+import { getImageUrl } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
 
@@ -86,7 +87,7 @@ export default async function ProductsPage({
         originalPrice: originalPrice > effectivePrice ? originalPrice : undefined,
         rating: Number(product.avg_rating || 0),
         reviewsCount: Number(product.review_count || 0),
-        image: product.primary_image || "/placeholder.svg",
+        image: getImageUrl(product.primary_image, product.id),
         isNew: false,
         discountPercentage: discountPercentage && discountPercentage > 0 ? discountPercentage : undefined,
         promotionBadge: product.promotion_badge || undefined,
@@ -183,11 +184,7 @@ export default async function ProductsPage({
             </div>
           </div>
 
-          {/* Active Filter Chips Bar */}
-          <ActiveFilterChips
-            categoryName={currentCategoryName !== "All Products" ? currentCategoryName : undefined}
-            totalCount={products.length}
-          />
+
 
           {/* Product Grid */}
           <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3 sm:gap-5">
@@ -200,7 +197,7 @@ export default async function ProductsPage({
                 <p className="text-slate-500 dark:text-slate-400 max-w-sm text-sm mb-6">
                   {searchQuery || category || deals || in_stock || min_price || max_price
                     ? "We couldn't find any products matching your current filters. Try adjusting or clearing your filters."
-                    : "No products are currently published in this department."}
+                    : "No products are currently published in this category."}
                 </p>
                 {(searchQuery || category || deals || in_stock || min_price || max_price) && (
                   <Link

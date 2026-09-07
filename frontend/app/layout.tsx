@@ -1,21 +1,8 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Playfair_Display, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const sansFont = Plus_Jakarta_Sans({
-  variable: "--font-sans",
-  subsets: ["latin"],
-});
-
-const playfair = Playfair_Display({
-  variable: "--font-serif",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "GechExpress",
@@ -31,12 +18,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "mock-google-client-id-for-dev";
 
   return (
-    <html
-      lang="en"
-      className={`${sansFont.variable} ${playfair.variable} ${geistMono.variable} h-full antialiased font-sans`}
-      suppressHydrationWarning
-    >
-      <body className="min-h-full flex flex-col">
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.className} min-h-full flex flex-col antialiased`}>
         <GoogleOAuthProvider clientId={googleClientId}>
           <ThemeProvider
             attribute="class"

@@ -1,6 +1,13 @@
 "use client";
 
-import { MagnifyingGlassIcon, HamburgerMenuIcon, PersonIcon, LockClosedIcon, GearIcon, ExitIcon } from "@radix-ui/react-icons";
+import {
+  MagnifyingGlassIcon,
+  HamburgerMenuIcon,
+  PersonIcon,
+  LockClosedIcon,
+  GearIcon,
+  ExitIcon,
+} from "@radix-ui/react-icons";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -18,8 +25,10 @@ import {
   SheetDescription,
   SheetTitle,
   SheetTrigger,
+  SheetClose,
 } from "@/components/ui/sheet";
-import { NAV_ITEMS } from "./admin-sidebar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { NAV_SECTIONS, NAV_ITEMS } from "./admin-sidebar";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -27,127 +36,140 @@ import useSWR from "swr";
 import api from "@/lib/api";
 import { useAuthStore } from "@/stores/auth-store";
 import { NotificationBell } from "@/components/navigation/notification-bell";
+import { ShieldCheck, Sparkles, ChevronRight } from "lucide-react";
+import { DashboardIcon } from "@radix-ui/react-icons";
 
-const fetcher = (url: string) => api.get(url).then(res => res.data);
+const fetcher = (url: string) => api.get(url).then((res) => res.data);
 
 export function AdminHeader() {
   const pathname = usePathname();
-  const { data: analyticsData } = useSWR('/admin/analytics/?range=30d', fetcher);
+  const { data: analyticsData } = useSWR("/admin/analytics/?range=30d", fetcher);
   const ops = analyticsData?.operational_counters || {};
 
+  // Find active item name and section title
+  let activeSectionName = "Admin Control";
+  let activeItemName = "Overview";
+
+  for (const section of NAV_SECTIONS) {
+    const matched = section.items.find(
+      (item) => pathname === item.href || (pathname.startsWith(`${item.href}/`) && item.href !== "/admin")
+    );
+    if (matched) {
+      activeSectionName = section.title;
+      activeItemName = matched.name;
+      break;
+    }
+  }
+
   return (
-    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-4 border-b border-slate-200/50 bg-white/80 backdrop-blur-xl px-4 shadow-sm dark:border-white/5 dark:bg-slate-950/50 sm:gap-x-6 sm:px-6 lg:px-8">
-      {/* Mobile menu button & Sidebar */}
+    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-4 border-b border-slate-200/80 bg-white/85 backdrop-blur-xl px-4 shadow-2xs dark:border-slate-800/80 dark:bg-slate-950/85 sm:gap-x-6 sm:px-6 lg:px-8 transition-colors">
+      {/* Mobile menu sheet trigger */}
       <Sheet>
-        <SheetTrigger render={<Button variant="ghost" size="icon" className="lg:hidden -ml-2 text-slate-500" />}>
-          <HamburgerMenuIcon className="h-6 w-6" />
-          <span className="sr-only">Open sidebar</span>
+        <SheetTrigger render={<Button variant="ghost" size="icon" className="lg:hidden -ml-2 text-slate-500 hover:text-slate-900 dark:hover:text-white" />}>
+          <HamburgerMenuIcon className="h-5 w-5" />
+          <span className="sr-only">Open navigation menu</span>
         </SheetTrigger>
-        <SheetContent side="left" className="w-72 p-0 flex flex-col border-r border-slate-200/50 bg-white/95 backdrop-blur-xl dark:border-white/5 dark:bg-slate-950/95">
+        <SheetContent
+          side="left"
+          className="w-64 p-0 flex flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950"
+        >
           <SheetTitle className="sr-only">Admin Navigation</SheetTitle>
-          <SheetDescription className="sr-only">Navigate the admin dashboard</SheetDescription>
-          
-          <div className="flex h-16 shrink-0 items-center gap-2 border-b border-slate-200/50 px-6 dark:border-white/5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white font-bold text-xl">
-              G
+          <SheetDescription className="sr-only">Navigate the platform administration features</SheetDescription>
+
+          {/* Brand */}
+          <div className="flex h-16 shrink-0 items-center gap-2 border-b border-slate-200 px-6 dark:border-slate-800">
+            <div className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-indigo-600 text-white shadow-sm">
+              <DashboardIcon className="h-4 w-4 stroke-[2.5]" />
             </div>
-            <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
-              GechExpress <span className="font-normal text-slate-500">Admin</span>
+            <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+              Gech<span className="text-indigo-600 dark:text-indigo-400">Express</span>
             </span>
           </div>
 
-          <nav className="flex-1 overflow-y-auto py-6 px-4">
-            <div className="space-y-6">
-              <div>
-                <h3 className="px-3 text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
-                  Main Menu
-                </h3>
-                <ul className="space-y-1">
-                  {NAV_ITEMS.map((item) => {
-                    const isActive = pathname === item.href || (pathname.startsWith(`${item.href}/`) && item.href !== "/admin");
-                    // @ts-ignore
-                    const badgeValue = item.badgeKey ? ops[item.badgeKey] : null;
-                    
-                    return (
-                      <li key={item.name}>
-                        <Link
-                          href={item.href}
-                          className={cn(
-                            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
-                            isActive
-                              ? "bg-indigo-50/80 text-indigo-700 shadow-sm ring-1 ring-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:ring-indigo-500/20"
-                              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/40 dark:hover:text-slate-200"
-                          )}
-                        >
-                          <item.icon className={cn("h-4 w-4 shrink-0", isActive ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400")} />
-                          <div className="flex flex-1 items-center justify-between">
-                            <span>{item.name}</span>
-                            {badgeValue > 0 && (
-                              <span className={cn(
-                                "flex h-5 items-center justify-center rounded-full px-2 text-[10px] font-bold",
-                                isActive 
-                                  ? "bg-indigo-600 text-white" 
-                                  : "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-400"
-                              )}>
-                                {badgeValue}
-                              </span>
+          <nav className="flex-1 overflow-y-auto py-6">
+            <ul className="space-y-1.5 px-3">
+              {NAV_ITEMS.map((item) => {
+                const isActive = pathname === item.href || (pathname.startsWith(`${item.href}/`) && item.href !== "/admin");
+                // @ts-ignore
+                const badgeValue = item.badgeKey ? ops[item.badgeKey] : null;
+
+                return (
+                  <li key={item.name}>
+                    <SheetClose nativeButton={false} render={
+                      <Link
+                        href={item.href}
+                        className={cn(
+                          "flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all relative overflow-hidden",
+                          isActive
+                            ? "text-indigo-700 bg-indigo-50 rounded-r-xl dark:bg-indigo-500/10 dark:text-indigo-400"
+                            : "text-slate-600 hover:bg-slate-50 rounded-r-xl dark:text-slate-400 dark:hover:bg-slate-800/30 dark:hover:text-white"
+                        )}
+                      />
+                    }>
+                      {isActive && (
+                        <span className="absolute left-0 top-0 bottom-0 w-[3px] bg-indigo-600 dark:bg-indigo-500 rounded-r-full" />
+                      )}
+                      <item.icon className={cn("h-4 w-4 shrink-0", isActive ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400")} />
+                      <div className="flex flex-1 items-center justify-between min-w-0">
+                        <span className="truncate">{item.name}</span>
+                        {badgeValue > 0 && (
+                          <span
+                            className={cn(
+                              "flex h-4 min-w-4 items-center justify-center rounded-full px-1.5 text-[9px] font-mono font-bold ml-2 shrink-0",
+                              isActive
+                                ? "bg-indigo-600 text-white"
+                                : "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300"
                             )}
-                          </div>
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            </div>
+                          >
+                            {badgeValue}
+                          </span>
+                        )}
+                      </div>
+                    </SheetClose>
+                  </li>
+                );
+              })}
+            </ul>
           </nav>
         </SheetContent>
       </Sheet>
 
-      {/* Separator for mobile */}
-      <div className="h-6 w-px bg-slate-200/50 dark:bg-white/5 lg:hidden" aria-hidden="true" />
+      {/* Right Side: Global Status, Search, Actions & Profile */}
+      <div className="flex flex-1 items-center justify-end gap-2.5 sm:gap-3.5">
 
-      <div className="flex flex-1 items-center justify-between gap-4 self-stretch lg:gap-6">
-        {/* Dynamic Page Title (Desktop only) */}
-        <div className="hidden lg:flex flex-1 items-center">
-          <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white capitalize">
-            {pathname.split('/').filter(Boolean).pop()?.replace('-', ' ') || 'Dashboard'}
-          </h1>
+
+        {/* Global Search Bar */}
+        <div className="relative w-full max-w-[200px] sm:max-w-xs md:max-w-sm">
+          <MagnifyingGlassIcon
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400"
+            aria-hidden="true"
+          />
+          <Input
+            id="admin-search-field"
+            className="w-full pl-9 pr-8 bg-slate-100/80 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 rounded-xl focus-visible:ring-indigo-500 h-9 text-xs transition-colors hover:bg-slate-200/50 dark:hover:bg-slate-800/50"
+            placeholder="Search sellers, orders, items..."
+            type="search"
+          />
+          <kbd className="hidden sm:inline-flex absolute right-2.5 top-1/2 -translate-y-1/2 items-center rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-1.5 font-mono text-[9px] font-medium text-slate-400">
+            ⌘K
+          </kbd>
         </div>
 
-        {/* Right side Actions & Search */}
-        <div className="flex flex-1 lg:flex-none items-center gap-2 sm:gap-4 justify-end">
-          <form className="relative flex w-full max-w-md items-center" action="#" method="GET">
-            <label htmlFor="search-field" className="sr-only">
-              Search
-            </label>
-            <MagnifyingGlassIcon
-              className="pointer-events-none absolute left-3 h-4 w-4 text-slate-400"
-              aria-hidden="true"
-            />
-            <Input
-              id="search-field"
-              className="w-full pl-10 bg-slate-100/80 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 rounded-full focus-visible:ring-indigo-500 h-10 transition-colors hover:bg-slate-200/50 dark:hover:bg-slate-800/50 text-sm"
-              placeholder="Global search (Sellers, Users...)"
-              type="search"
-              name="search"
-            />
-          </form>
-
-          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-            <div className="hidden sm:block">
-              <ThemeToggle />
-            </div>
-
-            <NotificationBell />
-
-            {/* Separator */}
-            <div className="hidden lg:block lg:h-6 lg:w-px lg:bg-slate-200/50 dark:lg:bg-white/10 mx-2" aria-hidden="true" />
-
-            {/* Profile Dropdown */}
-            <AdminProfileDropdown />
-          </div>
+        {/* Theme Toggle */}
+        <div className="shrink-0">
+          <ThemeToggle />
         </div>
+
+        {/* Notifications Dropdown */}
+        <div className="shrink-0">
+          <NotificationBell />
+        </div>
+
+        {/* Separator */}
+        <div className="hidden sm:block h-6 w-px bg-slate-200 dark:bg-slate-800 mx-1" aria-hidden="true" />
+
+        {/* Profile Dropdown */}
+        <AdminProfileDropdown />
       </div>
     </header>
   );
@@ -164,36 +186,43 @@ function AdminProfileDropdown() {
 
   const isSuper = Boolean(user?.is_superuser);
   const title = isSuper ? "Super Admin" : "Operational Admin";
-  const subtitle = isSuper ? "Global Control" : "Staff Moderation";
+  const subtitle = isSuper ? "Root Authority" : "Moderator";
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center gap-3 outline-none group hover:opacity-80 transition-opacity">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
-          <LockClosedIcon className="h-4 w-4" />
-        </div>
-        <div className="hidden lg:flex lg:flex-col lg:items-start text-left">
-          <span className="text-sm font-semibold leading-none text-slate-900 dark:text-white">
-            {user?.full_name || title}
-          </span>
-          <span className="text-xs text-slate-500 mt-1">{subtitle}</span>
-        </div>
+      <DropdownMenuTrigger className="flex items-center gap-2.5 outline-none group hover:opacity-90 transition-opacity">
+        <Avatar className="h-9 w-9 shadow-sm border border-slate-200 dark:border-slate-800">
+          <AvatarImage src="" alt={user?.full_name || title} />
+          <AvatarFallback className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-400 font-bold text-xs">
+            {(user?.full_name || title).charAt(0).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56 mt-1">
-        <DropdownMenuLabel>My Account ({user?.email})</DropdownMenuLabel>
+      <DropdownMenuContent align="end" className="w-56 mt-2 rounded-2xl p-1.5 shadow-xl">
+        <DropdownMenuLabel className="px-3 py-2">
+          <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{user?.full_name || "Platform Admin"}</p>
+          <p className="text-[10px] font-mono text-slate-400 truncate">{user?.email || "admin@gechexpress.com"}</p>
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="cursor-pointer">
-          <PersonIcon className="mr-2 h-4 w-4 text-slate-500" />
-          <span>Profile Details</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer">
-          <GearIcon className="mr-2 h-4 w-4 text-slate-500" />
-          <span>System Settings</span>
-        </DropdownMenuItem>
+        <Link href="/admin/settings" className="block">
+          <DropdownMenuItem className="flex items-center px-3 py-2 text-xs font-medium cursor-pointer rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900">
+            <GearIcon className="mr-2 h-3.5 w-3.5 text-slate-500" />
+            <span>Platform Settings</span>
+          </DropdownMenuItem>
+        </Link>
+        <Link href="/admin/audit-logs" className="block">
+          <DropdownMenuItem className="flex items-center px-3 py-2 text-xs font-medium cursor-pointer rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900">
+            <PersonIcon className="mr-2 h-3.5 w-3.5 text-slate-500" />
+            <span>Audit Trail</span>
+          </DropdownMenuItem>
+        </Link>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-rose-600 dark:text-rose-500 hover:!text-rose-700 dark:hover:!text-rose-400 hover:!bg-rose-50 dark:hover:!bg-rose-950/50">
-          <ExitIcon className="mr-2 h-4 w-4" />
-          <span>Log out completely</span>
+        <DropdownMenuItem
+          onClick={handleSignOut}
+          className="flex items-center px-3 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 cursor-pointer rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/40"
+        >
+          <ExitIcon className="mr-2 h-3.5 w-3.5" />
+          <span>Sign Out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

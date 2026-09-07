@@ -6,7 +6,8 @@
 
 "use client";
 
-import { Users, UserCheck, Wallet, UserPlus, TrendingUp } from "lucide-react";
+import Link from "next/link";
+import { Users, UserCheck, Wallet, UserPlus, ArrowRight } from "lucide-react";
 import { AdminCustomerStats } from "../../types";
 
 interface CustomerStatsCardsProps {
@@ -36,6 +37,7 @@ export function CustomerStatsCards({ stats, isLoading = false }: CustomerStatsCa
       gradient: "from-blue-500/10 via-indigo-500/5 to-transparent",
       iconBg: "bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400",
       trend: "Registered",
+      href: "/admin/customers",
     },
     {
       title: "Active Shoppers",
@@ -45,6 +47,7 @@ export function CustomerStatsCards({ stats, isLoading = false }: CustomerStatsCa
       gradient: "from-emerald-500/10 via-teal-500/5 to-transparent",
       iconBg: "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400",
       trend: "Eligible",
+      href: "/admin/customers?status=ACTIVE",
     },
     {
       title: "Cumulative Spend",
@@ -54,6 +57,7 @@ export function CustomerStatsCards({ stats, isLoading = false }: CustomerStatsCa
       gradient: "from-purple-500/10 via-indigo-500/5 to-transparent",
       iconBg: "bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400",
       trend: "Lifetime GMV",
+      href: "/admin/orders",
     },
     {
       title: "New This Month",
@@ -63,6 +67,7 @@ export function CustomerStatsCards({ stats, isLoading = false }: CustomerStatsCa
       gradient: "from-amber-500/10 via-orange-500/5 to-transparent",
       iconBg: "bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400",
       trend: "Acquisitions",
+      href: "/admin/customers?ordering=-created_at",
     },
   ];
 
@@ -71,15 +76,16 @@ export function CustomerStatsCards({ stats, isLoading = false }: CustomerStatsCa
       {cards.map((card, idx) => {
         const Icon = card.icon;
         return (
-          <div
+          <Link
             key={idx}
-            className="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-5 sm:p-6 shadow-sm hover:shadow-md transition-all group"
+            href={card.href}
+            className="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-5 sm:p-6 shadow-sm hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-800 transition-all group cursor-pointer block"
           >
             <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-50`} />
 
             <div className="relative z-10 flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                   {card.title}
                 </p>
                 <div className="mt-2 flex items-baseline gap-2">
@@ -96,7 +102,11 @@ export function CustomerStatsCards({ stats, isLoading = false }: CustomerStatsCa
                 <Icon className="h-6 w-6" />
               </div>
             </div>
-          </div>
+
+            <div className="relative z-10 mt-3 flex items-center gap-1 text-[11px] font-semibold text-slate-400 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors">
+              View details <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </Link>
         );
       })}
     </div>

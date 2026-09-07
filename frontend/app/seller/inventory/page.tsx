@@ -59,10 +59,10 @@ function InventoryContent() {
 
   const stats = useMemo(() => {
     return {
-      totalUnits: stocks.reduce((acc, s) => acc + (s.quantity || 0), 0),
+      totalUnits: stocks.reduce((acc, s) => acc + (s.quantity_on_hand || 0), 0),
       totalSKUs: stocks.length,
-      lowStock: stocks.filter(s => s.quantity > 0 && s.quantity <= 10).length,
-      outOfStock: stocks.filter(s => s.quantity === 0).length,
+      lowStock: stocks.filter(s => s.quantity_available > 0 && s.quantity_available <= 10).length,
+      outOfStock: stocks.filter(s => s.quantity_available === 0).length,
       totalMovements: movements.length,
     };
   }, [stocks, movements]);
