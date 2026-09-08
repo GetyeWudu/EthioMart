@@ -54,6 +54,7 @@ export default function CategoriesPage() {
             images,
             itemCount: c.product_count || 0,
             originalChildren: c.children,
+            children: c.children || [],
           };
         });
 

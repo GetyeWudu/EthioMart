@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   DashboardIcon,
@@ -85,12 +86,17 @@ export function AdminSidebar() {
         )}
       >
         <div className="flex items-center gap-2 overflow-hidden">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-indigo-600 text-white shadow-sm">
-            <DashboardIcon className="h-4 w-4 stroke-[2.5]" />
+          <div className="relative h-8 w-8 shrink-0 rounded-lg overflow-hidden border border-slate-200/80 dark:border-slate-700 shadow-sm">
+            <Image
+              src="/logo/abukii.png"
+              alt="EthioMart Logo"
+              fill
+              className="object-cover"
+            />
           </div>
           {!isAdminSidebarCollapsed && (
             <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white whitespace-nowrap">
-              Gech<span className="text-indigo-600 dark:text-indigo-400">Express</span>
+              Ethio<span className="text-[#FF7900]">Mart</span>
             </span>
           )}
         </div>
@@ -137,17 +143,17 @@ export function AdminSidebar() {
                     "flex items-center px-4 py-3 text-base font-medium transition-all relative overflow-hidden whitespace-nowrap",
                     isAdminSidebarCollapsed ? "justify-center rounded-xl px-0 w-12 mx-auto" : "gap-3 rounded-r-xl",
                     isActive
-                      ? "text-indigo-700 bg-indigo-50 dark:bg-indigo-500/10 dark:text-indigo-400 font-semibold"
+                      ? "text-[#0D4FA8] bg-[#EBF2FC] dark:bg-[#1261C9]/10 dark:text-[#4D8FE0] font-semibold"
                       : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/30 dark:hover:text-white"
                   )}
                 >
                   {isActive && !isAdminSidebarCollapsed && (
-                    <span className="absolute left-0 top-0 bottom-0 w-[3px] bg-indigo-600 dark:bg-indigo-500 rounded-r-full" />
+                    <span className="absolute left-0 top-0 bottom-0 w-[3px] bg-[#1261C9] dark:bg-[#1261C9] rounded-r-full" />
                   )}
                   <item.icon
                     className={cn(
                       "h-4 w-4 shrink-0 transition-colors",
-                      isActive ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400"
+                      isActive ? "text-[#1261C9] dark:text-[#4D8FE0]" : "text-slate-400"
                     )}
                   />
                   {!isAdminSidebarCollapsed && (
@@ -158,8 +164,8 @@ export function AdminSidebar() {
                           className={cn(
                             "flex h-4 min-w-4 items-center justify-center rounded-full px-1.5 text-[9px] font-bold font-mono ml-2 shrink-0",
                             isActive
-                              ? "bg-indigo-600 text-white"
-                              : "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300"
+                              ? "bg-[#1261C9] text-white"
+                              : "bg-[#D5E5F8] text-[#0D4FA8] dark:bg-[#1261C9]/15 dark:text-[#7AB0EE]"
                           )}
                         >
                           {badgeValue}

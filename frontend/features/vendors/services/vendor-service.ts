@@ -1,7 +1,7 @@
 /**
  * frontend/features/vendors/services/vendor-service.ts
  * ===================================================
- * Complete API service for GechExpress Vendor domain:
+ * Complete API service for EthioMart Vendor domain:
  *   - Seller Self-Service (/api/v1/vendors/me/...)
  *   - Public Storefront (/api/v1/vendors/...)
  *   - Admin Moderation (/api/v1/admin/vendors/...)

@@ -21,7 +21,7 @@ export function SalesOverview() {
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-base font-bold text-slate-900 dark:text-white">Store Sales Trajectory & Net Earnings</h2>
-            <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200 font-mono text-[10px]">
+            <Badge variant="outline" className="bg-[#FFF3E8] text-[#FF7900] border-[#FF7900]/30 font-mono text-[10px]">
               Currency: ETB
             </Badge>
           </div>
@@ -36,7 +36,7 @@ export function SalesOverview() {
               key={range}
               onClick={() => setTimeRange(range)}
               className={`px-2.5 py-1 rounded-lg font-bold uppercase transition-all ${timeRange === range
-                  ? "bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-xs"
+                  ? "bg-white dark:bg-slate-800 text-[#FF7900] shadow-xs"
                   : "text-slate-500 hover:text-slate-900"
                 }`}
             >
@@ -51,7 +51,7 @@ export function SalesOverview() {
       <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-slate-500 pt-2 border-t border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-indigo-600 inline-block" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#FF7900] inline-block" />
             Gross Retail Sales (ETB)
           </span>
           <span className="flex items-center gap-1.5">

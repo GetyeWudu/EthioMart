@@ -10,6 +10,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription, SheetC
 import { NAV_ITEMS } from "./seller-sidebar";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 export function SellerHeader() {
@@ -26,12 +27,17 @@ export function SellerHeader() {
           <SheetTitle className="sr-only">Mobile Navigation</SheetTitle>
           <SheetDescription className="sr-only">Access seller dashboard links</SheetDescription>
           {/* Brand */}
-          <div className="flex h-16 shrink-0 items-center gap-2 border-b border-slate-200 px-6 dark:border-slate-800">
-            <div className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-indigo-600 text-white shadow-sm">
-              <BackpackIcon className="h-4 w-4 stroke-[2.5]" />
+          <div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-slate-200 px-6 dark:border-slate-800">
+            <div className="relative h-8 w-8 shrink-0 rounded-lg overflow-hidden border border-slate-200/80 dark:border-slate-700 shadow-sm">
+              <Image
+                src="/logo/abukii.png"
+                alt="EthioMart Logo"
+                fill
+                className="object-cover"
+              />
             </div>
             <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-              Gech<span className="text-indigo-600 dark:text-indigo-400">Express</span>
+              Ethio<span className="text-[#FF7900]">Mart</span>
             </span>
           </div>
 
@@ -53,15 +59,15 @@ export function SellerHeader() {
                         className={cn(
                           "flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all relative overflow-hidden",
                           isActive
-                            ? "text-indigo-700 bg-indigo-50 rounded-r-xl dark:bg-indigo-500/10 dark:text-indigo-400"
-                            : "text-slate-600 hover:bg-slate-50 rounded-r-xl dark:text-slate-400 dark:hover:bg-slate-800/30 dark:hover:text-white"
+                            ? "text-[#FF7900] bg-[#FF7900]/10 rounded-r-xl dark:bg-[#FF7900]/20 dark:text-orange-300 font-bold"
+                            : "text-slate-600 hover:bg-[#FF7900]/5 hover:text-[#FF7900] rounded-r-xl dark:text-slate-400 dark:hover:bg-slate-800/30 dark:hover:text-white"
                         )}
                       />
                     }>
                       {isActive && (
-                        <span className="absolute left-0 top-0 bottom-0 w-[3px] bg-indigo-600 dark:bg-indigo-500 rounded-r-full" />
+                        <span className="absolute left-0 top-0 bottom-0 w-[3px] bg-[#FF7900] rounded-r-full" />
                       )}
-                      <item.icon className={cn("h-4 w-4", isActive ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400")} />
+                      <item.icon className={cn("h-4 w-4 transition-colors", isActive ? "text-[#FF7900] dark:text-orange-400" : "text-slate-400")} />
                       {item.name}
                     </SheetClose>
                   </li>
@@ -95,7 +101,7 @@ export function SellerHeader() {
             />
             <Input
               id="search-field"
-              className="w-full pl-10 bg-slate-100/80 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 rounded-full focus-visible:ring-indigo-500 h-10 transition-colors hover:bg-slate-200/50 dark:hover:bg-slate-800/50 text-sm"
+              className="w-full pl-10 bg-slate-100/80 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 rounded-full focus-visible:ring-2 focus-visible:ring-[#FF7900]/40 focus-visible:border-[#FF7900] h-10 transition-colors hover:bg-slate-200/50 dark:hover:bg-slate-800/50 text-sm"
               placeholder="Search..."
               type="search"
               name="search"

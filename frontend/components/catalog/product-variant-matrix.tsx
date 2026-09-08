@@ -22,7 +22,7 @@ interface ProductVariantMatrixProps {
 
 export function ProductVariantMatrix({
   variants,
-  storeCode = "GECH",
+  storeCode = "ETHIO",
   categoryCode = "CAT",
   onChange,
 }: ProductVariantMatrixProps) {
@@ -147,7 +147,7 @@ export function ProductVariantMatrix({
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+            <tr className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-500">
               <th className="p-3 w-[20%]">SKU</th>
               <th className="p-3 w-[25%]">Dimensions</th>
               <th className="p-3 w-[20%]">Price*</th>

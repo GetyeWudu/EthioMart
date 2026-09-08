@@ -30,7 +30,7 @@ export function PayoutLockAlert({ lockReason, className = "" }: PayoutLockAlertP
             <strong>Reason:</strong> {lockReason || "Wallet locked during active order dispute investigation or account review."}
           </p>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
-            Incoming cleared funds remain safe in your balance projection. Contact <a href="mailto:support@gechexpress.com" className="underline text-indigo-600 dark:text-indigo-400 font-medium">support@gechexpress.com</a> for dispute resolution.
+            Incoming cleared funds remain safe in your balance projection. Contact <a href="mailto:support@ethiomart.com" className="underline text-indigo-600 dark:text-indigo-400 font-medium">support@ethiomart.com</a> for dispute resolution.
           </p>
         </div>
       </div>

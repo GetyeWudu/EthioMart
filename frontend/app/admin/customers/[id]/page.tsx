@@ -232,28 +232,28 @@ export default function AdminCustomerDetailPage() {
       </div>
 
       {/* Metrics Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 p-5 bg-white dark:bg-slate-900/60 shadow-sm">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Lifetime Spend</span>
-          <span className="text-xl sm:text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-1 block">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 p-3.5 sm:p-5 bg-white dark:bg-slate-900/60 shadow-sm">
+          <span className="text-xs font-semibold text-slate-500 block truncate">Lifetime Spend</span>
+          <span className="text-lg sm:text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-1 block truncate">
             {formatETB(customer.total_spent)} ETB
           </span>
         </div>
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 p-5 bg-white dark:bg-slate-900/60 shadow-sm">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Orders</span>
-          <span className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white mt-1 block">
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 p-3.5 sm:p-5 bg-white dark:bg-slate-900/60 shadow-sm">
+          <span className="text-xs font-semibold text-slate-500 block truncate">Total Orders</span>
+          <span className="text-lg sm:text-2xl font-bold font-mono text-slate-900 dark:text-white mt-1 block truncate">
             {customer.total_orders}
           </span>
         </div>
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 p-5 bg-white dark:bg-slate-900/60 shadow-sm">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Average Order</span>
-          <span className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white mt-1 block">
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 p-3.5 sm:p-5 bg-white dark:bg-slate-900/60 shadow-sm">
+          <span className="text-xs font-semibold text-slate-500 block truncate">Average Order</span>
+          <span className="text-lg sm:text-2xl font-bold font-mono text-slate-900 dark:text-white mt-1 block truncate">
             {formatETB(avgOrderVal)} ETB
           </span>
         </div>
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 p-5 bg-white dark:bg-slate-900/60 shadow-sm">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Disputes Filed</span>
-          <span className="text-xl sm:text-2xl font-bold font-mono text-rose-600 dark:text-rose-400 mt-1 block">
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 p-3.5 sm:p-5 bg-white dark:bg-slate-900/60 shadow-sm">
+          <span className="text-xs font-semibold text-slate-500 block truncate">Disputes Filed</span>
+          <span className="text-lg sm:text-2xl font-bold font-mono text-rose-600 dark:text-rose-400 mt-1 block truncate">
             {customer.disputes_count}
           </span>
         </div>

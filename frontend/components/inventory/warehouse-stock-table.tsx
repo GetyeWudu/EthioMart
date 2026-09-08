@@ -128,18 +128,18 @@ export function WarehouseStockTable({
       </div>
 
       {/* 2. Stock Table Accordion */}
-      <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl shadow-xs">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-gray-50 dark:bg-slate-900/80 text-gray-500 dark:text-slate-400 uppercase text-[10px] font-bold tracking-wider border-b border-gray-200 dark:border-slate-800">
+      <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl shadow-xs overflow-hidden">
+        <div className="overflow-hidden w-full">
+          <table className="w-full text-left text-xs table-fixed">
+            <thead className="bg-gray-50 dark:bg-slate-900/80 text-gray-500 dark:text-slate-400 font-semibold text-[11px] border-b border-gray-200 dark:border-slate-800">
               <tr>
-                <th className="px-5 py-3.5">Product / Matrix</th>
-                <th className="px-5 py-3.5 w-48">Facility</th>
-                <th className="px-5 py-3.5 text-right w-24">On Hand</th>
-                <th className="px-5 py-3.5 text-right w-24">Reserved</th>
-                <th className="px-5 py-3.5 text-right w-24">Available</th>
-                <th className="px-5 py-3.5 text-center w-28">Status</th>
-                <th className="px-5 py-3.5 text-right w-28">Actions</th>
+                <th className="px-4 py-3.5 w-[32%]">Product / Matrix</th>
+                <th className="px-4 py-3.5 w-[20%]">Facility</th>
+                <th className="px-3 py-3.5 text-right w-[10%]">On Hand</th>
+                <th className="px-3 py-3.5 text-right w-[10%]">Reserved</th>
+                <th className="px-3 py-3.5 text-right w-[10%]">Available</th>
+                <th className="px-3 py-3.5 text-center w-[10%]">Status</th>
+                <th className="px-3 py-3.5 text-right w-[8%]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-slate-800/60">
@@ -163,40 +163,40 @@ export function WarehouseStockTable({
                         className={`hover:bg-gray-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors ${isExpanded ? "bg-slate-50/50 dark:bg-slate-800/30" : ""}`}
                         onClick={() => toggleExpand(group.productId)}
                       >
-                        <td className="px-5 py-3.5">
-                          <div className="flex items-center gap-2">
-                            <button className="p-0.5 text-gray-400 hover:text-gray-700 transition-colors">
+                        <td className="px-4 py-3.5 truncate">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <button className="p-0.5 text-gray-400 hover:text-gray-700 transition-colors shrink-0">
                               {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                             </button>
-                            <span className="font-bold text-gray-900 dark:text-white text-sm">{group.productTitle}</span>
-                            <span className="text-[10px] font-semibold text-gray-500 dark:text-slate-400 bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
+                            <span className="font-bold text-gray-900 dark:text-white text-sm truncate" title={group.productTitle}>{group.productTitle}</span>
+                            <span className="text-[10px] font-semibold text-gray-500 dark:text-slate-400 bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded-full shrink-0">
                               {group.variants.length} SKUs
                             </span>
                           </div>
                         </td>
-                        <td className="px-5 py-3.5 text-gray-500 dark:text-slate-400 font-medium text-xs">
+                        <td className="px-4 py-3.5 text-gray-500 dark:text-slate-400 font-medium text-xs truncate">
                           {selectedWarehouse === "ALL" ? `Total across ${new Set(group.variants.map(v => v.warehouse_id)).size} Facilities` : "Selected Facility"}
                         </td>
-                        <td className="px-5 py-3.5 text-right font-medium text-gray-700">{group.totalOnHand}</td>
-                        <td className="px-5 py-3.5 text-right font-medium text-amber-600">{group.totalReserved}</td>
-                        <td className="px-5 py-3.5 text-right font-bold text-gray-900 dark:text-white text-sm">{group.totalAvailable}</td>
-                        <td className="px-5 py-3.5 text-center">
+                        <td className="px-3 py-3.5 text-right font-medium text-gray-700 font-mono truncate">{group.totalOnHand}</td>
+                        <td className="px-3 py-3.5 text-right font-medium text-amber-600 font-mono truncate">{group.totalReserved}</td>
+                        <td className="px-3 py-3.5 text-right font-bold text-gray-900 dark:text-white text-sm font-mono truncate">{group.totalAvailable}</td>
+                        <td className="px-3 py-3.5 text-center truncate">
                           {isOOS ? (
-                            <span className="bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 px-2.5 py-1 rounded-md font-semibold text-[11px]">
-                              🔴 Out of Stock
+                            <span className="bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 px-2 py-0.5 rounded-md font-semibold text-[10px] inline-block truncate">
+                              Out of Stock
                             </span>
                           ) : isLow ? (
-                            <span className="bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 px-2.5 py-1 rounded-md font-semibold text-[11px]">
-                              🟠 Low Stock
+                            <span className="bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-md font-semibold text-[10px] inline-block truncate">
+                              Low Stock
                             </span>
                           ) : (
-                            <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 px-2.5 py-1 rounded-md font-semibold text-[11px]">
-                              🟢 Healthy
+                            <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-md font-semibold text-[10px] inline-block truncate">
+                              Healthy
                             </span>
                           )}
                         </td>
-                        <td className="px-5 py-3.5 text-right">
-                          <span className="text-[10px] text-gray-400">Expand to manage</span>
+                        <td className="px-3 py-3.5 text-right">
+                          <span className="text-[10px] text-gray-400">Expand</span>
                         </td>
                       </tr>
                       
@@ -207,53 +207,53 @@ export function WarehouseStockTable({
                         
                         return (
                           <tr key={stock.id} className="bg-white dark:bg-slate-900 hover:bg-gray-50/70 dark:hover:bg-slate-800/50 transition-colors">
-                            <td className="px-5 py-3 pl-12">
-                              <div className="flex items-start gap-2 relative">
-                                <div className="absolute -left-5 top-2 w-3 h-px bg-gray-300 dark:bg-slate-700" />
-                                <div className="absolute -left-5 -top-4 w-px h-6 bg-gray-300 dark:bg-slate-700" />
-                                <div>
-                                  <div className="font-semibold text-gray-800 dark:text-slate-200 text-xs">🏷️ {parseVariantDisplay(stock)}</div>
-                                  <div className="font-mono text-gray-400 text-[10px] mt-0.5">/{stock.sku}</div>
+                            <td className="px-4 py-3 pl-10 truncate">
+                              <div className="flex items-start gap-2 relative min-w-0">
+                                <div className="absolute -left-4 top-2 w-2.5 h-px bg-gray-300 dark:bg-slate-700" />
+                                <div className="absolute -left-4 -top-4 w-px h-6 bg-gray-300 dark:bg-slate-700" />
+                                <div className="min-w-0 flex-1">
+                                  <div className="font-semibold text-gray-800 dark:text-slate-200 text-xs truncate" title={parseVariantDisplay(stock)}>🏷️ {parseVariantDisplay(stock)}</div>
+                                  <div className="font-mono text-gray-400 text-[10px] mt-0.5 truncate">/{stock.sku}</div>
                                 </div>
                               </div>
                             </td>
-                            <td className="px-5 py-3 text-gray-600 dark:text-slate-400 text-[11px]">
-                              <div className="flex items-center gap-1.5">
+                            <td className="px-4 py-3 text-gray-600 dark:text-slate-400 text-[11px] truncate">
+                              <div className="flex items-center gap-1.5 min-w-0">
                                 <Warehouse className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                                <span className="truncate max-w-[140px]">{stock.warehouse_name}</span>
+                                <span className="truncate" title={stock.warehouse_name}>{stock.warehouse_name}</span>
                               </div>
                             </td>
-                            <td className="px-5 py-3 text-right font-medium text-gray-600 dark:text-slate-400">{stock.quantity_on_hand}</td>
-                            <td className="px-5 py-3 text-right font-medium text-amber-500">{stock.quantity_reserved}</td>
-                            <td className="px-5 py-3 text-right font-bold text-gray-800 dark:text-slate-200">{stock.quantity_available}</td>
-                            <td className="px-5 py-3 text-center">
+                            <td className="px-3 py-3 text-right font-medium text-gray-600 dark:text-slate-400 font-mono truncate">{stock.quantity_on_hand}</td>
+                            <td className="px-3 py-3 text-right font-medium text-amber-500 font-mono truncate">{stock.quantity_reserved}</td>
+                            <td className="px-3 py-3 text-right font-bold text-gray-800 dark:text-slate-200 font-mono truncate">{stock.quantity_available}</td>
+                            <td className="px-3 py-3 text-center truncate">
                               {vOOS ? (
-                                <span className="bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 px-2 py-0.5 rounded-md font-semibold text-[10px]">
+                                <span className="bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 px-2 py-0.5 rounded-md font-semibold text-[10px] inline-block truncate">
                                   {stock.quantity_available}
                                 </span>
                               ) : vLow ? (
-                                <span className="bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-md font-semibold text-[10px]">
+                                <span className="bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-md font-semibold text-[10px] inline-block truncate">
                                   {stock.quantity_available}
                                 </span>
                               ) : (
-                                <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-md font-semibold text-[10px]">
+                                <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-md font-semibold text-[10px] inline-block truncate">
                                   {stock.quantity_available}
                                 </span>
                               )}
                             </td>
-                            <td className="px-5 py-3 text-right">
-                              <div className="flex items-center justify-end gap-1.5">
+                            <td className="px-3 py-3 text-right">
+                              <div className="flex items-center justify-end gap-1">
                                 <button
                                   type="button"
                                   onClick={(e) => { e.stopPropagation(); onOpenAdjust(stock); }}
-                                  className="px-2 py-1 bg-gray-100 dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 text-gray-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 rounded-md transition-colors text-[10px] font-semibold flex items-center gap-1"
+                                  className="px-1.5 py-1 bg-gray-100 dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 text-gray-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 rounded-md transition-colors text-[10px] font-semibold flex items-center gap-1"
                                 >
                                   Adjust
                                 </button>
                                 <button
                                   type="button"
                                   onClick={(e) => { e.stopPropagation(); onOpenTransfer(stock); }}
-                                  className="px-2 py-1 bg-gray-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-gray-600 dark:text-slate-400 hover:text-indigo-700 dark:hover:text-indigo-400 rounded-md transition-colors text-[10px] font-semibold flex items-center gap-1"
+                                  className="px-1.5 py-1 bg-gray-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-gray-600 dark:text-slate-400 hover:text-indigo-700 dark:hover:text-indigo-400 rounded-md transition-colors text-[10px] font-semibold flex items-center gap-1"
                                 >
                                   <ArrowRightLeft className="w-3 h-3" />
                                 </button>

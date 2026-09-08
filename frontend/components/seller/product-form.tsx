@@ -784,9 +784,9 @@ export function ProductForm() {
                           value="ACTIVE"
                           checked={field.value === "ACTIVE"}
                           onChange={() => field.onChange("ACTIVE")}
-                          className="text-indigo-600 focus:ring-indigo-500"
+                          className="text-[#FF7900] focus:ring-[#FF7900]"
                         />
-                        <Label htmlFor="status-active" className="cursor-pointer">Active</Label>
+                        <Label htmlFor="status-active" className="cursor-pointer">Published & Live</Label>
                       </div>
                       <div className="flex items-center space-x-3">
                         <input
@@ -795,7 +795,7 @@ export function ProductForm() {
                           value="DRAFT"
                           checked={field.value === "DRAFT"}
                           onChange={() => field.onChange("DRAFT")}
-                          className="text-indigo-600 focus:ring-indigo-500"
+                          className="text-[#FF7900] focus:ring-[#FF7900]"
                         />
                         <Label htmlFor="status-draft" className="cursor-pointer">Draft</Label>
                       </div>
@@ -807,8 +807,8 @@ export function ProductForm() {
             />
             
             <div className="mt-8 flex flex-col gap-3">
-              <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">Save Product</Button>
-              <Button type="button" variant="outline" onClick={() => router.back()} className="w-full border-slate-200 dark:border-slate-700">Discard Changes</Button>
+              <Button type="submit" className="w-full bg-gradient-to-r from-[#FF7900] to-[#E66800] hover:from-[#E66800] hover:to-[#D55F00] text-white font-bold shadow-md shadow-[#FF7900]/20 rounded-xl h-11">Save Product</Button>
+              <Button type="button" variant="outline" onClick={() => router.back()} className="w-full rounded-xl border-slate-200 dark:border-slate-700">Discard Changes</Button>
             </div>
           </div>
         </div>

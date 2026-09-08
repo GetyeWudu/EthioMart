@@ -1,7 +1,7 @@
 /**
  * frontend/features/vendors/components/public/vendor-hero.tsx
  * ==========================================================
- * Premium storefront header with banner, logo, verification tier, live stats, and active promotion banners.
+ * Modern storefront header card with brand colors, logo, verification tier, live stats, and active promotions.
  */
 
 "use client";
@@ -19,60 +19,45 @@ export function VendorHero({ store }: VendorHeroProps) {
   const couponPromo = store.active_promotions?.find((p) => p.is_coupon_required);
 
   return (
-    <div className="relative rounded-3xl overflow-hidden border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/70 backdrop-blur-xl shadow-md">
-      {/* Decorative Brand Banner */}
-      <div className="relative h-44 sm:h-64 w-full bg-gradient-to-r from-indigo-700 via-purple-700 to-rose-600 overflow-hidden isolate">
-        {store.store_banner ? (
-          <Image
-            src={store.store_banner}
-            alt={`${store.store_name} Banner`}
-            fill
-            priority
-            className="object-cover"
-          />
-        ) : (
-          <div className="absolute inset-0">
-            {/* Mesh gradient & ambient glow */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-indigo-900 via-purple-900/90 to-rose-900/80" />
-            <div className="absolute -top-16 -right-16 w-80 h-80 bg-indigo-400/20 blur-3xl rounded-full" />
-            <div className="absolute -bottom-16 -left-16 w-80 h-80 bg-rose-400/20 blur-3xl rounded-full" />
-            <div className="absolute inset-0 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:24px_24px] opacity-10" />
-          </div>
-        )}
-      </div>
+    <div className="relative rounded-3xl overflow-hidden border border-slate-200/80 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl shadow-md p-6 sm:p-8">
+      {/* Top signature brand accent bar */}
+      <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#1261C9] via-[#0D4FA8] to-[#FF7900]" />
+
+      {/* Ambient Brand Glows */}
+      <div className="absolute -top-16 -right-16 w-80 h-80 bg-[#1261C9]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-16 -left-16 w-80 h-80 bg-[#FF7900]/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Store Header Details */}
-      <div className="p-6 sm:p-8 pt-0 relative">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 -mt-12 sm:-mt-16 mb-6">
-          <div className="flex items-end gap-4">
+      <div className="relative z-10 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div className="flex items-center gap-4 sm:gap-5">
             {/* Store Logo */}
-            <div className="h-24 w-24 sm:h-28 sm:w-28 rounded-3xl bg-white dark:bg-slate-900 border-4 border-white dark:border-slate-900 shadow-xl flex items-center justify-center text-primary overflow-hidden shrink-0">
+            <div className="relative h-20 w-20 sm:h-24 sm:w-24 rounded-2xl overflow-hidden bg-white dark:bg-slate-900 border-2 border-slate-200/80 dark:border-slate-700 shadow-md ring-2 ring-[#1261C9]/20 flex items-center justify-center shrink-0">
               {store.store_logo ? (
                 <Image
                   src={store.store_logo}
                   alt={store.store_name}
-                  width={112}
-                  height={112}
-                  className="object-cover w-full h-full"
+                  fill
+                  className="object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-indigo-500/10 to-purple-500/10 flex items-center justify-center">
-                  <Store className="h-12 w-12 text-primary" />
+                <div className="w-full h-full bg-[#1261C9]/10 flex items-center justify-center text-[#1261C9]">
+                  <Store className="h-10 w-10" />
                 </div>
               )}
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight truncate">
                   {store.store_name}
                 </h1>
-                <div className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                <div className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#1261C9]/10 border border-[#1261C9]/20 text-xs font-semibold text-[#1261C9] dark:text-[#4D8FE0] shrink-0">
                   <CheckCircle2 className="h-3.5 w-3.5" />
                   Verified Merchant
                 </div>
                 {store.tier && store.tier !== "PROBATION" && (
-                  <div className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs font-semibold text-amber-600 dark:text-amber-400">
+                  <div className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FF7900]/10 border border-[#FF7900]/25 text-xs font-semibold text-[#FF7900] shrink-0">
                     <Award className="h-3.5 w-3.5" />
                     {store.tier_display || store.tier}
                   </div>
@@ -83,19 +68,19 @@ export function VendorHero({ store }: VendorHeroProps) {
               <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400 flex-wrap">
                 {store.city && (
                   <span className="flex items-center gap-1">
-                    <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                    <MapPin className="h-3.5 w-3.5 text-[#1261C9]" />
                     {store.city}, Ethiopia
                   </span>
                 )}
                 {store.contact_email && (
                   <span className="flex items-center gap-1">
-                    <Mail className="h-3.5 w-3.5 text-slate-400" />
+                    <Mail className="h-3.5 w-3.5 text-[#1261C9]" />
                     {store.contact_email}
                   </span>
                 )}
                 {store.contact_phone && (
                   <span className="flex items-center gap-1">
-                    <Phone className="h-3.5 w-3.5 text-slate-400" />
+                    <Phone className="h-3.5 w-3.5 text-[#FF7900]" />
                     {store.contact_phone}
                   </span>
                 )}
@@ -104,17 +89,17 @@ export function VendorHero({ store }: VendorHeroProps) {
           </div>
 
           {/* Quick Metrics */}
-          <div className="flex items-center gap-3 self-start sm:self-end">
-            <div className="px-4 py-2 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 text-center">
+          <div className="flex items-center gap-3 self-start sm:self-auto shrink-0">
+            <div className="px-4 py-2 rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 text-center">
               <span className="text-xs text-slate-500 dark:text-slate-400 block font-medium">Catalog</span>
               <span className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-1 justify-center">
-                <Package className="w-3.5 h-3.5 text-primary" /> {store.product_count ?? 0}
+                <Package className="w-3.5 h-3.5 text-[#1261C9]" /> {store.product_count ?? 0}
               </span>
             </div>
-            <div className="px-4 py-2 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 text-center">
+            <div className="px-4 py-2 rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 text-center">
               <span className="text-xs text-slate-500 dark:text-slate-400 block font-medium">Escrow</span>
-              <span className="text-base font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 justify-center">
-                <ShieldCheck className="w-3.5 h-3.5" /> 100%
+              <span className="text-base font-bold text-[#FF7900] flex items-center gap-1 justify-center">
+                <ShieldCheck className="w-3.5 h-3.5" /> 100% Safe
               </span>
             </div>
           </div>
@@ -122,24 +107,24 @@ export function VendorHero({ store }: VendorHeroProps) {
 
         {/* Store Description */}
         {store.store_description && (
-          <p className="text-sm text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed mb-4">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed pt-2 border-t border-slate-100 dark:border-slate-800">
             {store.store_description}
           </p>
         )}
 
         {/* Store Active Promotion Highlight Banner */}
         {autoPromo && (
-          <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-rose-500/10 via-orange-500/10 to-amber-500/10 border border-rose-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+          <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-[#FF7900]/10 via-[#FF7900]/5 to-transparent border border-[#FF7900]/25 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center shrink-0 shadow-md">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-[#FF7900] to-[#E66800] text-white flex items-center justify-center shrink-0 shadow-sm">
                 <Flame className="w-5 h-5 animate-pulse" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">
+                  <span className="text-[11px] font-bold text-[#FF7900] uppercase tracking-wider">
                     Active Storewide Deal
                   </span>
-                  <span className="px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[10px] font-extrabold">
+                  <span className="px-2 py-0.5 rounded-full bg-[#FF7900]/15 text-[#FF7900] text-[10px] font-extrabold">
                     {autoPromo.discount_value}% OFF
                   </span>
                 </div>
@@ -148,25 +133,25 @@ export function VendorHero({ store }: VendorHeroProps) {
                 </p>
               </div>
             </div>
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-rose-500 text-white text-xs font-bold shrink-0 self-start sm:self-auto shadow-sm">
-              <Sparkles className="w-3.5 h-3.5 text-yellow-200" />
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#FF7900] to-[#E66800] text-white text-xs font-bold shrink-0 self-start sm:self-auto shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-white" />
               Instant Price Deduction
             </div>
           </div>
         )}
 
         {couponPromo && !autoPromo && (
-          <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+          <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-[#1261C9]/10 via-[#1261C9]/5 to-transparent border border-[#1261C9]/25 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-md">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-[#1261C9] to-[#0D4FA8] text-white flex items-center justify-center shrink-0 shadow-sm">
                 <Sparkles className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-[#1261C9] dark:text-[#4D8FE0] uppercase tracking-wider">
                   Store Coupon Code Available
                 </span>
                 <p className="text-sm font-bold text-slate-900 dark:text-white">
-                  Use coupon code <span className="underline decoration-indigo-500 font-mono text-indigo-600 dark:text-indigo-400">{couponPromo.coupon_code}</span> for {couponPromo.discount_value}% off at checkout!
+                  Use coupon code <span className="underline decoration-[#1261C9] font-mono text-[#1261C9] dark:text-[#4D8FE0]">{couponPromo.coupon_code}</span> for {couponPromo.discount_value}% off at checkout!
                 </p>
               </div>
             </div>

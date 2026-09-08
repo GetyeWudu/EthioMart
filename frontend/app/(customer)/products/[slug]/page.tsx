@@ -39,6 +39,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
   const [selectedOptions, setSelectedOptions] = useState<{ [attrName: string]: string }>({});
   const [selectedImage, setSelectedImage] = useState<string>("");
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
 
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
@@ -210,6 +212,22 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
     setActiveImageIndex(newIdx);
   };
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+    const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
+    setZoomPos({ x, y });
+  };
+
+  const handleMouseEnter = () => {
+    setIsZoomed(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsZoomed(false);
+    setZoomPos({ x: 50, y: 50 });
+  };
+
   const totalAvailableStock = React.useMemo(() => {
     if (activeVariant?.warehouse_stocks?.length) {
       return activeVariant.warehouse_stocks.reduce((sum, ws) => sum + ws.quantity_available, 0);
@@ -339,16 +357,28 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               </div>
             )}
 
-            {/* Main Image Viewport */}
-            <div className="relative flex-1 aspect-square max-h-[560px] rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm group cursor-crosshair">
+            {/* Main Image Viewport with full directional pan & zoom */}
+            <div
+              onMouseMove={handleMouseMove}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              className="relative flex-1 aspect-square max-h-[560px] rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm group cursor-crosshair select-none"
+            >
               <img
                 src={getImageUrl(selectedImage || null, product.id)}
                 alt={product.title}
-                className="w-full h-full object-cover object-center transition-transform duration-300 ease-out group-hover:scale-[1.6] origin-center"
+                style={{
+                  transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
+                  transform: isZoomed ? "scale(2.2)" : "scale(1)",
+                }}
+                className={cn(
+                  "w-full h-full object-cover object-center pointer-events-none will-change-transform",
+                  isZoomed ? "transition-transform duration-75 ease-out" : "transition-transform duration-300 ease-out"
+                )}
               />
 
               {/* Discount & Brand badges */}
-              <div className="absolute top-3 left-3 flex flex-col gap-2 pointer-events-none">
+              <div className="absolute top-3 left-3 flex flex-col gap-2 pointer-events-none z-10">
                 {product.brand?.is_verified && (
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-500/90 backdrop-blur-sm text-white text-[10px] font-bold rounded-full shadow-sm">
                     <CheckCircle2 className="w-3 h-3" /> Verified Brand
@@ -365,15 +395,15 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               {product.images && product.images.length > 1 && (
                 <>
                   <button onClick={handlePrevImage}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-full flex items-center justify-center shadow-md hover:bg-white dark:hover:bg-slate-900 transition-colors opacity-0 group-hover:opacity-100">
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-full flex items-center justify-center shadow-md hover:bg-white dark:hover:bg-slate-900 transition-colors opacity-0 group-hover:opacity-100 z-10">
                     <ChevronLeft className="w-4 h-4 text-slate-700 dark:text-slate-300" />
                   </button>
                   <button onClick={handleNextImage}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-full flex items-center justify-center shadow-md hover:bg-white dark:hover:bg-slate-900 transition-colors opacity-0 group-hover:opacity-100">
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-full flex items-center justify-center shadow-md hover:bg-white dark:hover:bg-slate-900 transition-colors opacity-0 group-hover:opacity-100 z-10">
                     <ChevronRight className="w-4 h-4 text-slate-700 dark:text-slate-300" />
                   </button>
                   {/* Indicator dots (mobile) */}
-                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 md:hidden">
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 md:hidden z-10">
                     {product.images.map((_, i) => (
                       <button key={i} onClick={() => handleImageSelect(product.images[i].image, i)}
                         className={cn("w-1.5 h-1.5 rounded-full transition-all", i === activeImageIndex ? "bg-indigo-600 w-4" : "bg-white/60")} />
@@ -650,7 +680,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
           <div className="p-4 rounded-2xl bg-emerald-500/5 dark:bg-emerald-950/20 border border-emerald-500/20 dark:border-emerald-500/10 space-y-2.5 shadow-sm">
             <div className="flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300 font-medium">
               <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-              <span><strong>Chapa / Telebirr Escrow Protection:</strong> Funds held safely by GechExpress until delivery inspection.</span>
+              <span><strong>Chapa / Telebirr Escrow Protection:</strong> Funds held safely by EthioMart until delivery inspection.</span>
             </div>
             <div className="flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300 font-medium">
               <RefreshCw className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
@@ -769,62 +799,66 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
             />
           )}
         </div>
-
-        {/* ═══════════ Recommendations Carousels ═══════════ */}
-        {recommendations.similar_items.length > 0 && (
-          <section className="space-y-4 pt-10 border-t border-slate-200 dark:border-slate-800">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-xl font-bold font-serif text-slate-900 dark:text-white flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-primary" />
-                  Similar Products You May Like
-                </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Customers looking at this item also considered these products.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-stretch gap-3 sm:gap-4 overflow-x-auto pb-4 snap-x snap-mandatory no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
-              {recommendations.similar_items.map((item) => (
-                <div key={item.id} className="snap-start shrink-0 w-[170px] sm:w-[220px] flex flex-col">
-                  <ProductCard {...item} />
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {recommendations.store_items.length > 0 && (
-          <section className="space-y-4 pt-6 border-t border-slate-200 dark:border-slate-800">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-xl font-bold font-serif text-slate-900 dark:text-white flex items-center gap-2">
-                  <Store className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                  More from {product.vendor?.store_name || "this Store"}
-                </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Bundle items from the same merchant for combined shipping and savings.
-                </p>
-              </div>
-              <Link
-                href={`/stores/${product.vendor?.slug}`}
-                className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
-              >
-                View Store <ChevronRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-
-            <div className="flex items-stretch gap-3 sm:gap-4 overflow-x-auto pb-4 snap-x snap-mandatory no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
-              {recommendations.store_items.map((item) => (
-                <div key={item.id} className="snap-start shrink-0 w-[170px] sm:w-[220px] flex flex-col">
-                  <ProductCard {...item} />
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
       </div>
+
+      {/* ═══════════════════════════ RECOMMENDATIONS ═══════════════════════════ */}
+      {(recommendations.similar_items.length > 0 || recommendations.store_items.length > 0) && (
+        <div className="mt-14 sm:mt-20 space-y-12 sm:space-y-16">
+          {recommendations.similar_items.length > 0 && (
+            <section className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold font-serif text-slate-900 dark:text-white flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                    Similar Products You May Like
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Customers looking at this item also considered these products.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-stretch gap-3 sm:gap-4 overflow-x-auto pb-4 snap-x snap-mandatory no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+                {recommendations.similar_items.map((item) => (
+                  <div key={item.id} className="snap-start shrink-0 w-[170px] sm:w-[220px] flex flex-col">
+                    <ProductCard {...item} />
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {recommendations.store_items.length > 0 && (
+            <section className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold font-serif text-slate-900 dark:text-white flex items-center gap-2">
+                    <Store className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                    More from {product.vendor?.store_name || "this Store"}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Bundle items from the same merchant for combined shipping and savings.
+                  </p>
+                </div>
+                <Link
+                  href={`/stores/${product.vendor?.slug}`}
+                  className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
+                >
+                  View Store <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+
+              <div className="flex items-stretch gap-3 sm:gap-4 overflow-x-auto pb-4 snap-x snap-mandatory no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+                {recommendations.store_items.map((item) => (
+                  <div key={item.id} className="snap-start shrink-0 w-[170px] sm:w-[220px] flex flex-col">
+                    <ProductCard {...item} />
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+      )}
 
       {/* ═══════════ Waitlist / Notify Me Modal ═══════════ */}
       {waitlistModalOpen && (

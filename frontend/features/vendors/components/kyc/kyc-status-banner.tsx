@@ -76,7 +76,7 @@ export function KYCStatusBanner({ profile, className = "" }: KYCStatusBannerProp
               KYC Documents Under Review
             </h3>
             <p className="text-sm text-slate-600 dark:text-slate-300 mt-0.5">
-              Your business registration and tax documents have been submitted and are currently being reviewed by the GechExpress Compliance Team. Approvals typically take 1–2 business days.
+              Your business registration and tax documents have been submitted and are currently being reviewed by the EthioMart Compliance Team. Approvals typically take 1–2 business days.
             </p>
           </div>
         </div>
@@ -137,7 +137,7 @@ export function KYCStatusBanner({ profile, className = "" }: KYCStatusBannerProp
               <strong>Suspension Notice:</strong> {suspension_reason || "Account suspended due to policy or compliance violation."}
             </p>
             <p className="text-xs text-red-500 dark:text-red-400 mt-1 font-medium">
-              Your storefront is hidden and payout withdrawals are locked. Please reach out to <a href="mailto:compliance@gechexpress.com" className="underline font-semibold">compliance@gechexpress.com</a> to appeal.
+              Your storefront is hidden and payout withdrawals are locked. Please reach out to <a href="mailto:compliance@ethiomart.com" className="underline font-semibold">compliance@ethiomart.com</a> to appeal.
             </p>
           </div>
         </div>

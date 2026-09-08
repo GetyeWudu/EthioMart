@@ -11,7 +11,7 @@ interface RevenueCardProps {
 
 export function RevenueCard({ title, amount, trend, trendUp, icon: Icon }: RevenueCardProps) {
   return (
-    <div className="relative group overflow-hidden rounded-2xl border border-slate-200/50 bg-white/80 p-4 sm:p-5 shadow-sm backdrop-blur-xl transition-all duration-300 hover:shadow-md dark:border-white/5 dark:bg-slate-900/40 hover:border-indigo-500/30 dark:hover:border-indigo-500/30">
+    <div className="relative group overflow-hidden rounded-2xl border border-slate-200/50 bg-white/80 p-4 sm:p-5 shadow-sm backdrop-blur-xl transition-all duration-300 hover:shadow-md dark:border-white/5 dark:bg-slate-900/40 hover:border-[#FF7900]/30 dark:hover:border-[#FF7900]/30">
       {/* Subtle background glow effect based on trend */}
       <div 
         className={cn(

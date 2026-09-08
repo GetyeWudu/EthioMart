@@ -1,8 +1,8 @@
 import { Truck, RotateCcw, PackageCheck, Globe2 } from "lucide-react";
 
 export const metadata = {
-  title: "Shipping & Returns | GechExpress",
-  description: "Learn about GechExpress shipping methods, delivery times, and our hassle-free return policy.",
+  title: "Shipping & Returns | EthioMart",
+  description: "Learn about EthioMart shipping methods, delivery times, and our hassle-free return policy.",
 };
 
 const policies = [
@@ -79,7 +79,7 @@ export default function ShippingPage() {
               To initiate a return, please follow these steps:
             </p>
             <ol>
-              <li>Log into your GechExpress account and navigate to "My Orders".</li>
+              <li>Log into your EthioMart account and navigate to "My Orders".</li>
               <li>Select the order containing the item(s) you wish to return.</li>
               <li>Click "Initiate Return" and select the reason for the return.</li>
               <li>Print the generated return shipping label.</li>

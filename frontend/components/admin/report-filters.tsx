@@ -12,7 +12,7 @@ export function ReportFilters() {
         
         <div className="space-y-2 flex-1">
           <Label>Report Type</Label>
-          <select className="flex h-10 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-800 dark:bg-slate-900 dark:text-white">
+          <select className="flex h-10 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1261C9] dark:border-slate-800 dark:bg-slate-900 dark:text-white">
             <option>Platform Revenue & GMV</option>
             <option>Seller Commission Statements</option>
             <option>Customer Acquisition Metrics</option>
@@ -41,7 +41,7 @@ export function ReportFilters() {
             <Filter className="h-4 w-4" />
             Apply
           </Button>
-          <Button className="flex-1 md:flex-none bg-indigo-600 hover:bg-indigo-700 text-white gap-2">
+          <Button className="flex-1 md:flex-none bg-[#1261C9] hover:bg-[#0D4FA8] text-white gap-2">
             <Download className="h-4 w-4" />
             Export CSV
           </Button>

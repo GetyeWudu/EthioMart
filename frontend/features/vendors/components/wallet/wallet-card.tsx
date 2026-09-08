@@ -22,13 +22,10 @@ interface WalletCardProps {
 export function WalletCard({ wallet, isLoading = false }: WalletCardProps) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-pulse">
-        {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="h-36 rounded-3xl bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800"
-          />
-        ))}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 animate-pulse">
+        <div className="h-32 sm:h-36 rounded-2xl sm:rounded-3xl bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800" />
+        <div className="h-32 sm:h-36 rounded-2xl sm:rounded-3xl bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800" />
+        <div className="col-span-2 lg:col-span-1 h-32 sm:h-36 rounded-2xl sm:rounded-3xl bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800" />
       </div>
     );
   }
@@ -60,71 +57,71 @@ export function WalletCard({ wallet, isLoading = false }: WalletCardProps) {
     <div className="space-y-6">
       {isLocked && <PayoutLockAlert lockReason={wallet?.lock_reason} />}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
         {/* Available Balance */}
-        <div className="relative overflow-hidden rounded-3xl border border-indigo-500/30 bg-gradient-to-br from-indigo-600/10 via-indigo-600/5 to-purple-600/10 p-6 backdrop-blur-xl shadow-lg shadow-indigo-500/5 dark:border-indigo-500/20">
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-indigo-500/30 bg-gradient-to-br from-indigo-600/10 via-indigo-600/5 to-purple-600/10 p-3.5 sm:p-6 backdrop-blur-xl shadow-lg shadow-indigo-500/5 dark:border-indigo-500/20">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+            <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 truncate">
               Available Balance
             </span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+            <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-indigo-600/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 shrink-0">
               <Wallet className="h-4 w-4" />
             </div>
           </div>
-          <div className="mt-4">
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white font-mono">
+          <div className="mt-3 sm:mt-4">
+            <div className="flex items-baseline gap-1 sm:gap-1.5 flex-wrap">
+              <span className="text-lg sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white font-mono truncate">
                 {available}
               </span>
-              <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">ETB</span>
+              <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">ETB</span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Cleared funds ready for payout withdrawal
+            <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">
+              Cleared funds ready for payout
             </p>
           </div>
         </div>
 
         {/* Pending Escrow */}
-        <div className="relative overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent p-6 backdrop-blur-xl shadow-sm dark:border-amber-500/20">
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent p-3.5 sm:p-6 backdrop-blur-xl shadow-sm dark:border-amber-500/20">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">
-              Pending Clearance (5m Escrow)
+            <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400 truncate">
+              Pending (5m Escrow)
             </span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+            <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0">
               <Clock className="h-4 w-4" />
             </div>
           </div>
-          <div className="mt-4">
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white font-mono">
+          <div className="mt-3 sm:mt-4">
+            <div className="flex items-baseline gap-1 sm:gap-1.5 flex-wrap">
+              <span className="text-lg sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white font-mono truncate">
                 {pending}
               </span>
-              <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">ETB</span>
+              <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">ETB</span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Held in 5-minute dispute window (Test Mode)
+            <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">
+              Held in 5m dispute window
             </p>
           </div>
         </div>
 
         {/* Total Withdrawn */}
-        <div className="relative overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-950/70 p-6 backdrop-blur-xl shadow-sm">
+        <div className="col-span-2 lg:col-span-1 relative overflow-hidden rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-950/70 p-3.5 sm:p-6 backdrop-blur-xl shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">
               Cumulative Paid Out
             </span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800">
+            <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 shrink-0">
               <ArrowUpRight className="h-4 w-4 text-emerald-500" />
             </div>
           </div>
-          <div className="mt-4">
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white font-mono">
+          <div className="mt-3 sm:mt-4">
+            <div className="flex items-baseline gap-1 sm:gap-1.5 flex-wrap">
+              <span className="text-lg sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white font-mono truncate">
                 {withdrawn}
               </span>
-              <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">ETB</span>
+              <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">ETB</span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">
               Lifetime payouts transferred to bank
             </p>
           </div>

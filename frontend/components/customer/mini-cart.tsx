@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { X, ShoppingBag } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { CartItem } from "./cart-item";
 import { useCartStore } from "@/stores/cart-store";
+import { useAuthStore } from "@/stores/auth-store";
 
 const MOCK_CART_ITEMS = [
   {
@@ -19,23 +21,35 @@ const MOCK_CART_ITEMS = [
 ];
 
 export function MiniCart() {
+  const router = useRouter();
+  const { isAuthenticated } = useAuthStore();
   const { items, getTotalItems, getTotalPrice, removeItem, updateQuantity } = useCartStore();
   const totalItems = getTotalItems();
   const totalPrice = getTotalPrice();
+
+  const handleCheckoutClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+    if (!isAuthenticated && !token) {
+      router.push("/login?redirect=/checkout");
+    } else {
+      router.push("/checkout");
+    }
+  };
 
   return (
     <Sheet>
       <SheetTrigger className="relative flex items-center justify-center h-10 px-4 gap-2 rounded-full border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10 hover:border-white/20 transition-all text-sm font-medium shrink-0 backdrop-blur-sm">
         <ShoppingBag className="h-4 w-4" />
         <span className="hidden sm:inline">Cart</span>
-        <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-[10px] font-bold text-white">
+        <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#FF7900] text-[10px] font-bold text-white shadow-xs">
           {totalItems}
         </span>
       </SheetTrigger>
       <SheetContent side="right" className="w-full sm:max-w-md bg-slate-50 dark:bg-slate-950 border-l border-slate-200 dark:border-slate-800 p-0 flex flex-col">
         <SheetHeader className="p-6 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10">
           <SheetTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
-            <ShoppingBag className="h-5 w-5 text-indigo-500" />
+            <ShoppingBag className="h-5 w-5 text-[#1261C9]" />
             Your Cart ({totalItems})
           </SheetTitle>
         </SheetHeader>
@@ -73,12 +87,16 @@ export function MiniCart() {
             </div>
             <p className="text-sm text-slate-500 mb-6">Shipping and taxes calculated at checkout.</p>
             <div className="grid grid-cols-2 gap-3">
-              <Link href="/cart" className={buttonVariants({ variant: "outline", className: "w-full border-slate-200 dark:border-slate-700" })}>
+              <Link href="/cart" className={buttonVariants({ variant: "outline", className: "w-full border-slate-200 dark:border-slate-700 font-bold text-xs" })}>
                 View Cart
               </Link>
-              <Link href="/checkout" className={buttonVariants({ className: "w-full bg-indigo-600 hover:bg-indigo-700 text-white" })}>
+              <button
+                type="button"
+                onClick={handleCheckoutClick}
+                className="w-full h-10 px-4 rounded-xl bg-gradient-to-r from-[#1261C9] to-[#0D4FA8] hover:from-[#0D4FA8] hover:to-[#0A3D82] text-white font-bold text-xs shadow-md shadow-[#1261C9]/20 transition-all flex items-center justify-center cursor-pointer"
+              >
                 Checkout
-              </Link>
+              </button>
             </div>
           </div>
         )}

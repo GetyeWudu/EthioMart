@@ -75,7 +75,7 @@ export function ActiveFilterChips({ categoryName, totalCount }: ActiveFilterChip
       {/* Category Chip */}
       {category && (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700 shadow-sm">
-          Department: {categoryName || category}
+          Category: {categoryName || category}
           <button
             type="button"
             onClick={() => removeFilter(["category"])}

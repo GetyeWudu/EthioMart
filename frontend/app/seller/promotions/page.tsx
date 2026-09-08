@@ -31,7 +31,7 @@ export default function PromotionsPage() {
 
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="bg-slate-50 text-slate-500 dark:bg-slate-900/50 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 uppercase tracking-wider text-xs">
+            <thead className="bg-slate-50 text-slate-500 dark:bg-slate-900/50 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 font-semibold text-xs">
               <tr>
                 <th className="px-6 py-4 font-medium">Campaign Name</th>
                 <th className="px-6 py-4 font-medium">Promo Code</th>

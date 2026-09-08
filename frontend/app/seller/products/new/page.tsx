@@ -152,7 +152,7 @@ export default function NewProductPage() {
   
   useEffect(() => {
     if (title.length > 2 || selectedCategoryPath.length > 0) {
-      const prefix = vendorStoreName ? vendorStoreName.substring(0, 3).toUpperCase() : "GECH";
+      const prefix = vendorStoreName ? vendorStoreName.substring(0, 3).toUpperCase() : "ETHIO";
       const cat = selectedCategoryPath.length > 0 ? selectedCategoryPath[selectedCategoryPath.length - 1].name.substring(0, 3).toUpperCase() : "GEN";
       const titlePrefix = title.length > 0 ? title.substring(0, 3).toUpperCase().replace(/[^A-Z]/g, 'X') : "ITM";
       setBaseSku(`${prefix}-${cat}-${titlePrefix}-${skuRandomizer}`);
@@ -217,7 +217,7 @@ export default function NewProductPage() {
       price, compareAtPrice, initialStock, selectedWarehouseId,
       customSpecifications
     };
-    localStorage.setItem("gechexpress_product_draft", JSON.stringify(draft));
+    localStorage.setItem("ethiomart_product_draft", JSON.stringify(draft));
   }, [title, shortDescription, description, selectedCategoryPath, suggestedCategory, isSuggestingCustomCategory, selectedBrandId, newBrandName, productType, selectedPresetId, showAdvancedDimensions, shippingClass, weightKg, lengthCm, widthCm, heightCm, price, compareAtPrice, initialStock, selectedWarehouseId, customSpecifications, dataLoading]);
 
   useEffect(() => {

@@ -32,7 +32,7 @@ export function PaymentMethod({ id, type, last4, expiry, isDefault, onDelete, on
   };
 
   return (
-    <div className={`relative flex items-center justify-between p-4 rounded-xl border transition-all ${isDefault ? "border-indigo-500 bg-indigo-50/50 dark:bg-indigo-500/10 dark:border-indigo-500/50 shadow-sm" : "border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"}`}>
+    <div className={`relative flex items-center justify-between p-4 rounded-xl border transition-all ${isDefault ? "border-[#1261C9] bg-[#1261C9]/5 dark:bg-[#1261C9]/15 dark:border-[#1261C9]/50 shadow-xs" : "border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"}`}>
       <div className="flex items-center gap-4">
         <div className="flex h-12 w-16 items-center justify-center rounded-md bg-slate-50 border border-slate-100 dark:bg-slate-800/50 dark:border-slate-700">
           {getCardLogo()}
@@ -44,7 +44,7 @@ export function PaymentMethod({ id, type, last4, expiry, isDefault, onDelete, on
               {type} ending in {last4 || "****"}
             </h4>
             {isDefault && (
-              <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-400">
+              <span className="rounded-full bg-[#1261C9]/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#1261C9] dark:bg-[#1261C9]/25 dark:text-blue-300">
                 Default
               </span>
             )}

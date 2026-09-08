@@ -70,7 +70,7 @@ export function SalesChart({ timeline = [], isLoading = false }: SalesChartProps
   if (isLoading) {
     return (
       <div className="h-64 flex items-center justify-center text-slate-400 text-xs">
-        <UpdateIcon className="w-5 h-5 animate-spin mr-2 text-indigo-600" />
+        <UpdateIcon className="w-5 h-5 animate-spin mr-2 text-[#FF7900]" />
         Loading sales data...
       </div>
     );
@@ -104,8 +104,8 @@ export function SalesChart({ timeline = [], isLoading = false }: SalesChartProps
         >
           <defs>
             <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#6366f1" stopOpacity={0.25} />
-              <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+              <stop offset="5%" stopColor="#FF7900" stopOpacity={0.25} />
+              <stop offset="95%" stopColor="#FF7900" stopOpacity={0} />
             </linearGradient>
           </defs>
 
@@ -116,7 +116,7 @@ export function SalesChart({ timeline = [], isLoading = false }: SalesChartProps
           <path
             d={linePath}
             fill="none"
-            stroke="#6366f1"
+            stroke="#FF7900"
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -140,8 +140,8 @@ export function SalesChart({ timeline = [], isLoading = false }: SalesChartProps
                   cx={x}
                   cy={y}
                   r={isHovered ? "6" : "4"}
-                  fill={isHovered ? "#6366f1" : "white"}
-                  stroke="#6366f1"
+                  fill={isHovered ? "#FF7900" : "white"}
+                  stroke="#FF7900"
                   strokeWidth="2.5"
                   className="transition-all duration-200"
                 />
@@ -162,7 +162,7 @@ export function SalesChart({ timeline = [], isLoading = false }: SalesChartProps
           >
             <div className="bg-slate-950 text-white text-[11px] py-1.5 px-3 rounded-xl shadow-xl dark:bg-white dark:text-slate-900 whitespace-nowrap mb-2 font-mono flex flex-col items-center">
               <span className="font-bold text-[10px] text-slate-400">{data[hoveredIndex].date}</span>
-              <span className="font-black text-indigo-400 dark:text-indigo-600">
+              <span className="font-black text-[#FF7900]">
                 Gross: ETB {data[hoveredIndex].gmv.toLocaleString('en-ET', { minimumFractionDigits: 2 })}
               </span>
               <span className="text-[10px] text-emerald-400 dark:text-emerald-600">
@@ -178,7 +178,7 @@ export function SalesChart({ timeline = [], isLoading = false }: SalesChartProps
         {data.map((item, i) => (
           <span
             key={i}
-            className={`transition-colors ${hoveredIndex === i ? "text-indigo-600 font-bold" : ""}`}
+            className={`transition-colors ${hoveredIndex === i ? "text-[#FF7900] font-bold" : ""}`}
           >
             {item.date}
           </span>

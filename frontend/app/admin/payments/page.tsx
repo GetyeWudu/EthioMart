@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import useSWR from "swr";
 import { 
   CreditCard, 
@@ -19,6 +19,8 @@ import {
   Send,
   SlidersHorizontal,
   ChevronRight,
+  ChevronDown,
+  X,
   Info
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,9 +36,24 @@ export default function AdminPaymentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [methodFilter, setMethodFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [statusOpen, setStatusOpen] = useState(false);
+  const [methodOpen, setMethodOpen] = useState(false);
   const [syncingTxRef, setSyncingTxRef] = useState<string | null>(null);
   const [isSyncingAll, setIsSyncingAll] = useState(false);
   const [selectedTxn, setSelectedTxn] = useState<any | null>(null);
+
+  const filterRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        setStatusOpen(false);
+        setMethodOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // SWR Live Feeds
   const { data: summaryData, mutate: mutateSummary } = useSWR('/admin/payments/escrow-summary/', fetcher);
@@ -158,8 +175,8 @@ export default function AdminPaymentsPage() {
       </div>
 
       {/* KPI Deck */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Total Platform GMV</span>
             <div className="p-2 rounded-xl text-indigo-600 bg-indigo-50 dark:bg-indigo-950/50">
@@ -174,7 +191,7 @@ export default function AdminPaymentsPage() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Active Escrow (Held 5m)</span>
             <div className="p-2 rounded-xl text-amber-600 bg-amber-50 dark:bg-amber-950/50">
@@ -191,7 +208,7 @@ export default function AdminPaymentsPage() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Platform Net Revenue</span>
             <div className="p-2 rounded-xl text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50">
@@ -206,7 +223,7 @@ export default function AdminPaymentsPage() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Platform Output VAT (15%)</span>
             <div className="p-2 rounded-xl text-blue-600 bg-blue-50 dark:bg-blue-950/50">
@@ -225,57 +242,140 @@ export default function AdminPaymentsPage() {
       {/* Transactions Table Card */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
         {/* Table Filters Header */}
-        <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/50">
-          <div className="relative flex-1 min-w-[240px] max-w-md">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        <div className="p-3.5 sm:p-4 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/50">
+          {/* Search input with clear button */}
+          <div className="relative flex-1 min-w-[200px] max-w-md">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input 
               type="text" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search TxRef, customer, or order #..." 
-              className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full pl-9 pr-8 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 shadow-2xs transition-all"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
-            <select 
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="h-8 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-semibold px-2 text-slate-600 dark:text-slate-300"
-            >
-              <option value="ALL">All Statuses</option>
-              <option value="PAID">Paid</option>
-              <option value="PENDING">Pending</option>
-              <option value="FAILED">Failed</option>
-            </select>
+          {/* Inline Dropdown Boxes */}
+          <div ref={filterRef} className="grid grid-cols-2 sm:flex sm:items-center gap-2">
+            {/* Status Dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => { setStatusOpen(!statusOpen); setMethodOpen(false); }}
+                className="w-full sm:w-auto h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-semibold text-slate-700 dark:text-slate-200 flex items-center justify-between gap-2 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-900 transition-all cursor-pointer"
+              >
+                <span className="flex items-center gap-1.5 truncate">
+                  <Filter className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                  <span>
+                    {statusFilter === "ALL" ? "All Statuses" : statusFilter}
+                  </span>
+                </span>
+                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${statusOpen ? "rotate-180" : ""}`} />
+              </button>
 
-            <select 
-              value={methodFilter}
-              onChange={(e) => setMethodFilter(e.target.value)}
-              className="h-8 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-semibold px-2 text-slate-600 dark:text-slate-300"
-            >
-              <option value="ALL">All Payment Rails</option>
-              <option value="telebirr">Telebirr</option>
-              <option value="cbe">CBE Birr</option>
-              <option value="chapa">Chapa / Card</option>
-            </select>
+              {statusOpen && (
+                <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-1.5 z-50 w-44 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 shadow-xl py-1 text-xs">
+                  {[
+                    { label: "All Statuses", value: "ALL" },
+                    { label: "Paid", value: "PAID" },
+                    { label: "Pending", value: "PENDING" },
+                    { label: "Failed", value: "FAILED" },
+                  ].map((item) => (
+                    <button
+                      key={item.value}
+                      type="button"
+                      onClick={() => {
+                        setStatusFilter(item.value);
+                        setStatusOpen(false);
+                      }}
+                      className={`w-full text-left px-3.5 py-2 font-medium transition-colors flex items-center justify-between ${
+                        statusFilter === item.value
+                          ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50/60 dark:bg-indigo-950/40 font-bold"
+                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900"
+                      }`}
+                    >
+                      <span>{item.label}</span>
+                      {statusFilter === item.value && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Payment Rail Dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => { setMethodOpen(!methodOpen); setStatusOpen(false); }}
+                className="w-full sm:w-auto h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-semibold text-slate-700 dark:text-slate-200 flex items-center justify-between gap-2 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-900 transition-all cursor-pointer"
+              >
+                <span className="flex items-center gap-1.5 truncate">
+                  <CreditCard className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                  <span className="truncate">
+                    {methodFilter === "ALL" ? "All Payment Rails" : methodFilter === "telebirr" ? "Telebirr" : methodFilter === "cbe" ? "CBE Birr" : "Chapa / Card"}
+                  </span>
+                </span>
+                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${methodOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {methodOpen && (
+                <div className="absolute right-0 top-full mt-1.5 z-50 w-48 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 shadow-xl py-1 text-xs">
+                  {[
+                    { label: "All Payment Rails", value: "ALL" },
+                    { label: "Telebirr", value: "telebirr" },
+                    { label: "CBE Birr", value: "cbe" },
+                    { label: "Chapa / Card", value: "chapa" },
+                  ].map((item) => (
+                    <button
+                      key={item.value}
+                      type="button"
+                      onClick={() => {
+                        setMethodFilter(item.value);
+                        setMethodOpen(false);
+                      }}
+                      className={`w-full text-left px-3.5 py-2 font-medium transition-colors flex items-center justify-between ${
+                        methodFilter === item.value
+                          ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50/60 dark:bg-indigo-950/40 font-bold"
+                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900"
+                      }`}
+                    >
+                      <span>{item.label}</span>
+                      {methodFilter === item.value && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto w-full">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold border-b border-slate-100 dark:border-slate-800">
+            <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 font-semibold border-b border-slate-100 dark:border-slate-800 text-[11px] whitespace-nowrap">
               <tr>
-                <th className="px-5 py-3.5">Tx Reference</th>
-                <th className="px-5 py-3.5">Order #</th>
-                <th className="px-5 py-3.5">Customer Consignee</th>
-                <th className="px-5 py-3.5 text-right">Amount (ETB)</th>
-                <th className="px-5 py-3.5">Payment Rail</th>
-                <th className="px-5 py-3.5">Status</th>
-                <th className="px-5 py-3.5">Escrow State</th>
-                <th className="px-5 py-3.5">Date</th>
-                <th className="px-5 py-3.5 text-right">Actions</th>
+                <th className="px-3.5 py-3.5">Tx Reference</th>
+                <th className="px-3 py-3.5 hidden sm:table-cell">Order #</th>
+                <th className="px-3.5 py-3.5 hidden sm:table-cell">Customer</th>
+                <th className="px-3.5 py-3.5 text-right">Amount</th>
+                <th className="px-3 py-3.5 hidden md:table-cell">Payment Rail</th>
+                <th className="px-3 py-3.5">Status</th>
+                <th className="px-3 py-3.5 hidden lg:table-cell">Escrow State</th>
+                <th className="px-3 py-3.5 hidden xl:table-cell">Date</th>
+                <th className="px-3.5 py-3.5 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium text-slate-700 dark:text-slate-300">
@@ -298,38 +398,85 @@ export default function AdminPaymentsPage() {
 
                   return (
                     <tr key={tx.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
-                      <td className="px-5 py-4 font-mono font-bold text-slate-900 dark:text-white">
-                        {tx.txRef}
+                      {/* Tx Reference + Mobile Inline Customer & Rail */}
+                      <td className="px-3.5 py-3.5 min-w-[130px] sm:min-w-0">
+                        <span className="font-mono font-bold text-slate-900 dark:text-white block truncate" title={tx.txRef}>
+                          {tx.txRef}
+                        </span>
+                        {/* Mobile supplementary details */}
+                        <div className="sm:hidden mt-0.5 space-y-0.5">
+                          <span className="font-bold text-slate-700 dark:text-slate-200 block truncate text-[11px]" title={tx.customerName}>
+                            {tx.customerName}
+                          </span>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-mono text-[10px] text-slate-500">#{tx.orderId}</span>
+                            <span className="scale-90 origin-left inline-block">
+                              {getMethodBadge(tx.method)}
+                            </span>
+                          </div>
+                        </div>
                       </td>
-                      <td className="px-5 py-4 font-mono text-slate-500">
+
+                      {/* Order # (Desktop) */}
+                      <td className="px-3 py-3.5 font-mono text-slate-500 hidden sm:table-cell whitespace-nowrap" title={`#${tx.orderId}`}>
                         #{tx.orderId}
                       </td>
-                      <td className="px-5 py-4 max-w-[200px] truncate text-slate-600 dark:text-slate-300">
-                        <span className="font-bold text-slate-900 dark:text-white block truncate">{tx.customerName}</span>
-                        <span className="text-[11px] text-slate-400 block truncate">{tx.customerEmail || tx.customerPhone}</span>
+
+                      {/* Customer (Desktop) */}
+                      <td className="px-3.5 py-3.5 hidden sm:table-cell max-w-[180px] truncate text-slate-600 dark:text-slate-300">
+                        <span className="font-bold text-slate-900 dark:text-white block truncate" title={tx.customerName}>{tx.customerName}</span>
+                        <span className="text-[11px] text-slate-400 block truncate" title={tx.customerEmail || tx.customerPhone}>{tx.customerEmail || tx.customerPhone}</span>
                       </td>
-                      <td className="px-5 py-4 text-right font-mono font-black text-slate-900 dark:text-white">
-                        ETB {tx.amount.toLocaleString('en-ET', { minimumFractionDigits: 2 })}
+
+                      {/* Amount (ETB) */}
+                      <td className="px-3.5 py-3.5 text-right whitespace-nowrap">
+                        <span className="font-mono font-black text-slate-900 dark:text-white block">
+                          ETB {tx.amount.toLocaleString('en-ET', { minimumFractionDigits: 2 })}
+                        </span>
+                        {/* Mobile date */}
+                        <span className="text-[10px] text-slate-400 block sm:hidden">
+                          {tx.date}
+                        </span>
                       </td>
-                      <td className="px-5 py-4">
+
+                      {/* Payment Rail (Desktop) */}
+                      <td className="px-3 py-3.5 hidden md:table-cell whitespace-nowrap">
                         {getMethodBadge(tx.method)}
                       </td>
-                      <td className="px-5 py-4">
-                        {tx.status === "PAID" ? (
-                          <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-400 border-emerald-200 text-[10px] font-bold">
-                            <CheckCircle2 className="w-3 h-3 mr-1" /> PAID
-                          </Badge>
-                        ) : tx.status === "PENDING" ? (
-                          <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-400 border-amber-200 text-[10px] font-bold">
-                            <Clock className="w-3 h-3 mr-1" /> PENDING
-                          </Badge>
-                        ) : (
-                          <Badge className="bg-rose-100 text-rose-800 dark:bg-rose-950/50 dark:text-rose-400 border-rose-200 text-[10px] font-bold">
-                            <XCircle className="w-3 h-3 mr-1" /> FAILED
-                          </Badge>
-                        )}
+
+                      {/* Status */}
+                      <td className="px-3.5 py-3.5 whitespace-nowrap">
+                        <div>
+                          {tx.status === "PAID" ? (
+                            <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-400 border-emerald-200 text-[10px] font-bold">
+                              <CheckCircle2 className="w-3 h-3 mr-1" /> PAID
+                            </Badge>
+                          ) : tx.status === "PENDING" ? (
+                            <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-400 border-amber-200 text-[10px] font-bold">
+                              <Clock className="w-3 h-3 mr-1" /> PENDING
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-rose-100 text-rose-800 dark:bg-rose-950/50 dark:text-rose-400 border-rose-200 text-[10px] font-bold">
+                              <XCircle className="w-3 h-3 mr-1" /> FAILED
+                            </Badge>
+                          )}
+                        </div>
+                        {/* Mobile escrow state */}
+                        <div className="lg:hidden mt-1">
+                          <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold truncate ${
+                            tx.escrowState.includes('HELD')
+                              ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200 dark:border-amber-900/40'
+                              : tx.escrowState === 'RELEASED'
+                              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40'
+                              : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                          }`}>
+                            {tx.escrowState}
+                          </span>
+                        </div>
                       </td>
-                      <td className="px-5 py-4">
+
+                      {/* Escrow State (Desktop) */}
+                      <td className="px-3 py-3.5 hidden lg:table-cell whitespace-nowrap">
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold ${
                           tx.escrowState.includes('HELD')
                             ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200 dark:border-amber-900/40'
@@ -340,18 +487,22 @@ export default function AdminPaymentsPage() {
                           {tx.escrowState}
                         </span>
                       </td>
-                      <td className="px-5 py-4 text-slate-400 text-[11px]">
+
+                      {/* Date (Desktop) */}
+                      <td className="px-3 py-3.5 text-slate-400 text-[11px] hidden xl:table-cell whitespace-nowrap">
                         {tx.date}
                       </td>
-                      <td className="px-5 py-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
+
+                      {/* Actions */}
+                      <td className="px-3.5 py-3.5 text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-1">
                           {tx.status === "PENDING" && (
                             <Button 
                               size="sm" 
                               variant="outline" 
                               onClick={() => handleSyncSingle(tx.txRef)}
                               disabled={isSyncingThis}
-                              className="h-7 text-[11px] px-2 font-bold text-indigo-600 hover:text-indigo-700"
+                              className="h-7 text-[10px] px-1.5 font-bold text-indigo-600 hover:text-indigo-700"
                               title="Query Chapa Verification API"
                             >
                               <RotateCw className={`w-3 h-3 mr-1 ${isSyncingThis ? 'animate-spin' : ''}`} />

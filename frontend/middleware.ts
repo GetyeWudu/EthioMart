@@ -2,7 +2,7 @@
  * frontend/middleware.ts
  * ======================
  * Edge-compatible Next.js Route Guard Middleware.
- * Decodes JWT claims from 'gechexpress_access' cookie to protect Admin, Seller, and Customer portals.
+ * Decodes JWT claims from 'ethiomart_access' cookie to protect Admin, Seller, and Customer portals.
  */
 
 import { NextResponse } from "next/server";
@@ -14,7 +14,7 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 1. Get access token from cookie
-  const rawCookie = request.cookies.get("gechexpress_access")?.value;
+  const rawCookie = request.cookies.get("ethiomart_access")?.value;
   const tokenCookie = rawCookie ? decodeURIComponent(rawCookie) : null;
 
   let claims: JWTPayloadClaims | null = null;

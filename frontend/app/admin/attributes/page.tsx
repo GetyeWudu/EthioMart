@@ -250,8 +250,8 @@ export default function AdminAttributesPage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Total Attributes</span>
             <div className="p-2 rounded-xl text-indigo-600 bg-indigo-50 dark:bg-indigo-950/50">
@@ -266,7 +266,7 @@ export default function AdminAttributesPage() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Category Bindings</span>
             <div className="p-2 rounded-xl text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50">
@@ -281,7 +281,7 @@ export default function AdminAttributesPage() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Variant Creators</span>
             <div className="p-2 rounded-xl text-purple-600 bg-purple-50 dark:bg-purple-950/50">
@@ -296,7 +296,7 @@ export default function AdminAttributesPage() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Filter Facets</span>
             <div className="p-2 rounded-xl text-blue-600 bg-blue-50 dark:bg-blue-950/50">
@@ -549,15 +549,15 @@ export default function AdminAttributesPage() {
         </div>
 
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs">
-          <div className="overflow-x-auto">
+          <div className="overflow-hidden w-full">
             <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300 table-fixed">
               <thead className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700">
                 <tr>
-                  <th className="px-5 py-3.5 text-[10px] uppercase font-bold text-slate-500 tracking-wider w-[38%]">Category Path</th>
-                  <th className="px-5 py-3.5 text-[10px] uppercase font-bold text-slate-500 tracking-wider w-[24%]">Attribute</th>
-                  <th className="px-5 py-3.5 text-[10px] uppercase font-bold text-slate-500 tracking-wider w-[14%]">Variant Creator</th>
-                  <th className="px-5 py-3.5 text-[10px] uppercase font-bold text-slate-500 tracking-wider w-[14%]">Policy</th>
-                  <th className="px-5 py-3.5 text-[10px] uppercase font-bold text-slate-500 tracking-wider text-right w-[10%]">Actions</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 w-[38%]">Category Path</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 w-[24%]">Attribute</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 w-[14%]">Variant Creator</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 w-[14%]">Policy</th>
+                  <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 text-right w-[10%]">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">

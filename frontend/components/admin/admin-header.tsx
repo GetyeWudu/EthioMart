@@ -30,6 +30,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { NAV_SECTIONS, NAV_ITEMS } from "./admin-sidebar";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import useSWR from "swr";
@@ -77,12 +78,17 @@ export function AdminHeader() {
           <SheetDescription className="sr-only">Navigate the platform administration features</SheetDescription>
 
           {/* Brand */}
-          <div className="flex h-16 shrink-0 items-center gap-2 border-b border-slate-200 px-6 dark:border-slate-800">
-            <div className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-indigo-600 text-white shadow-sm">
-              <DashboardIcon className="h-4 w-4 stroke-[2.5]" />
+          <div className="flex h-16 shrink-0 items-center gap-2.5 border-b border-slate-200 px-6 dark:border-slate-800">
+            <div className="relative h-8 w-8 shrink-0 rounded-lg overflow-hidden border border-slate-200/80 dark:border-slate-700 shadow-sm">
+              <Image
+                src="/logo/abukii.png"
+                alt="EthioMart Logo"
+                fill
+                className="object-cover"
+              />
             </div>
             <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-              Gech<span className="text-indigo-600 dark:text-indigo-400">Express</span>
+              Ethio<span className="text-[#FF7900]">Mart</span>
             </span>
           </div>
 
@@ -101,15 +107,15 @@ export function AdminHeader() {
                         className={cn(
                           "flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all relative overflow-hidden",
                           isActive
-                            ? "text-indigo-700 bg-indigo-50 rounded-r-xl dark:bg-indigo-500/10 dark:text-indigo-400"
+                            ? "text-[#0D4FA8] bg-[#EBF2FC] rounded-r-xl dark:bg-[#1261C9]/10 dark:text-[#4D8FE0] font-semibold"
                             : "text-slate-600 hover:bg-slate-50 rounded-r-xl dark:text-slate-400 dark:hover:bg-slate-800/30 dark:hover:text-white"
                         )}
                       />
                     }>
                       {isActive && (
-                        <span className="absolute left-0 top-0 bottom-0 w-[3px] bg-indigo-600 dark:bg-indigo-500 rounded-r-full" />
+                        <span className="absolute left-0 top-0 bottom-0 w-[3px] bg-[#1261C9] rounded-r-full" />
                       )}
-                      <item.icon className={cn("h-4 w-4 shrink-0", isActive ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400")} />
+                      <item.icon className={cn("h-4 w-4 shrink-0", isActive ? "text-[#1261C9] dark:text-[#4D8FE0]" : "text-slate-400")} />
                       <div className="flex flex-1 items-center justify-between min-w-0">
                         <span className="truncate">{item.name}</span>
                         {badgeValue > 0 && (
@@ -117,8 +123,8 @@ export function AdminHeader() {
                             className={cn(
                               "flex h-4 min-w-4 items-center justify-center rounded-full px-1.5 text-[9px] font-mono font-bold ml-2 shrink-0",
                               isActive
-                                ? "bg-indigo-600 text-white"
-                                : "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300"
+                                ? "bg-[#1261C9] text-white"
+                                : "bg-[#D5E5F8] text-[#0D4FA8] dark:bg-[#1261C9]/15 dark:text-[#7AB0EE]"
                             )}
                           >
                             {badgeValue}
@@ -146,7 +152,7 @@ export function AdminHeader() {
           />
           <Input
             id="admin-search-field"
-            className="w-full pl-9 pr-8 bg-slate-100/80 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 rounded-xl focus-visible:ring-indigo-500 h-9 text-xs transition-colors hover:bg-slate-200/50 dark:hover:bg-slate-800/50"
+            className="w-full pl-9 pr-8 bg-slate-100/80 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 rounded-xl focus-visible:ring-[#1261C9] h-9 text-xs transition-colors hover:bg-slate-200/50 dark:hover:bg-slate-800/50"
             placeholder="Search sellers, orders, items..."
             type="search"
           />
@@ -193,7 +199,7 @@ function AdminProfileDropdown() {
       <DropdownMenuTrigger className="flex items-center gap-2.5 outline-none group hover:opacity-90 transition-opacity">
         <Avatar className="h-9 w-9 shadow-sm border border-slate-200 dark:border-slate-800">
           <AvatarImage src="" alt={user?.full_name || title} />
-          <AvatarFallback className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-400 font-bold text-xs">
+          <AvatarFallback className="bg-[#E8F0FB] text-[#1261C9] dark:bg-[#1261C9]/20 dark:text-[#7AB0EE] font-bold text-xs">
             {(user?.full_name || title).charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
@@ -201,7 +207,7 @@ function AdminProfileDropdown() {
       <DropdownMenuContent align="end" className="w-56 mt-2 rounded-2xl p-1.5 shadow-xl">
         <DropdownMenuLabel className="px-3 py-2">
           <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{user?.full_name || "Platform Admin"}</p>
-          <p className="text-[10px] font-mono text-slate-400 truncate">{user?.email || "admin@gechexpress.com"}</p>
+          <p className="text-[10px] font-mono text-slate-400 truncate">{user?.email || "admin@ethiomart.com"}</p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <Link href="/admin/settings" className="block">

@@ -142,7 +142,7 @@ export function CategoryMegaMenu({ headerSolid = true }: { headerSolid?: boolean
                 <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                   <div>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                      Active Department
+                      Active Category
                     </span>
                     <h3 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
                       {activeRoot.name}
@@ -199,7 +199,7 @@ export function CategoryMegaMenu({ headerSolid = true }: { headerSolid?: boolean
               </div>
             ) : (
               <div className="flex h-full items-center justify-center text-slate-400 text-xs">
-                Select a department
+                Select a category
               </div>
             )}
           </div>
@@ -217,7 +217,7 @@ export function CategoryMegaMenu({ headerSolid = true }: { headerSolid?: boolean
                 Verified Seller Guarantee
               </h4>
               <p className="text-[11px] text-slate-600 dark:text-slate-300 mb-3 leading-relaxed">
-                Direct merchant fulfillment with full GechExpress escrow payment protection.
+                Direct merchant fulfillment with full EthioMart escrow payment protection.
               </p>
               <Link
                 href={`/products?category=${activeRoot?.slug || ""}`}

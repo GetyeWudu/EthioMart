@@ -79,12 +79,12 @@ export function PlatformOverview() {
             <h2 className="font-sans font-black text-slate-900 dark:text-white text-lg tracking-tight">
               Platform Transaction Volume (ETB)
             </h2>
-            <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200 font-mono text-[10px]">
+            <Badge variant="outline" className="bg-[#EBF2FC] text-[#0D4FA8] border-[#A8C4ED] font-mono text-[10px]">
               ETB
             </Badge>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Global Gross Merchandise Value (GMV) and GechExpress platform commission earnings.
+            Global Gross Merchandise Value (GMV) and EthioMart platform commission earnings.
           </p>
         </div>
 
@@ -96,7 +96,7 @@ export function PlatformOverview() {
               onClick={() => setTimeRange(range)}
               className={`px-3 py-1 rounded-lg font-bold uppercase transition-all ${
                 timeRange === range
-                  ? "bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-xs"
+                  ? "bg-white dark:bg-slate-800 text-[#1261C9] dark:text-[#4D8FE0] shadow-xs"
                   : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
@@ -109,7 +109,7 @@ export function PlatformOverview() {
       {/* SVG Canvas */}
       {isLoading ? (
         <div className="h-60 flex items-center justify-center text-slate-400 text-xs gap-2">
-          <UpdateIcon className="w-5 h-5 animate-spin text-indigo-600" />
+          <UpdateIcon className="w-5 h-5 animate-spin text-[#1261C9]" />
           Loading platform metrics...
         </div>
       ) : (
@@ -196,7 +196,7 @@ export function PlatformOverview() {
             >
               <div className="bg-slate-950 text-white text-[11px] py-2 px-3.5 rounded-2xl shadow-2xl dark:bg-white dark:text-slate-900 whitespace-nowrap font-mono flex flex-col items-center border border-white/10 dark:border-slate-800">
                 <span className="font-bold text-[10px] text-slate-400">{data[hoveredIndex].date}</span>
-                <span className="font-black text-indigo-400 dark:text-indigo-600 text-xs mt-0.5">
+                <span className="font-black text-[#4D8FE0] dark:text-[#1261C9] text-xs mt-0.5">
                   Gross: ETB {data[hoveredIndex].gmv.toLocaleString("en-ET", { minimumFractionDigits: 2 })}
                 </span>
                 <span className="text-[10px] text-emerald-400 dark:text-emerald-600 font-semibold mt-0.5">
@@ -216,7 +216,7 @@ export function PlatformOverview() {
         {data.map((item, i) => (
           <span
             key={i}
-            className={`transition-colors ${hoveredIndex === i ? "text-indigo-600 dark:text-indigo-400 font-bold" : ""}`}
+            className={`transition-colors ${hoveredIndex === i ? "text-[#1261C9] dark:text-[#4D8FE0] font-bold" : ""}`}
           >
             {item.date}
           </span>
@@ -227,7 +227,7 @@ export function PlatformOverview() {
       <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-slate-500 pt-2 border-t border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-indigo-600 inline-block" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#1261C9] inline-block" />
             Gross Retail GMV (ETB)
           </span>
           <span className="flex items-center gap-1.5">

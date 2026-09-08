@@ -67,66 +67,66 @@ export default function AnalyticsPage() {
       </div>
 
       {/* KPI Deck */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Period Gross Sales</span>
-            <div className="p-2 rounded-xl text-indigo-600 bg-indigo-50 dark:bg-indigo-950/50">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 truncate">Period Gross Sales</span>
+            <div className="p-2 rounded-xl text-indigo-600 bg-indigo-50 dark:bg-indigo-950/50 shrink-0">
               <TrendingUp className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3">
-            <span className="text-xl font-black text-slate-900 dark:text-white font-mono">
+            <span className="text-base sm:text-xl font-black text-slate-900 dark:text-white font-mono block truncate">
               ETB {kpis.range_gross_gmv.toLocaleString('en-ET', { minimumFractionDigits: 2 })}
             </span>
-            <p className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 mt-1 flex items-center gap-1">
-              <ArrowUpRight className="w-3.5 h-3.5" /> +18.4% vs last period
+            <p className="text-[10px] sm:text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 mt-1 flex items-center gap-1 truncate">
+              <ArrowUpRight className="w-3.5 h-3.5 shrink-0" /> +18.4% vs last period
             </p>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Net Seller Earnings</span>
-            <div className="p-2 rounded-xl text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 truncate">Net Seller Earnings</span>
+            <div className="p-2 rounded-xl text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 shrink-0">
               <Wallet className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3">
-            <span className="text-xl font-black text-slate-900 dark:text-white font-mono">
+            <span className="text-base sm:text-xl font-black text-slate-900 dark:text-white font-mono block truncate">
               ETB {kpis.range_net_earnings.toLocaleString('en-ET', { minimumFractionDigits: 2 })}
             </span>
-            <p className="text-[11px] text-slate-400 mt-1">Post-commission net payout funds</p>
+            <p className="text-[10px] sm:text-[11px] text-slate-400 mt-1 truncate">Post-commission net funds</p>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Average Order Basket (AOV)</span>
-            <div className="p-2 rounded-xl text-amber-600 bg-amber-50 dark:bg-amber-950/50">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 truncate">Average Basket (AOV)</span>
+            <div className="p-2 rounded-xl text-amber-600 bg-amber-50 dark:bg-amber-950/50 shrink-0">
               <ShoppingCart className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3">
-            <span className="text-xl font-black text-slate-900 dark:text-white font-mono">
+            <span className="text-base sm:text-xl font-black text-slate-900 dark:text-white font-mono block truncate">
               ETB {aov.toLocaleString('en-ET', { minimumFractionDigits: 2 })}
             </span>
-            <p className="text-[11px] text-slate-400 mt-1">Average transaction value</p>
+            <p className="text-[10px] sm:text-[11px] text-slate-400 mt-1 truncate">Average transaction value</p>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Total Units Moved</span>
-            <div className="p-2 rounded-xl text-blue-600 bg-blue-50 dark:bg-blue-950/50">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 truncate">Total Units Moved</span>
+            <div className="p-2 rounded-xl text-blue-600 bg-blue-50 dark:bg-blue-950/50 shrink-0">
               <Package className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3">
-            <span className="text-xl font-black text-slate-900 dark:text-white font-mono">
+            <span className="text-base sm:text-xl font-black text-slate-900 dark:text-white font-mono block truncate">
               {kpis.units_sold} Items
             </span>
-            <p className="text-[11px] text-blue-600 dark:text-blue-400 mt-1">{kpis.delivered_orders} orders successfully delivered</p>
+            <p className="text-[10px] sm:text-[11px] text-blue-600 dark:text-blue-400 mt-1 truncate">{kpis.delivered_orders} orders delivered</p>
           </div>
         </div>
       </div>

@@ -40,7 +40,7 @@ export function SuspendedStoreBanner() {
             Review Disputes
           </Link>
           <a
-            href="mailto:sellers@gechexpress.com?subject=Merchant%20Account%20Suspension%20Appeal"
+            href="mailto:sellers@ethiomart.com?subject=Merchant%20Account%20Suspension%20Appeal"
             className="inline-flex items-center gap-1.5 font-bold px-3 py-1 rounded-lg bg-rose-600 text-white hover:bg-rose-700 transition-colors shadow-sm"
           >
             <Mail className="h-3.5 w-3.5" />

@@ -10,7 +10,7 @@ export function AddProductButton() {
 
   return (
     <>
-      <Button variant="default" size="sm" onClick={() => setOpen(true)} className="h-9 px-3 bg-indigo-600 hover:bg-indigo-700 text-white">
+      <Button variant="default" size="sm" onClick={() => setOpen(true)} className="h-9 px-3.5 bg-gradient-to-r from-[#FF7900] to-[#E66800] hover:from-[#E66800] hover:to-[#D55F00] text-white font-bold shadow-md shadow-[#FF7900]/20 rounded-xl">
         <Plus className="h-4 w-4 mr-1" /> Add Product
       </Button>
       <AddProductModal open={open} onOpenChange={setOpen} />

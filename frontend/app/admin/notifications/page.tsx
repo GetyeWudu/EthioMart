@@ -178,37 +178,37 @@ export default function AdminNotificationsPage() {
       </div>
 
       {/* KPI Stat Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
-          <span className="text-[11px] font-semibold text-slate-500 block">Total Alerts</span>
-          <div className="text-2xl font-black font-mono text-slate-900 dark:text-white mt-1">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 w-full min-w-0">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs min-w-0">
+          <span className="text-[11px] font-semibold text-slate-500 block truncate">Total Alerts</span>
+          <div className="text-2xl font-black font-mono text-slate-900 dark:text-white mt-1 truncate">
             {notifications.length}
           </div>
-          <p className="text-[10px] text-slate-400 mt-0.5">Platform event log</p>
+          <p className="text-[10px] text-slate-400 mt-0.5 truncate">Platform event log</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
-          <span className="text-[11px] font-semibold text-slate-500 block">Unread Priority</span>
-          <div className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400 mt-1">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs min-w-0">
+          <span className="text-[11px] font-semibold text-slate-500 block truncate">Unread Priority</span>
+          <div className="text-2xl font-black font-mono text-indigo-600 dark:text-indigo-400 mt-1 truncate">
             {unreadCount}
           </div>
-          <p className="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold mt-0.5">Action pending</p>
+          <p className="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold mt-0.5 truncate">Action pending</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
-          <span className="text-[11px] font-semibold text-slate-500 block">Delivery Rail</span>
-          <div className="text-sm font-black font-mono text-slate-900 dark:text-white mt-2 flex items-center gap-1">
-            <Smartphone className="w-3.5 h-3.5 text-emerald-600" /> In-App & Push
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs min-w-0">
+          <span className="text-[11px] font-semibold text-slate-500 block truncate">Delivery Rail</span>
+          <div className="text-sm font-black font-mono text-slate-900 dark:text-white mt-2 flex items-center gap-1 truncate">
+            <Smartphone className="w-3.5 h-3.5 text-emerald-600 shrink-0" /> In-App & Push
           </div>
-          <p className="text-[10px] text-slate-400 mt-0.5">Real-time WebSocket synced</p>
+          <p className="text-[10px] text-slate-400 mt-0.5 truncate">Real-time WebSocket synced</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
-          <span className="text-[11px] font-semibold text-slate-500 block">Broadcast Reach</span>
-          <div className="text-sm font-black font-mono text-slate-900 dark:text-white mt-2 flex items-center gap-1">
-            <Globe className="w-3.5 h-3.5 text-blue-600" /> Multi-Tenant
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs min-w-0">
+          <span className="text-[11px] font-semibold text-slate-500 block truncate">Broadcast Reach</span>
+          <div className="text-sm font-black font-mono text-slate-900 dark:text-white mt-2 flex items-center gap-1 truncate">
+            <Globe className="w-3.5 h-3.5 text-blue-600 shrink-0" /> Multi-Tenant
           </div>
-          <p className="text-[10px] text-slate-400 mt-0.5">Target sellers or buyers</p>
+          <p className="text-[10px] text-slate-400 mt-0.5 truncate">Target sellers or buyers</p>
         </div>
       </div>
 

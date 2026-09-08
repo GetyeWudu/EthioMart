@@ -203,8 +203,8 @@ export default function AdminBrandsPage() {
       </div>
 
       {/* Brand Registry KPI Deck */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Registered Brands</span>
             <div className="p-2 rounded-xl text-indigo-600 bg-indigo-50 dark:bg-indigo-950/50">
@@ -219,7 +219,7 @@ export default function AdminBrandsPage() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Verified Trademarked</span>
             <div className="p-2 rounded-xl text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50">
@@ -234,7 +234,7 @@ export default function AdminBrandsPage() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Vertical-Scoped</span>
             <div className="p-2 rounded-xl text-blue-600 bg-blue-50 dark:bg-blue-950/50">
@@ -249,7 +249,7 @@ export default function AdminBrandsPage() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Global Universal</span>
             <div className="p-2 rounded-xl text-purple-600 bg-purple-50 dark:bg-purple-950/50">
@@ -305,14 +305,14 @@ export default function AdminBrandsPage() {
 
       {/* Brands Table */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
+        <div className="overflow-hidden w-full">
+          <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300 table-fixed">
             <thead className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700">
               <tr>
-                <th className="px-5 py-3.5 text-[10px] uppercase font-bold text-slate-500 tracking-wider">Brand</th>
-                <th className="px-5 py-3.5 text-[10px] uppercase font-bold text-slate-500 tracking-wider">Category Scope (Roots Only)</th>
-                <th className="px-5 py-3.5 text-[10px] uppercase font-bold text-slate-500 tracking-wider">Status</th>
-                <th className="px-5 py-3.5 text-[10px] uppercase font-bold text-slate-500 tracking-wider text-right">Actions</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 w-[32%]">Brand</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 w-[36%]">Category Scope (Roots Only)</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 w-[18%]">Status</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 text-right w-[14%]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
@@ -330,8 +330,8 @@ export default function AdminBrandsPage() {
               ) : (
                 filteredBrands.map((brand) => (
                   <tr key={brand.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
+                    <td className="px-5 py-4 truncate">
+                      <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex items-center justify-center font-bold text-slate-700 dark:text-slate-300 overflow-hidden shrink-0 text-sm">
                           {brand.logo ? (
                             <img src={brand.logo} alt={brand.name} className="w-full h-full object-cover" />
@@ -339,8 +339,8 @@ export default function AdminBrandsPage() {
                             brand.name.charAt(0)
                           )}
                         </div>
-                        <div>
-                          <div className="font-bold text-slate-900 dark:text-white">
+                        <div className="min-w-0 flex-1">
+                          <div className="font-bold text-slate-900 dark:text-white truncate" title={brand.name}>
                             {brand.name}
                             {brand.name_am && <span className="text-slate-400 text-[10px] font-normal ml-1">({brand.name_am})</span>}
                           </div>
@@ -350,11 +350,11 @@ export default function AdminBrandsPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-5 py-4">
+                    <td className="px-5 py-4 truncate">
                       {brand.categories && brand.categories.length > 0 ? (
                         <div className="flex flex-wrap gap-1">
                           {brand.categories.slice(0, 2).map((c: any) => (
-                            <span key={c.id} className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-md text-[10px] font-semibold">
+                            <span key={c.id} className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-md text-[10px] font-semibold truncate">
                               📁 {c.name}
                             </span>
                           ))}
@@ -363,12 +363,12 @@ export default function AdminBrandsPage() {
                           )}
                         </div>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/40 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-800/60">
-                          <Globe className="w-3 h-3" /> Global Platform Brand
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/40 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-800/60 truncate">
+                          <Globe className="w-3 h-3 shrink-0" /> Global Platform Brand
                         </span>
                       )}
                     </td>
-                    <td className="px-5 py-4">
+                    <td className="px-5 py-4 truncate">
                       {brand.is_verified ? (
                         <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
                           <span className="w-2 h-2 rounded-full bg-emerald-500" /> Verified

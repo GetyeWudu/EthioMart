@@ -95,7 +95,7 @@ export default function AdminDashboard() {
             <UpdateIcon className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} /> Refresh Feed
           </Button>
           <Link href="/admin/reports">
-            <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs gap-1.5 shadow-sm rounded-xl">
+            <Button size="sm" className="bg-gradient-to-r from-[#1261C9] to-[#0D4FA8] hover:from-[#0D4FA8] hover:to-[#0A3D82] text-white font-bold text-xs gap-1.5 shadow-md shadow-[#1261C9]/20 rounded-xl transition-all">
               <DownloadIcon className="w-3.5 h-3.5" /> Export MoR Form 1142
             </Button>
           </Link>
@@ -104,9 +104,9 @@ export default function AdminDashboard() {
 
 
 
-      {/* Executive Metric Cards (ETB) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <Link href="/admin/analytics" className="block cursor-pointer transition-transform hover:scale-[1.02]">
+      {/* Executive Metric Cards (ETB) - 2 rows x 2 columns grid (including mobile) */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full min-w-0">
+        <Link href="/admin/analytics" className="block cursor-pointer transition-transform hover:scale-[1.02] min-w-0 w-full">
           <PlatformStatCard 
             title="Total Platform GMV" 
             amount={`ETB ${kpis.total_gmv.toLocaleString("en-ET", { minimumFractionDigits: 2 })}`} 
@@ -116,7 +116,7 @@ export default function AdminDashboard() {
           />
         </Link>
 
-        <Link href="/admin/commissions" className="block cursor-pointer transition-transform hover:scale-[1.02]">
+        <Link href="/admin/commissions" className="block cursor-pointer transition-transform hover:scale-[1.02] min-w-0 w-full">
           <PlatformStatCard 
             title="Platform Fee Revenue" 
             amount={`ETB ${kpis.platform_net_revenue.toLocaleString("en-ET", { minimumFractionDigits: 2 })}`} 
@@ -125,7 +125,7 @@ export default function AdminDashboard() {
           />
         </Link>
 
-        <Link href="/admin/vendors" className="block cursor-pointer transition-transform hover:scale-[1.02]">
+        <Link href="/admin/vendors" className="block cursor-pointer transition-transform hover:scale-[1.02] min-w-0 w-full">
           <PlatformStatCard 
             title="Verified Merchants" 
             amount={kpis.active_sellers.toString()} 
@@ -134,7 +134,7 @@ export default function AdminDashboard() {
           />
         </Link>
 
-        <Link href="/admin/customers" className="block cursor-pointer transition-transform hover:scale-[1.02]">
+        <Link href="/admin/customers" className="block cursor-pointer transition-transform hover:scale-[1.02] min-w-0 w-full">
           <PlatformStatCard 
             title="Registered Customers" 
             amount={kpis.total_customers.toString()} 
@@ -158,10 +158,10 @@ export default function AdminDashboard() {
           <div>
             <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/40">
               <div className="flex items-center gap-2">
-                <ArchiveIcon className="w-4 h-4 text-indigo-600" />
+                <ArchiveIcon className="w-4 h-4 text-[#1261C9]" />
                 <h2 className="font-bold text-slate-900 dark:text-white text-sm">Recent Store Orders</h2>
               </div>
-              <Link href="/admin/orders" className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
+              <Link href="/admin/orders" className="text-xs font-bold text-[#1261C9] dark:text-[#4D8FE0] hover:underline">
                 View All
               </Link>
             </div>
@@ -181,7 +181,7 @@ export default function AdminDashboard() {
                     <Link
                       key={ord.id}
                       href={`/admin/orders/${ord.id}`}
-                      className="p-3.5 hover:bg-slate-50/70 dark:hover:bg-slate-900/30 transition-colors flex items-center justify-between text-xs cursor-pointer block"
+                      className="p-3.5 hover:bg-slate-50/70 dark:hover:bg-slate-900/30 transition-colors flex items-center justify-between text-xs min-w-0 cursor-pointer"
                     >
                       <div className="space-y-1 min-w-0 pr-2">
                         <div className="flex items-center gap-2 font-mono font-bold text-slate-900 dark:text-white">
@@ -223,12 +223,12 @@ export default function AdminDashboard() {
       <div className="space-y-3">
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-2">
-            <LockClosedIcon className="w-4 h-4 text-indigo-600" />
+            <LockClosedIcon className="w-4 h-4 text-[#1261C9]" />
             <h2 className="font-sans font-black text-slate-900 dark:text-white text-lg tracking-tight">
               Cryptographic Security & System Audit Trail
             </h2>
           </div>
-          <Link href="/admin/audit-logs" className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
+          <Link href="/admin/audit-logs" className="text-xs font-bold text-[#1261C9] dark:text-[#4D8FE0] hover:underline">
             View Complete Trail
           </Link>
         </div>

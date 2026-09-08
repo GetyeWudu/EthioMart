@@ -1,7 +1,7 @@
 /**
  * frontend/features/vendors/types.ts
  * ==================================
- * TypeScript domain contracts for the GechExpress vendors domain,
+ * TypeScript domain contracts for the EthioMart vendors domain,
  * matching Django apps.vendors models, enums, and serializers.
  */
 

@@ -2,8 +2,8 @@ import Image from "next/image";
 import { ShieldCheck, Truck, Headphones, Globe2 } from "lucide-react";
 
 export const metadata = {
-  title: "About Us | GechExpress",
-  description: "Learn about the mission, vision, and team behind GechExpress, the premier global e-commerce marketplace.",
+  title: "About Us | EthioMart",
+  description: "Learn about the mission, vision, and team behind EthioMart, the premier global e-commerce marketplace.",
 };
 
 const features = [
@@ -37,7 +37,7 @@ export default function AboutPage() {
         <div className="absolute inset-0 z-0">
           <Image
             src="https://images.unsplash.com/photo-1556740758-90de374c12ad?q=80&w=2000&auto=format&fit=crop"
-            alt="About GechExpress"
+            alt="About EthioMart"
             fill
             className="object-cover opacity-20"
             priority
@@ -50,7 +50,7 @@ export default function AboutPage() {
             Connecting You to the <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-300">World's Best</span>
           </h1>
           <p className="text-lg md:text-xl text-indigo-100 max-w-2xl mx-auto leading-relaxed">
-            GechExpress was founded on a simple premise: everyone deserves access to high-quality products, regardless of where they live. We are building the future of global commerce.
+            EthioMart was founded on a simple premise: everyone deserves access to high-quality products, regardless of where they live. We are building the future of global commerce.
           </p>
         </div>
       </div>
@@ -65,7 +65,7 @@ export default function AboutPage() {
                   What started as a small local marketplace has rapidly grown into a premier destination for millions of shoppers and thousands of sellers worldwide.
                 </p>
                 <p>
-                  At GechExpress, we believe that commerce should be borderless. We've spent years optimizing our logistics network, vetting top-tier sellers, and designing an intuitive platform that makes shopping an absolute joy.
+                  At EthioMart, we believe that commerce should be borderless. We've spent years optimizing our logistics network, vetting top-tier sellers, and designing an intuitive platform that makes shopping an absolute joy.
                 </p>
                 <p>
                   Today, we are proud to offer an unmatched selection of electronics, fashion, and home goods, all backed by our comprehensive buyer protection guarantee.
@@ -75,7 +75,7 @@ export default function AboutPage() {
             <div className="relative h-[400px] rounded-2xl overflow-hidden shadow-md">
               <Image
                 src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=crop"
-                alt="GechExpress Team"
+                alt="EthioMart Team"
                 fill
                 className="object-cover"
               />
@@ -86,7 +86,7 @@ export default function AboutPage() {
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-slate-900 dark:text-white font-serif mb-4">Why Shop With Us?</h2>
           <p className="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
-            We don't just sell products; we deliver peace of mind. Here is what makes the GechExpress experience different.
+            We don't just sell products; we deliver peace of mind. Here is what makes the EthioMart experience different.
           </p>
         </div>
 

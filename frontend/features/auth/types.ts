@@ -1,7 +1,7 @@
 /**
  * frontend/features/auth/types.ts
  * ===============================
- * TypeScript data contracts matching GechExpress Django User & Auth models.
+ * TypeScript data contracts matching EthioMart Django User & Auth models.
  */
 
 export type UserRole = "CUSTOMER" | "SELLER" | "ADMIN";

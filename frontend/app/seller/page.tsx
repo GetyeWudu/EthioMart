@@ -21,6 +21,8 @@ import { useAuthStore } from "@/stores/auth-store";
 import { ClerkDashboard } from "@/components/seller/clerk-dashboard";
 import { SalesOverview } from "@/components/seller/sales-overview";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatCard } from "@/components/seller/stat-card";
+import { Wallet, ShoppingBag, Package, Banknote } from "lucide-react";
 import api from "@/lib/api";
 
 const fetcher = (url: string) => api.get(url).then(res => res.data);
@@ -79,7 +81,7 @@ export default function SellerDashboard() {
           </Button>
 
           <Link href="/seller/products/new">
-            <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs gap-1.5 shadow-sm">
+            <Button size="sm" className="bg-gradient-to-r from-[#FF7900] to-[#E66800] hover:from-[#E66800] hover:to-[#CC5C00] text-white font-bold text-xs gap-1.5 shadow-md shadow-[#FF7900]/25 rounded-xl">
               <PlusIcon className="w-3.5 h-3.5" /> Add Product
             </Button>
           </Link>
@@ -88,69 +90,39 @@ export default function SellerDashboard() {
 
       {/* Dashboard Overview KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {/* Card 1: Total Revenue / Earnings */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex justify-between items-start mb-4">
-            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Revenue</h3>
-            <CardStackIcon className="h-4 w-4 text-slate-400" />
-          </div>
-          <div>
-            <div className="text-2xl font-black font-mono text-slate-900 dark:text-white">
-              ETB {kpis.total_net_earnings.toLocaleString('en-ET', { minimumFractionDigits: 2 })}
-            </div>
-            <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-medium">
-              +20.1% from last month
-            </p>
-          </div>
-        </div>
+        <StatCard
+          title="Total Revenue"
+          value={`ETB ${kpis.total_net_earnings.toLocaleString('en-ET', { minimumFractionDigits: 2 })}`}
+          subtitle="vs last month"
+          icon={Wallet}
+          highlight={true}
+          trend={
+            <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-bold tracking-tight bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs">
+              +20.1%
+            </span>
+          }
+        />
 
-        {/* Card 2: Active Orders */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex justify-between items-start mb-4">
-            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Active Order</h3>
-            <ArchiveIcon className="h-4 w-4 text-slate-400" />
-          </div>
-          <div>
-            <div className="text-2xl font-black font-mono text-slate-900 dark:text-white">
-              +{kpis.active_orders}
-            </div>
-            <p className="text-xs text-slate-400 mt-1 font-medium">
-              {kpis.dispatched_orders} currently in transit
-            </p>
-          </div>
-        </div>
+        <StatCard
+          title="Total Active Orders"
+          value={`+${kpis.active_orders}`}
+          subtitle={`${kpis.dispatched_orders} currently in transit`}
+          icon={ShoppingBag}
+        />
 
-        {/* Card 3: Total Units Sold */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex justify-between items-start mb-4">
-            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Product</h3>
-            <CubeIcon className="h-4 w-4 text-slate-400" />
-          </div>
-          <div>
-            <div className="text-2xl font-black font-mono text-slate-900 dark:text-white">
-              {kpis.units_sold.toLocaleString()}
-            </div>
-            <p className="text-xs text-slate-400 mt-1 font-medium">
-              Across all catalog items
-            </p>
-          </div>
-        </div>
+        <StatCard
+          title="Total Products Sold"
+          value={kpis.units_sold.toLocaleString()}
+          subtitle="Across all catalog items"
+          icon={Package}
+        />
 
-        {/* Card 4: Available Balance */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex justify-between items-start mb-4">
-            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Available Pay Out</h3>
-            <CardStackIcon className="h-4 w-4 text-slate-400" />
-          </div>
-          <div>
-            <div className="text-2xl font-black font-mono text-slate-900 dark:text-white">
-              ETB {kpis.available_balance.toLocaleString('en-ET', { minimumFractionDigits: 2 })}
-            </div>
-            <p className="text-xs text-slate-400 mt-1 font-medium">
-              Ready for withdrawal
-            </p>
-          </div>
-        </div>
+        <StatCard
+          title="Available Payout"
+          value={`ETB ${kpis.available_balance.toLocaleString('en-ET', { minimumFractionDigits: 2 })}`}
+          subtitle="Ready for withdrawal"
+          icon={Banknote}
+        />
       </div>
 
       {/* Main Charts & Recent Orders Grid */}
@@ -164,7 +136,7 @@ export default function SellerDashboard() {
           <div>
             <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/40">
               <h2 className="font-bold text-slate-900 dark:text-white text-sm">Recent Store Orders</h2>
-              <Link href="/seller/orders" className="text-xs font-bold text-indigo-600 hover:underline">
+              <Link href="/seller/orders" className="text-xs font-bold text-[#FF7900] hover:underline">
                 View All
               </Link>
             </div>

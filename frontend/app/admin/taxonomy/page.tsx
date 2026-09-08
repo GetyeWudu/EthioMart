@@ -165,8 +165,8 @@ export default function AdminTaxonomyPage() {
       </div>
 
       {/* Taxonomy KPI Deck */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Total Categories</span>
             <div className="p-2 rounded-xl text-indigo-600 bg-indigo-50 dark:bg-indigo-950/50">
@@ -181,7 +181,7 @@ export default function AdminTaxonomyPage() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Root Verticals</span>
             <div className="p-2 rounded-xl text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50">
@@ -196,7 +196,7 @@ export default function AdminTaxonomyPage() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Leaf Product Nodes</span>
             <div className="p-2 rounded-xl text-blue-600 bg-blue-50 dark:bg-blue-950/50">
@@ -211,7 +211,7 @@ export default function AdminTaxonomyPage() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Commission Overrides</span>
             <div className="p-2 rounded-xl text-amber-600 bg-amber-50 dark:bg-amber-950/50">
@@ -241,14 +241,14 @@ export default function AdminTaxonomyPage() {
             />
           </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
+        <div className="overflow-hidden w-full">
+          <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300 table-fixed">
             <thead className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700">
               <tr>
-                <th className="px-5 py-3.5 text-[10px] uppercase font-bold text-slate-500 tracking-wider w-[35%]">Category Name</th>
-                <th className="px-5 py-3.5 text-[10px] uppercase font-bold text-slate-500 tracking-wider w-[25%]">Slug</th>
-                <th className="px-5 py-3.5 text-[10px] uppercase font-bold text-slate-500 tracking-wider w-[22%]">Effective Commission</th>
-                <th className="px-5 py-3.5 text-[10px] uppercase font-bold text-slate-500 tracking-wider text-right w-[18%]">Actions</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 w-[35%]">Category Name</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 w-[25%]">Slug</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 w-[22%]">Effective Commission</th>
+                <th className="px-5 py-3.5 text-xs font-semibold text-slate-500 text-right w-[18%]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">

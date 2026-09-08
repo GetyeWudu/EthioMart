@@ -58,11 +58,11 @@ export default function AdminVendorsPage() {
       </div>
 
       {/* KPI Deck */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div 
           onClick={() => setFilterParam("status", "ALL")}
           className={cn(
-            "cursor-pointer rounded-2xl border p-5 shadow-xs transition-all bg-white dark:bg-slate-900",
+            "cursor-pointer rounded-2xl border p-3.5 sm:p-5 shadow-xs transition-all bg-white dark:bg-slate-900",
             !filters.status || filters.status === "ALL" ? "border-indigo-400 ring-2 ring-indigo-400/20" : "border-slate-200 dark:border-slate-800 hover:border-indigo-200"
           )}
         >
@@ -83,7 +83,7 @@ export default function AdminVendorsPage() {
         <div 
           onClick={() => setFilterParam("status", "PENDING_REVIEW")}
           className={cn(
-            "cursor-pointer rounded-2xl border p-5 shadow-xs transition-all bg-white dark:bg-slate-900",
+            "cursor-pointer rounded-2xl border p-3.5 sm:p-5 shadow-xs transition-all bg-white dark:bg-slate-900",
             filters.status === "PENDING_REVIEW" ? "border-amber-400 ring-2 ring-amber-400/20" : "border-slate-200 dark:border-slate-800 hover:border-amber-200"
           )}
         >
@@ -104,7 +104,7 @@ export default function AdminVendorsPage() {
         <div 
           onClick={() => setFilterParam("status", "APPROVED")}
           className={cn(
-            "cursor-pointer rounded-2xl border p-5 shadow-xs transition-all bg-white dark:bg-slate-900",
+            "cursor-pointer rounded-2xl border p-3.5 sm:p-5 shadow-xs transition-all bg-white dark:bg-slate-900",
             filters.status === "APPROVED" ? "border-emerald-400 ring-2 ring-emerald-400/20" : "border-slate-200 dark:border-slate-800 hover:border-emerald-200"
           )}
         >
@@ -125,7 +125,7 @@ export default function AdminVendorsPage() {
         <div 
           onClick={() => setFilterParam("status", "SUSPENDED")}
           className={cn(
-            "cursor-pointer rounded-2xl border p-5 shadow-xs transition-all bg-white dark:bg-slate-900",
+            "cursor-pointer rounded-2xl border p-3.5 sm:p-5 shadow-xs transition-all bg-white dark:bg-slate-900",
             filters.status === "SUSPENDED" ? "border-rose-400 ring-2 ring-rose-400/20" : "border-slate-200 dark:border-slate-800 hover:border-rose-200"
           )}
         >

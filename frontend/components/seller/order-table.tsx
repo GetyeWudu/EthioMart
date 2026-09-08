@@ -160,7 +160,7 @@ export function OrderTable({ orders = [], onRefresh }: { orders?: any[], onRefre
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-sm text-left">
-          <thead className="text-xs text-slate-500 bg-slate-50 dark:bg-slate-900/50 dark:text-slate-400 uppercase border-b border-slate-200 dark:border-slate-800">
+          <thead className="text-xs font-semibold text-slate-500 bg-slate-50 dark:bg-slate-900/50 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
             <tr>
               <th className="px-5 py-3 font-medium">Order ID & Customer</th>
               <th className="px-5 py-3 font-medium">Items</th>

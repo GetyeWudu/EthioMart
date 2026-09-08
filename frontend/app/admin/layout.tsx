@@ -13,7 +13,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <AdminSidebar />
       <div className={cn("flex flex-1 flex-col min-w-0 transition-all duration-300", isAdminSidebarCollapsed ? "lg:pl-20" : "lg:pl-64")}>
         <AdminHeader />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden min-w-0">
           {children}
         </main>
       </div>

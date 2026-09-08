@@ -375,7 +375,7 @@ export function ModerationInspector({ product, onApprove, onReject, onClose }: M
                 ) : isDetail && hasVariants ? (
                   <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-xl">
                     <table className="w-full text-left text-xs whitespace-nowrap">
-                      <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 uppercase text-[10px] text-slate-500">
+                      <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-500">
                         <tr>
                           <th className="px-3 py-2">SKU</th>
                           <th className="px-3 py-2">Attributes</th>

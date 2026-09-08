@@ -224,7 +224,7 @@ export default function AdminVendorDetailPage({
                       target="_blank"
                       className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:underline font-mono"
                     >
-                      gechexpress.com/stores/{vendor.slug}
+                      ethiomart.com/stores/{vendor.slug}
                       <ExternalLink className="h-3 w-3" />
                     </Link>
                   )}

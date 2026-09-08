@@ -417,10 +417,10 @@ export default function SellerOrderDetailsPage({ params }: { params: Promise<{ i
         <div className="flex justify-between items-start pb-6 border-b-2 border-slate-900">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-slate-900" style={{ fontFamily: "serif" }}>
-              GechExpress
+              EthioMart
             </h1>
             <p className="text-xs font-semibold text-slate-600 mt-1">SELLER PACKING SLIP & DISPATCH MANIFEST</p>
-            <p className="text-[10px] text-slate-500">Fulfilled by: {subOrder.vendor_name || 'GechExpress Vendor Store'}</p>
+            <p className="text-[10px] text-slate-500">Fulfilled by: {subOrder.vendor_name || 'EthioMart Vendor Store'}</p>
           </div>
 
           <div className="text-right text-xs space-y-1">
@@ -456,7 +456,7 @@ export default function SellerOrderDetailsPage({ params }: { params: Promise<{ i
         <div className="py-6">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b-2 border-slate-900 text-slate-600 uppercase text-[10px] tracking-wider">
+              <tr className="border-b-2 border-slate-900 text-slate-600 font-semibold text-xs">
                 <th className="py-2 font-bold w-8">#</th>
                 <th className="py-2 font-bold">Product Item</th>
                 <th className="py-2 font-bold">SKU / Attributes</th>
@@ -483,8 +483,8 @@ export default function SellerOrderDetailsPage({ params }: { params: Promise<{ i
         </div>
 
         <div className="pt-6 border-t-2 border-slate-900 flex justify-between items-center text-[10px] text-slate-500">
-          <p>Package verified and sealed by {subOrder.vendor_name || 'GechExpress Vendor'}. Protected by Chapa Escrow.</p>
-          <p className="font-mono font-bold">GechExpress Logistics Manifest</p>
+          <p>Package verified and sealed by {subOrder.vendor_name || 'EthioMart Vendor'}. Protected by Chapa Escrow.</p>
+          <p className="font-mono font-bold">EthioMart Logistics Manifest</p>
         </div>
       </div>
     </div>

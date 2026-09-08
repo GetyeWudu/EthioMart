@@ -106,7 +106,7 @@ export default function OrdersPage() {
             const allItems = order.sub_orders?.flatMap((sub: any) => 
               sub.items?.map((item: any) => ({
                 ...item,
-                vendorName: sub.vendor_name || sub.vendor?.store_name || "GechExpress Direct"
+                vendorName: sub.vendor_name || sub.vendor?.store_name || "EthioMart Direct"
               })) || []
             ) || [];
 

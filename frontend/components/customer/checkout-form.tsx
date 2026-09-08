@@ -142,9 +142,9 @@ export function CheckoutForm({
       <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950 overflow-hidden">
         {step === "shipping" ? (
           <div>
-            <div className="bg-slate-900 dark:bg-slate-800 text-white px-6 py-4 flex items-center gap-3">
-              <MapPin className="h-5 w-5 text-primary" />
-              <h2 className="text-base font-semibold">Shipping Information</h2>
+            <div className="bg-gradient-to-r from-[#1261C9] to-[#0D4FA8] text-white px-6 py-4 flex items-center gap-3 shadow-xs">
+              <MapPin className="h-5 w-5 text-[#FF7900]" />
+              <h2 className="text-base font-bold tracking-tight">Shipping Information</h2>
             </div>
             
             <form onSubmit={handleShippingSubmit} className="p-6 sm:p-8 space-y-6">
@@ -159,7 +159,7 @@ export function CheckoutForm({
                           key={addr.id}
                           className={`cursor-pointer rounded-xl border p-4 flex flex-col gap-2 transition-all ${
                             selectedAddressId === addr.id 
-                              ? "border-primary bg-primary/5 ring-1 ring-primary" 
+                              ? "border-[#1261C9] bg-[#1261C9]/5 ring-1 ring-[#1261C9]" 
                               : "border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 hover:border-slate-300 dark:hover:border-slate-700"
                           }`}
                         >
@@ -173,7 +173,7 @@ export function CheckoutForm({
                               onChange={() => setSelectedAddressId(addr.id)}
                               className="sr-only"
                             />
-                            {selectedAddressId === addr.id && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                            {selectedAddressId === addr.id && <CheckCircle2 className="h-4 w-4 text-[#1261C9]" />}
                           </div>
                           <div className="text-xs text-slate-500 dark:text-slate-400">
                             <p>{addr.phone_number}</p>
@@ -186,8 +186,8 @@ export function CheckoutForm({
                       <label 
                         className={`cursor-pointer rounded-xl border p-4 flex flex-col justify-center items-center gap-2 transition-all min-h-[100px] ${
                           selectedAddressId === "new" 
-                            ? "border-primary bg-primary/5 ring-1 ring-primary" 
-                            : "border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 hover:border-slate-300 dark:hover:border-slate-700"
+                            ? "border-[#1261C9] bg-[#1261C9]/5 ring-1 ring-[#1261C9]" 
+                            : "border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 hover:border-[#1261C9]/40"
                         }`}
                       >
                         <input 
@@ -198,7 +198,7 @@ export function CheckoutForm({
                           onChange={() => setSelectedAddressId("new")}
                           className="sr-only"
                         />
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">+ Add New Address</span>
+                        <span className="text-sm font-bold text-[#1261C9]">+ Add New Address</span>
                       </label>
                     </div>
                   </div>
@@ -300,7 +300,7 @@ export function CheckoutForm({
               </div>
 
               <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
-                <Button type="submit" size="lg" disabled={isSuspended || isProcessing} className={`w-full sm:w-auto px-8 ${isSuspended ? "bg-slate-300 text-slate-500 cursor-not-allowed" : "bg-primary hover:bg-primary/90 text-primary-foreground"}`}>
+                <Button type="submit" size="lg" disabled={isSuspended || isProcessing} className={`w-full sm:w-auto px-8 rounded-xl ${isSuspended ? "bg-slate-300 text-slate-500 cursor-not-allowed" : "bg-gradient-to-r from-[#1261C9] to-[#0D4FA8] hover:from-[#0D4FA8] hover:to-[#0A3D82] text-white font-bold shadow-md shadow-[#1261C9]/25"}`}>
                   Continue to Payment
                 </Button>
               </div>
@@ -308,16 +308,16 @@ export function CheckoutForm({
           </div>
         ) : (
           <div>
-            <div className="bg-slate-900 dark:bg-slate-800 text-white px-6 py-4 flex items-center gap-3">
-              <CreditCard className="h-5 w-5 text-primary" />
-              <h2 className="text-base font-semibold">Payment Method</h2>
+            <div className="bg-gradient-to-r from-[#1261C9] to-[#0D4FA8] text-white px-6 py-4 flex items-center gap-3 shadow-xs">
+              <CreditCard className="h-5 w-5 text-[#FF7900]" />
+              <h2 className="text-base font-bold tracking-tight">Payment Method</h2>
             </div>
 
             <form onSubmit={handlePaymentSubmit} className="p-6 sm:p-8 space-y-6">
               
               <div className="grid gap-4 sm:grid-cols-2">
                 {/* Chapa Payment Gateway (All Ethiopian Rails) */}
-                <label className={`cursor-pointer rounded-2xl border-2 p-5 flex flex-col gap-3 transition-all col-span-1 sm:col-span-2 ${paymentMethod === "chapa" ? "border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/20 shadow-md ring-1 ring-indigo-500" : "border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700 bg-white dark:bg-slate-900"}`}>
+                <label className={`cursor-pointer rounded-2xl border-2 p-5 flex flex-col gap-3 transition-all col-span-1 sm:col-span-2 ${paymentMethod === "chapa" ? "border-[#1261C9] bg-[#1261C9]/5 dark:bg-[#1261C9]/10 shadow-md ring-1 ring-[#1261C9]" : "border-slate-200 dark:border-slate-800 hover:border-[#1261C9]/50 bg-white dark:bg-slate-900"}`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <input 
@@ -326,18 +326,18 @@ export function CheckoutForm({
                         value="chapa"
                         checked={paymentMethod === "chapa"}
                         onChange={() => setPaymentMethod("chapa")}
-                        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500" 
+                        className="h-4 w-4 text-[#1261C9] focus:ring-[#1261C9]" 
                       />
-                      <CreditCard className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                      <CreditCard className="h-5 w-5 text-[#1261C9] dark:text-blue-400" />
                       <div>
                         <span className="font-bold text-slate-900 dark:text-white text-sm">Chapa Payment Gateway</span>
                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Telebirr • CBEBirr • Debit/Credit Cards • Awash • Dashen</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-1.5 hidden sm:flex">
-                      <span className="text-[10px] bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-full font-bold uppercase">Telebirr</span>
-                      <span className="text-[10px] bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-full font-bold uppercase">CBEBirr</span>
-                      <span className="text-[10px] bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-full font-bold uppercase">Cards</span>
+                      <span className="text-[10px] bg-[#FF7900]/15 text-[#FF7900] dark:bg-[#FF7900]/25 dark:text-orange-300 px-2.5 py-0.5 rounded-full font-bold uppercase">Telebirr</span>
+                      <span className="text-[10px] bg-[#1261C9]/15 text-[#1261C9] dark:bg-[#1261C9]/25 dark:text-blue-300 px-2.5 py-0.5 rounded-full font-bold uppercase">CBEBirr</span>
+                      <span className="text-[10px] bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-2.5 py-0.5 rounded-full font-bold uppercase">Cards</span>
                     </div>
                   </div>
                   <div className="pl-7 mt-1">
@@ -367,14 +367,14 @@ export function CheckoutForm({
               </div>
 
               <div className="flex items-center justify-between pt-6 border-t border-slate-100 dark:border-slate-800">
-                <Button type="button" variant="ghost" onClick={() => setStep("shipping")} className="text-slate-500 hover:text-slate-800" disabled={isProcessing}>
+                <Button type="button" variant="ghost" onClick={() => setStep("shipping")} className="text-slate-500 hover:text-[#1261C9] font-bold" disabled={isProcessing}>
                   &larr; Back to Shipping
                 </Button>
-                <Button type="submit" size="lg" disabled={isSuspended || isProcessing} className={`gap-2 min-w-[160px] ${isSuspended ? "bg-slate-300 text-slate-500 cursor-not-allowed" : "bg-primary hover:bg-primary/90 text-primary-foreground"}`}>
+                <Button type="submit" size="lg" disabled={isSuspended || isProcessing} className={`gap-2 min-w-[160px] rounded-xl font-bold ${isSuspended ? "bg-slate-300 text-slate-500 cursor-not-allowed" : "bg-gradient-to-r from-[#1261C9] to-[#0D4FA8] hover:from-[#0D4FA8] hover:to-[#0A3D82] text-white shadow-lg shadow-[#1261C9]/25"}`}>
                   {isProcessing ? (
                     <div className="h-4 w-4 rounded-full border-2 border-white/80 border-t-transparent animate-spin" />
                   ) : (
-                    <ShieldCheck className="h-4 w-4" />
+                    <ShieldCheck className="h-4 w-4 text-[#FF7900]" />
                   )}
                   {isProcessing ? "Redirecting..." : "Place Order"}
                 </Button>

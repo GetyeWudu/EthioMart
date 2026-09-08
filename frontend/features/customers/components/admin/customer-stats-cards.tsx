@@ -72,34 +72,34 @@ export function CustomerStatsCards({ stats, isLoading = false }: CustomerStatsCa
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       {cards.map((card, idx) => {
         const Icon = card.icon;
         return (
           <Link
             key={idx}
             href={card.href}
-            className="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-5 sm:p-6 shadow-sm hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-800 transition-all group cursor-pointer block"
+            className="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-3.5 sm:p-5 shadow-sm hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-800 transition-all group cursor-pointer block"
           >
             <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-50`} />
 
-            <div className="relative z-10 flex items-center justify-between">
+            <div className="relative z-10 flex items-center justify-between gap-2">
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">
                   {card.title}
                 </p>
                 <div className="mt-2 flex items-baseline gap-2">
-                  <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white font-mono tracking-tight">
+                  <h3 className="text-lg sm:text-2xl font-extrabold text-slate-900 dark:text-white font-mono tracking-tight truncate">
                     {card.value}
                   </h3>
                 </div>
-                <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">
+                <p className="mt-1 text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">
                   {card.subtitle}
                 </p>
               </div>
 
-              <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${card.iconBg} shadow-inner shrink-0 group-hover:scale-105 transition-transform`}>
-                <Icon className="h-6 w-6" />
+              <div className={`flex h-9 w-9 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl ${card.iconBg} shadow-inner shrink-0 group-hover:scale-105 transition-transform`}>
+                <Icon className="h-4 w-4 sm:h-6 sm:w-6" />
               </div>
             </div>
 

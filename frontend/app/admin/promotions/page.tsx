@@ -180,15 +180,15 @@ export default function AdminPromotionsPage() {
         </div>
 
         {/* Table Content */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left">
-            <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 uppercase tracking-wider font-semibold">
+        <div className="overflow-hidden w-full">
+          <table className="w-full text-xs text-left table-fixed">
+            <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 font-semibold text-[11px]">
               <tr>
-                <th className="px-5 py-3.5">Campaign Name & Code</th>
-                <th className="px-5 py-3.5">Merchant Store</th>
-                <th className="px-5 py-3.5">Discount Value</th>
-                <th className="px-5 py-3.5">Redemption Usage</th>
-                <th className="px-5 py-3.5 text-right">Active Status</th>
+                <th className="px-4 py-3.5 w-[30%]">Campaign Name &amp; Code</th>
+                <th className="px-4 py-3.5 w-[22%]">Merchant Store</th>
+                <th className="px-4 py-3.5 w-[18%]">Discount Value</th>
+                <th className="px-4 py-3.5 w-[16%]">Redemption Usage</th>
+                <th className="px-4 py-3.5 text-right w-[14%]">Active Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium text-slate-700 dark:text-slate-300">
@@ -214,11 +214,11 @@ export default function AdminPromotionsPage() {
               ) : (
                 filteredPromotions.map((promo: any) => (
                   <tr key={promo.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/20 transition-colors">
-                    <td className="px-5 py-4">
-                      <div className="font-bold text-slate-900 dark:text-white text-sm">{promo.name}</div>
+                    <td className="px-4 py-4 truncate">
+                      <div className="font-bold text-slate-900 dark:text-white text-sm truncate" title={promo.name}>{promo.name}</div>
                       {promo.coupon_code && (
-                        <div className="flex items-center gap-1.5 mt-1.5">
-                          <span className="font-mono text-xs font-bold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-lg border border-indigo-200 dark:border-indigo-800 flex items-center gap-1">
+                        <div className="flex items-center gap-1.5 mt-1.5 min-w-0">
+                          <span className="font-mono text-xs font-bold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-lg border border-indigo-200 dark:border-indigo-800 flex items-center gap-1 shrink-0">
                             <Tag className="h-3 w-3 text-indigo-500" />
                             {promo.coupon_code}
                           </span>
@@ -237,26 +237,26 @@ export default function AdminPromotionsPage() {
                         </div>
                       )}
                     </td>
-                    <td className="px-5 py-4 text-slate-600 dark:text-slate-300">
-                      <div className="flex items-center gap-1.5 font-semibold">
-                        <Store className="w-3.5 h-3.5 text-indigo-600" />
-                        <span>{promo.vendor_name || (promo.vendor ? `Vendor #${String(promo.vendor).slice(0, 8)}` : "Platform Global")}</span>
+                    <td className="px-4 py-4 text-slate-600 dark:text-slate-300 truncate">
+                      <div className="flex items-center gap-1.5 font-semibold min-w-0">
+                        <Store className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                        <span className="truncate" title={promo.vendor_name || (promo.vendor ? `Vendor #${String(promo.vendor).slice(0, 8)}` : "Platform Global")}>{promo.vendor_name || (promo.vendor ? `Vendor #${String(promo.vendor).slice(0, 8)}` : "Platform Global")}</span>
                       </div>
                     </td>
-                    <td className="px-5 py-4">
-                      <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400 text-sm">
+                    <td className="px-4 py-4 truncate">
+                      <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400 text-sm truncate block">
                         {promo.discount_type === "PERCENTAGE" ? `${promo.discount_value}% OFF` : `ETB ${Number(promo.discount_value).toLocaleString()} OFF`}
                       </span>
                     </td>
-                    <td className="px-5 py-4">
-                      <div className="font-mono font-bold text-slate-900 dark:text-white">
+                    <td className="px-4 py-4 truncate">
+                      <div className="font-mono font-bold text-slate-900 dark:text-white truncate">
                         {promo.current_uses || 0} uses
                       </div>
-                      <span className="text-[10px] text-slate-400">
+                      <span className="text-[10px] text-slate-400 truncate block">
                         {promo.max_uses ? `Max limit: ${promo.max_uses}` : "Unlimited redemptions"}
                       </span>
                     </td>
-                    <td className="px-5 py-4 text-right">
+                    <td className="px-4 py-4 text-right">
                       <div className="flex items-center justify-end gap-3">
                         <Badge
                           variant="outline"

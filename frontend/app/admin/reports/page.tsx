@@ -69,12 +69,12 @@ export default function AdminReportsPage() {
       const isPayouts = reportType === "seller_payouts";
 
       let docTitle = "MINISTRY OF REVENUES (MoR) - ETHIOPIA - FORM 1142";
-      if (reportType === "gmv_revenue") docTitle = "GECHEXPRESS MARKETPLACE - GMV & REVENUE REPORT";
-      if (isPayouts) docTitle = "GECHEXPRESS MARKETPLACE - SELLER PAYOUTS & COMMISSIONS AUDIT";
+      if (reportType === "gmv_revenue") docTitle = "ETHIOMART MARKETPLACE - GMV & REVENUE REPORT";
+      if (isPayouts) docTitle = "ETHIOMART MARKETPLACE - SELLER PAYOUTS & COMMISSIONS AUDIT";
 
       const rows: string[][] = [
         [docTitle],
-        ["Platform", "GechExpress Marketplace", "Currency", "ETB"],
+        ["Platform", "EthioMart Marketplace", "Currency", "ETB"],
         ["Period", reportData.period || "All Time", "Export Date", new Date().toLocaleString('en-ET')],
         [],
         [
@@ -131,7 +131,7 @@ export default function AdminReportsPage() {
 
       const filename = isMoR 
         ? `MoR_Form_1142_Tax_Declaration_${new Date().toISOString().slice(0, 10)}.csv`
-        : `GechExpress_Report_${reportType}_${new Date().toISOString().slice(0, 10)}.csv`;
+        : `EthioMart_Report_${reportType}_${new Date().toISOString().slice(0, 10)}.csv`;
 
       link.setAttribute("download", filename);
       document.body.appendChild(link);
@@ -227,8 +227,8 @@ export default function AdminReportsPage() {
       </div>
 
       {/* KPI Deck */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-sm">
           <span className="text-xs font-semibold text-slate-500 block">Third-Party GMV</span>
           <span className="text-xl font-black text-slate-900 dark:text-white font-mono mt-2 block">
             ETB {kpis.total_gross_gmv.toLocaleString('en-ET', { minimumFractionDigits: 2 })}
@@ -236,7 +236,7 @@ export default function AdminReportsPage() {
           <p className="text-[11px] text-slate-400 mt-1">Retail sales collected</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-sm">
           <span className="text-xs font-semibold text-slate-500 block">Platform Intermediation Fees</span>
           <span className="text-xl font-black text-indigo-600 dark:text-indigo-400 font-mono mt-2 block">
             ETB {kpis.platform_fee_gross.toLocaleString('en-ET', { minimumFractionDigits: 2 })}
@@ -244,7 +244,7 @@ export default function AdminReportsPage() {
           <p className="text-[11px] text-slate-400 mt-1">Gross commission turnover</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 sm:p-5 shadow-sm col-span-2 sm:col-span-1">
           <span className="text-xs font-semibold text-slate-500 block">Merchant Net Payouts</span>
           <span className="text-xl font-black text-emerald-600 dark:text-emerald-400 font-mono mt-2 block">
             ETB {kpis.vendor_net_payouts.toLocaleString('en-ET', { minimumFractionDigits: 2 })}
@@ -272,60 +272,60 @@ export default function AdminReportsPage() {
           </Button>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left">
-            <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold border-b border-slate-200 dark:border-slate-800">
+        <div className="overflow-hidden w-full">
+          <table className="w-full text-xs text-left table-fixed">
+            <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-800 text-[11px]">
               <tr>
-                <th className="px-5 py-3.5">Tax Entry ID</th>
-                <th className="px-5 py-3.5">Merchant Store / TIN</th>
-                <th className="px-5 py-3.5">Tax Regime</th>
-                <th className="px-5 py-3.5">Order / Sub-Order</th>
-                <th className="px-5 py-3.5 text-right">Gross GMV (ETB)</th>
-                <th className="px-5 py-3.5 text-right">Platform Fee (Gross)</th>
-                <th className="px-5 py-3.5 text-right">Merchant Payout</th>
+                <th className="px-4 py-3.5 w-[14%]">Tax Entry ID</th>
+                <th className="px-4 py-3.5 w-[22%]">Merchant Store / TIN</th>
+                <th className="px-4 py-3.5 w-[14%]">Tax Regime</th>
+                <th className="px-4 py-3.5 w-[15%]">Order / Sub-Order</th>
+                <th className="px-4 py-3.5 text-right w-[12%]">Gross GMV (ETB)</th>
+                <th className="px-4 py-3.5 text-right w-[11%]">Platform Fee (Gross)</th>
+                <th className="px-4 py-3.5 text-right w-[12%]">Merchant Payout</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium text-slate-700 dark:text-slate-300">
               {isLoading ? (
                 <tr>
-                  <td colSpan={8} className="px-5 py-12 text-center text-slate-500">
+                  <td colSpan={7} className="px-5 py-12 text-center text-slate-500">
                     <Loader2 className="w-6 h-6 animate-spin mx-auto text-indigo-600 mb-2" />
                     Generating tax reconciliation audit...
                   </td>
                 </tr>
               ) : entries.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-5 py-12 text-center text-slate-500">
+                  <td colSpan={7} className="px-5 py-12 text-center text-slate-500">
                     No transactions recorded for the selected parameters.
                   </td>
                 </tr>
               ) : (
                 entries.map((item) => (
                   <tr key={item.entry_id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/20 transition-colors">
-                    <td className="px-5 py-4 font-mono font-bold text-slate-900 dark:text-white">
+                    <td className="px-4 py-4 font-mono font-bold text-slate-900 dark:text-white truncate">
                       {item.entry_id}
-                      <span className="block text-[10px] text-slate-400 font-sans font-normal">{item.date}</span>
+                      <span className="block text-[10px] text-slate-400 font-sans font-normal truncate">{item.date}</span>
                     </td>
-                    <td className="px-5 py-4">
-                      <span className="font-bold text-slate-900 dark:text-white block">{item.vendor_name}</span>
-                      <span className="text-[10px] text-slate-400">TIN: {item.tin_number}</span>
+                    <td className="px-4 py-4 truncate">
+                      <span className="font-bold text-slate-900 dark:text-white block truncate" title={item.vendor_name}>{item.vendor_name}</span>
+                      <span className="text-[10px] text-slate-400 block truncate">TIN: {item.tin_number}</span>
                     </td>
-                    <td className="px-5 py-4">
-                      <Badge variant="outline" className="text-[10px] font-bold">
+                    <td className="px-4 py-4 truncate">
+                      <Badge variant="outline" className="text-[10px] font-bold truncate">
                         {item.tax_regime === 'VAT_REGISTERED' ? 'VAT Registered' : 'TOT / Non-VAT'}
                       </Badge>
                     </td>
-                    <td className="px-5 py-4 font-mono">
-                      <span className="font-semibold text-slate-900 dark:text-white block">#{item.order_number}</span>
-                      <span className="text-[10px] text-slate-400">#{item.sub_order_id}</span>
+                    <td className="px-4 py-4 font-mono truncate">
+                      <span className="font-semibold text-slate-900 dark:text-white block truncate">#{item.order_number}</span>
+                      <span className="text-[10px] text-slate-400 block truncate">#{item.sub_order_id}</span>
                     </td>
-                    <td className="px-5 py-4 text-right font-mono font-bold text-slate-900 dark:text-white">
+                    <td className="px-4 py-4 text-right font-mono font-bold text-slate-900 dark:text-white truncate">
                       ETB {item.gross_gmv.toLocaleString('en-ET', { minimumFractionDigits: 2 })}
                     </td>
-                    <td className="px-5 py-4 text-right font-mono font-bold text-indigo-600 dark:text-indigo-400">
+                    <td className="px-4 py-4 text-right font-mono font-bold text-indigo-600 dark:text-indigo-400 truncate">
                       ETB {item.platform_fee_gross.toLocaleString('en-ET', { minimumFractionDigits: 2 })}
                     </td>
-                    <td className="px-5 py-4 text-right font-mono font-black text-slate-900 dark:text-white">
+                    <td className="px-4 py-4 text-right font-mono font-black text-slate-900 dark:text-white truncate">
                       ETB {item.vendor_net_payout.toLocaleString('en-ET', { minimumFractionDigits: 2 })}
                     </td>
                   </tr>

@@ -4,8 +4,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Mail, MapPin, Phone, Send, MessageSquare } from "lucide-react";
 
 export const metadata = {
-  title: "Contact Us | GechExpress",
-  description: "Get in touch with the GechExpress support team for help with your orders or general inquiries.",
+  title: "Contact Us | EthioMart",
+  description: "Get in touch with the EthioMart support team for help with your orders or general inquiries.",
 };
 
 export default function ContactPage() {
@@ -47,8 +47,8 @@ export default function ContactPage() {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Email Us</h3>
-                <p className="text-slate-500 dark:text-slate-400 mb-1">Support: support@gechexpress.com</p>
-                <p className="text-slate-500 dark:text-slate-400">Sales: sales@gechexpress.com</p>
+                <p className="text-slate-500 dark:text-slate-400 mb-1">Support: support@ethiomart.com</p>
+                <p className="text-slate-500 dark:text-slate-400">Sales: sales@ethiomart.com</p>
               </div>
             </div>
 

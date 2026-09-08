@@ -37,8 +37,8 @@ export default function AdminSettingsPage() {
   const [isSavingAll, setIsSavingAll] = useState(false);
 
   // Form states initialized with seeded defaults
-  const [siteName, setSiteName] = useState("GechExpress Platform");
-  const [supportEmail, setSupportEmail] = useState("admin@gechexpress.com");
+  const [siteName, setSiteName] = useState("EthioMart Platform");
+  const [supportEmail, setSupportEmail] = useState("admin@ethiomart.com");
   const [baseCommission, setBaseCommission] = useState("10.0");
   const [escrowHoldHours, setEscrowHoldHours] = useState("48");
   const [freeShippingMin, setFreeShippingMin] = useState("2500.00");
@@ -120,7 +120,7 @@ export default function AdminSettingsPage() {
       </div>
 
       {/* Settings Summary Deck */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Platform Status</span>

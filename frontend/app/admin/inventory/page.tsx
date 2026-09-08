@@ -144,62 +144,62 @@ function AdminInventoryContent() {
       </div>
 
       {/* KPI Stat Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-[11px] font-semibold text-slate-500">Warehouse Hubs</span>
-            <Warehouse className="w-4 h-4 text-indigo-600" />
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 w-full min-w-0">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs min-w-0">
+          <div className="flex items-center justify-between text-slate-400 mb-2 min-w-0">
+            <span className="text-[11px] font-semibold text-slate-500 truncate">Warehouse Hubs</span>
+            <Warehouse className="w-4 h-4 text-indigo-600 shrink-0" />
           </div>
-          <div className="text-xl font-black font-mono text-slate-900 dark:text-white">
+          <div className="text-xl font-black font-mono text-slate-900 dark:text-white truncate">
             {stats.warehouseCount} Facilities
           </div>
-          <p className="text-[10px] text-slate-400 mt-1">Bole, Merkato, Hawassa Hubs</p>
+          <p className="text-[10px] text-slate-400 mt-1 truncate">Bole, Merkato, Hawassa Hubs</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-[11px] font-semibold text-slate-500">Total Physical Units</span>
-            <Boxes className="w-4 h-4 text-emerald-600" />
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs min-w-0">
+          <div className="flex items-center justify-between text-slate-400 mb-2 min-w-0">
+            <span className="text-[11px] font-semibold text-slate-500 truncate">Total Physical Units</span>
+            <Boxes className="w-4 h-4 text-emerald-600 shrink-0" />
           </div>
-          <div className="text-xl font-black font-mono text-slate-900 dark:text-white">
+          <div className="text-xl font-black font-mono text-slate-900 dark:text-white truncate">
             {stats.totalUnits.toLocaleString()} Units
           </div>
-          <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1">
+          <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1 truncate">
             Across {stats.totalSKUs} catalog SKUs
           </p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-[11px] font-semibold text-slate-500">Low Stock SKUs</span>
-            <AlertTriangle className="w-4 h-4 text-amber-500" />
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs min-w-0">
+          <div className="flex items-center justify-between text-slate-400 mb-2 min-w-0">
+            <span className="text-[11px] font-semibold text-slate-500 truncate">Low Stock SKUs</span>
+            <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
           </div>
-          <div className="text-xl font-black font-mono text-amber-600 dark:text-amber-400">
+          <div className="text-xl font-black font-mono text-amber-600 dark:text-amber-400 truncate">
             {stats.lowStock} SKUs
           </div>
-          <p className="text-[10px] text-slate-400 mt-1">&le; threshold reorder level</p>
+          <p className="text-[10px] text-slate-400 mt-1 truncate">&le; threshold reorder level</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-[11px] font-semibold text-slate-500">Out of Stock</span>
-            <PackageX className="w-4 h-4 text-rose-500" />
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs min-w-0">
+          <div className="flex items-center justify-between text-slate-400 mb-2 min-w-0">
+            <span className="text-[11px] font-semibold text-slate-500 truncate">Out of Stock</span>
+            <PackageX className="w-4 h-4 text-rose-500 shrink-0" />
           </div>
-          <div className="text-xl font-black font-mono text-rose-600 dark:text-rose-400">
+          <div className="text-xl font-black font-mono text-rose-600 dark:text-rose-400 truncate">
             {stats.outOfStock} SKUs
           </div>
-          <p className="text-[10px] text-slate-400 mt-1">Requires merchant restock</p>
+          <p className="text-[10px] text-slate-400 mt-1 truncate">Requires merchant restock</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs col-span-2 sm:col-span-1">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-[11px] font-semibold text-slate-500">Ledger Audits</span>
-            <History className="w-4 h-4 text-purple-600" />
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs col-span-2 sm:col-span-1 min-w-0">
+          <div className="flex items-center justify-between text-slate-400 mb-2 min-w-0">
+            <span className="text-[11px] font-semibold text-slate-500 truncate">Ledger Audits</span>
+            <History className="w-4 h-4 text-purple-600 shrink-0" />
           </div>
-          <div className="text-xl font-black font-mono text-slate-900 dark:text-white">
+          <div className="text-xl font-black font-mono text-slate-900 dark:text-white truncate">
             {stats.totalMovements} Entries
           </div>
-          <p className="text-[10px] text-purple-600 dark:text-purple-400 font-semibold mt-1">
+          <p className="text-[10px] text-purple-600 dark:text-purple-400 font-semibold mt-1 truncate">
             Double-entry verified
           </p>
         </div>

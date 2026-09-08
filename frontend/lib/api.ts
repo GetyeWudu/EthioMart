@@ -1,10 +1,30 @@
 /**
  * frontend/lib/api.ts
  * ===================
- * Base HTTP client configuration for GechExpress API with credentials and token support.
+ * Base HTTP client configuration for EthioMart API with credentials and token support.
  */
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+
+export function getBaseApiUrl(): string {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+  if (typeof window !== "undefined") {
+    try {
+      const parsed = new URL(envUrl);
+      if (
+        (parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost") &&
+        window.location.hostname &&
+        parsed.hostname !== window.location.hostname
+      ) {
+        parsed.hostname = window.location.hostname;
+        return parsed.toString().replace(/\/$/, "");
+      }
+    } catch {
+      // ignore parsing errors
+    }
+  }
+  return envUrl;
+}
 
 export function getImageUrl(path: string | undefined | null, seed: string = "default"): string {
   if (!path) {
@@ -37,8 +57,8 @@ export function getImageUrl(path: string | undefined | null, seed: string = "def
   
   if (path.startsWith("http")) return path;
   
-  // Extract base URL from API_URL (e.g. "http://127.0.0.1:8000")
-  const baseUrl = API_URL.split("/api/")[0];
+  // Extract base URL from getBaseApiUrl (e.g. "http://127.0.0.1:8000" or "http://localhost:8000")
+  const baseUrl = getBaseApiUrl().split("/api/")[0];
   return `${baseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
 }
 
@@ -71,7 +91,8 @@ export class ApiError extends Error {
 export async function apiClient<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { params, headers = {}, ...restOptions } = options;
 
-  let url = endpoint.startsWith("http") ? endpoint : `${API_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
+  const base = getBaseApiUrl();
+  let url = endpoint.startsWith("http") ? endpoint : `${base}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
 
   if (params) {
     const searchParams = new URLSearchParams();
@@ -229,7 +250,7 @@ async function tryRefreshToken(): Promise<boolean> {
     const refreshToken = localStorage.getItem("refresh_token");
     if (!refreshToken || refreshToken.startsWith("mock_")) return false;
 
-    const res = await fetch(`${API_URL}/auth/token/refresh/`, {
+    const res = await fetch(`${getBaseApiUrl()}/auth/token/refresh/`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },

@@ -29,8 +29,8 @@ export default function HelpPage() {
             <p className="text-slate-600 dark:text-slate-400 mb-4 text-sm">
               Send us an email anytime. We typically respond within 24 hours.
             </p>
-            <a href="mailto:support@gechexpress.com" className="text-primary font-semibold hover:underline">
-              support@gechexpress.com
+            <a href="mailto:support@ethiomart.com" className="text-primary font-semibold hover:underline">
+              support@ethiomart.com
             </a>
           </div>
 

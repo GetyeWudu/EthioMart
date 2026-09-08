@@ -122,7 +122,7 @@ export default function WishlistPage() {
                 <div className="flex flex-1 flex-col p-4 justify-between space-y-3">
                   <div>
                     <span className="text-[10px] uppercase font-bold text-indigo-600 dark:text-indigo-400 block mb-0.5">
-                      {product.vendor?.store_name || "GechExpress"}
+                      {product.vendor?.store_name || "EthioMart"}
                     </span>
                     <Link href={`/products/${product.slug || product.id}`} className="hover:underline">
                       <h3 className="line-clamp-2 text-sm font-bold text-slate-900 dark:text-white">

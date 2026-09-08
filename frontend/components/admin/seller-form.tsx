@@ -13,7 +13,7 @@ export function SellerForm() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="storeName">Store Name</Label>
-              <Input id="storeName" placeholder="e.g. GechExpress Main Store" className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800" />
+              <Input id="storeName" placeholder="e.g. EthioMart Main Store" className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="ownerFirstName">Owner First Name</Label>
@@ -28,7 +28,7 @@ export function SellerForm() {
               <textarea 
                 id="storeDescription" 
                 rows={4}
-                className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:border-slate-800 dark:bg-slate-900 dark:text-white dark:placeholder:text-slate-500"
+                className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1261C9] focus:border-transparent dark:border-slate-800 dark:bg-slate-900 dark:text-white dark:placeholder:text-slate-500"
                 placeholder="Describe the seller's business..."
               />
             </div>
@@ -61,7 +61,7 @@ export function SellerForm() {
             <div className="space-y-2">
               <Label htmlFor="commissionRate">Platform Commission Rate (%)</Label>
               <Input id="commissionRate" type="number" defaultValue="15" className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800" />
-              <p className="text-xs text-slate-500">The percentage GechExpress takes per sale from this seller.</p>
+              <p className="text-xs text-slate-500">The percentage EthioMart takes per sale from this seller.</p>
             </div>
           </div>
         </div>
@@ -70,21 +70,21 @@ export function SellerForm() {
           <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-6">Account Status</h2>
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <input type="radio" id="status-active" name="status" className="text-indigo-600" />
+              <input type="radio" id="status-active" name="status" className="text-[#1261C9]" />
               <Label htmlFor="status-active">Active</Label>
             </div>
             <div className="flex items-center gap-2">
-              <input type="radio" id="status-pending" name="status" defaultChecked className="text-indigo-600" />
+              <input type="radio" id="status-pending" name="status" defaultChecked className="text-[#1261C9]" />
               <Label htmlFor="status-pending">Pending Approval</Label>
             </div>
             <div className="flex items-center gap-2">
-              <input type="radio" id="status-suspended" name="status" className="text-indigo-600" />
+              <input type="radio" id="status-suspended" name="status" className="text-[#1261C9]" />
               <Label htmlFor="status-suspended" className="text-rose-600">Suspended</Label>
             </div>
           </div>
           
           <div className="mt-8 flex flex-col gap-3">
-            <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">Save Seller Account</Button>
+            <Button className="w-full bg-[#1261C9] hover:bg-[#0D4FA8] text-white">Save Seller Account</Button>
             <Button variant="outline" className="w-full border-slate-200 dark:border-slate-700">Cancel</Button>
           </div>
         </div>

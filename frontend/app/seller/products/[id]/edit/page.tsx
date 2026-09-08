@@ -409,10 +409,10 @@ export default function EditProductPage() {
                     <table className="w-full text-left">
                       <thead className="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
                         <tr>
-                          <th className="px-5 py-4 text-xs font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider">Variant (SKU)</th>
-                          <th className="px-5 py-4 text-xs font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider">Attributes</th>
-                          <th className="px-5 py-4 text-xs font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider">Price (ETB)</th>
-                          <th className="px-5 py-4 text-xs font-black text-slate-600 dark:text-slate-400 uppercase tracking-wider">Compare-at (ETB)</th>
+                          <th className="px-5 py-4 text-xs font-semibold text-slate-600 dark:text-slate-400">Variant (SKU)</th>
+                          <th className="px-5 py-4 text-xs font-semibold text-slate-600 dark:text-slate-400">Attributes</th>
+                          <th className="px-5 py-4 text-xs font-semibold text-slate-600 dark:text-slate-400">Price (ETB)</th>
+                          <th className="px-5 py-4 text-xs font-semibold text-slate-600 dark:text-slate-400">Compare-at (ETB)</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900">

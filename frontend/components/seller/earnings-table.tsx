@@ -108,7 +108,7 @@ export function EarningsTable() {
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="bg-slate-50 text-slate-500 dark:bg-slate-900/80 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 text-xs uppercase tracking-wider font-semibold">
+            <thead className="bg-slate-50 text-slate-500 dark:bg-slate-900/80 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold">
               <tr>
                 <th className="px-6 py-3.5 whitespace-nowrap">Event / Date</th>
                 <th className="px-6 py-3.5 whitespace-nowrap">Order Ref</th>

@@ -128,7 +128,7 @@ export function OrderDetails({
         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-6">Fulfillment Actions</h2>
           <div className="space-y-3">
-            <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white gap-2">
+            <Button className="w-full bg-gradient-to-r from-[#FF7900] to-[#E66800] hover:from-[#E66800] hover:to-[#D55F00] text-white font-bold gap-2 rounded-xl shadow-md shadow-[#FF7900]/20">
               <Truck className="h-4 w-4" />
               Mark as Shipped
             </Button>

@@ -89,7 +89,7 @@ export function BatchPayoutModal({ pendingPayouts = [], onSuccess, trigger }: Ba
         <DialogTrigger render={trigger} />
       ) : (
         <DialogTrigger render={
-          <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white gap-1.5 font-bold shadow-sm">
+          <Button size="sm" className="bg-gradient-to-r from-[#1261C9] to-[#0D4FA8] hover:from-[#0D4FA8] hover:to-[#0A3D82] text-white gap-1.5 font-bold shadow-md shadow-[#1261C9]/20 rounded-xl">
             <Send className="w-3.5 h-3.5" />
             Batch Payout ({pendingPayouts.length})
           </Button>
@@ -98,7 +98,7 @@ export function BatchPayoutModal({ pendingPayouts = [], onSuccess, trigger }: Ba
 
       <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col">
         <DialogHeader>
-          <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+          <div className="flex items-center gap-2 text-[#1261C9] dark:text-[#4D8FE0]">
             <Wallet className="w-5 h-5" />
             <DialogTitle className="text-lg font-black text-slate-900 dark:text-white">
               Two-Click Batch Payout Execution
@@ -134,7 +134,7 @@ export function BatchPayoutModal({ pendingPayouts = [], onSuccess, trigger }: Ba
         {/* Payout List */}
         <div className="flex-1 overflow-y-auto max-h-64 border border-slate-200 dark:border-slate-800 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className="p-2.5 bg-slate-50 dark:bg-slate-950 flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-slate-400">
-            <button type="button" onClick={selectAll} className="text-indigo-600 hover:underline">
+            <button type="button" onClick={selectAll} className="text-[#1261C9] dark:text-[#4D8FE0] hover:underline">
               {selectedIds.length === pendingPayouts.length ? "Deselect All" : "Select All"}
             </button>
             <span>{selectedIds.length} selected</span>
@@ -152,7 +152,7 @@ export function BatchPayoutModal({ pendingPayouts = [], onSuccess, trigger }: Ba
                   key={p.uuid} 
                   onClick={() => toggleSelect(p.uuid)}
                   className={`p-3 flex items-center justify-between text-xs cursor-pointer transition-colors ${
-                    isSelected ? 'bg-indigo-50/50 dark:bg-indigo-950/20' : 'hover:bg-slate-50 dark:hover:bg-slate-900/30'
+                    isSelected ? 'bg-[#EBF2FC]/80 dark:bg-[#1261C9]/15' : 'hover:bg-slate-50 dark:hover:bg-slate-900/30'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -160,7 +160,7 @@ export function BatchPayoutModal({ pendingPayouts = [], onSuccess, trigger }: Ba
                       type="checkbox" 
                       checked={isSelected} 
                       onChange={() => {}} 
-                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
+                      className="rounded border-slate-300 text-[#1261C9] focus:ring-[#1261C9] h-4 w-4"
                     />
                     <div>
                       <span className="font-bold text-slate-900 dark:text-white block">{p.vendor_name}</span>
@@ -183,14 +183,14 @@ export function BatchPayoutModal({ pendingPayouts = [], onSuccess, trigger }: Ba
         </div>
 
         <DialogFooter className="mt-4 gap-2 sm:gap-0">
-          <Button variant="outline" size="sm" onClick={() => setOpen(false)} disabled={isProcessing}>
+          <Button variant="outline" size="sm" onClick={() => setOpen(false)} disabled={isProcessing} className="rounded-xl">
             Cancel
           </Button>
           <Button 
             size="sm" 
             onClick={handleExecuteBatch} 
             disabled={isProcessing || selectedIds.length === 0}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold gap-1.5"
+            className="bg-gradient-to-r from-[#1261C9] to-[#0D4FA8] hover:from-[#0D4FA8] hover:to-[#0A3D82] text-white font-bold gap-1.5 shadow-md shadow-[#1261C9]/20 rounded-xl"
           >
             {isProcessing ? (
               <>

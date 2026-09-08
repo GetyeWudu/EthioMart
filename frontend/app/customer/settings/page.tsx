@@ -189,7 +189,7 @@ export default function SettingsPage() {
                   <ShieldCheck className="w-3 h-3 mr-1 inline" /> Verified Customer
                 </Badge>
               </div>
-              <p className="text-xs text-indigo-200 mt-1 font-mono">{user?.email || "customer@gechexpress.com"}</p>
+              <p className="text-xs text-indigo-200 mt-1 font-mono">{user?.email || "customer@ethiomart.com"}</p>
             </div>
           </div>
 
@@ -294,7 +294,7 @@ export default function SettingsPage() {
               </div>
               <p className="text-[11px] text-slate-400 flex items-center gap-1 mt-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-                Linked to your verified GechExpress security account.
+                Linked to your verified EthioMart security account.
               </p>
             </div>
 

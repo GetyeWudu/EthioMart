@@ -25,6 +25,7 @@ import {
   Mail,
   Loader2,
   CheckCircle2,
+  ChevronDown,
   X,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -140,7 +141,7 @@ export function CustomerTable({
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `gechexpress_customers_${new Date().toISOString().split("T")[0]}.csv`);
+    link.setAttribute("download", `ethiomart_customers_${new Date().toISOString().split("T")[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -150,21 +151,22 @@ export function CustomerTable({
     <>
       <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl shadow-sm relative z-10">
         {/* Top Control Bar */}
-        <div className="p-4 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/40 rounded-t-3xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="p-3.5 sm:p-4 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/40 rounded-t-3xl flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           
           {/* Left: Search Bar */}
-          <div className="relative w-full sm:w-72 shrink-0">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <div className="relative flex-1 min-w-[220px] max-w-md">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
             <Input
               value={filters.search || ""}
               onChange={(e) => onFilterChange("search", e.target.value)}
               placeholder="Search buyer name, email, phone..."
-              className="pl-10 pr-8 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-xs sm:text-sm rounded-xl"
+              className="pl-9 pr-8 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-xs sm:text-sm rounded-xl h-9 shadow-2xs focus:ring-2 focus:ring-indigo-500/20"
             />
             {filters.search && (
               <button
+                type="button"
                 onClick={() => onFilterChange("search", "")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -172,32 +174,43 @@ export function CustomerTable({
           </div>
 
           {/* Right: Dropdowns & Export */}
-          <div ref={dropdownRef} className="flex items-center justify-end gap-2 shrink-0 w-full sm:w-auto">
+          <div ref={dropdownRef} className="grid grid-cols-2 sm:flex sm:items-center gap-2">
             {/* Status Dropdown */}
             <div className="relative">
               <button
+                type="button"
                 onClick={() => { setStatusOpen(!statusOpen); setSortOpen(false); }}
-                className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                className="w-full sm:w-auto h-9 px-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-between gap-2 shadow-2xs cursor-pointer"
               >
-                {STATUS_PILLS.find((p) => p.value === (filters.status || "ALL"))?.label || "Status"}
+                <span className="flex items-center gap-1.5 truncate">
+                  <Filter className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                  <span className="truncate">
+                    {STATUS_PILLS.find((p) => p.value === (filters.status || "ALL"))?.label || "Status"}
+                  </span>
+                </span>
+                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 shrink-0 ${statusOpen ? "rotate-180" : ""}`} />
               </button>
 
               {statusOpen && (
-                <div className="absolute right-0 top-full mt-1.5 z-[200] w-48 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 shadow-lg py-1 text-xs">
+                <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-1.5 z-[200] w-48 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 shadow-xl py-1 text-xs">
                   {STATUS_PILLS.map((opt) => (
                     <button
                       key={opt.value}
+                      type="button"
                       onClick={() => {
                         onFilterChange("status", opt.value);
                         setStatusOpen(false);
                       }}
-                      className={`w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-900 transition font-medium ${
+                      className={`w-full text-left px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-900 transition flex items-center justify-between ${
                         (filters.status || "ALL") === opt.value
-                          ? "text-indigo-600 dark:text-indigo-400"
-                          : "text-slate-700 dark:text-slate-300"
+                          ? "text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50/50 dark:bg-indigo-950/40"
+                          : "text-slate-700 dark:text-slate-300 font-medium"
                       }`}
                     >
-                      {opt.label}
+                      <span>{opt.label}</span>
+                      {(filters.status || "ALL") === opt.value && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400" />
+                      )}
                     </button>
                   ))}
                 </div>
@@ -207,14 +220,19 @@ export function CustomerTable({
             {/* Sort Dropdown */}
             <div className="relative">
               <button
+                type="button"
                 onClick={() => { setSortOpen(!sortOpen); setStatusOpen(false); }}
-                className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                className="w-full sm:w-auto h-9 px-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-between gap-2 shadow-2xs cursor-pointer"
               >
-                Sort By
+                <span className="flex items-center gap-1.5 truncate">
+                  <ArrowUpDown className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                  <span>Sort By</span>
+                </span>
+                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 shrink-0 ${sortOpen ? "rotate-180" : ""}`} />
               </button>
 
               {sortOpen && (
-                <div className="absolute right-0 top-full mt-1.5 z-[200] w-48 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 shadow-lg py-1 text-xs">
+                <div className="absolute right-0 top-full mt-1.5 z-[200] w-52 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 shadow-xl py-1 text-xs">
                   {[
                     { val: "-created_at", lbl: "Joined: Newest First" },
                     { val: "created_at", lbl: "Joined: Oldest First" },
@@ -225,17 +243,21 @@ export function CustomerTable({
                   ].map((opt) => (
                     <button
                       key={opt.val}
+                      type="button"
                       onClick={() => {
                         onFilterChange("ordering", opt.val);
                         setSortOpen(false);
                       }}
-                      className={`w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-900 transition font-medium ${
+                      className={`w-full text-left px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-900 transition flex items-center justify-between ${
                         (filters.ordering || "-created_at") === opt.val
-                          ? "text-indigo-600 dark:text-indigo-400"
-                          : "text-slate-700 dark:text-slate-300"
+                          ? "text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50/50 dark:bg-indigo-950/40"
+                          : "text-slate-700 dark:text-slate-300 font-medium"
                       }`}
                     >
-                      {opt.lbl}
+                      <span>{opt.lbl}</span>
+                      {(filters.ordering || "-created_at") === opt.val && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400" />
+                      )}
                     </button>
                   ))}
                 </div>
@@ -247,45 +269,45 @@ export function CustomerTable({
               size="sm"
               onClick={handleExportCSV}
               disabled={customers.length === 0}
-              className="gap-2 border-slate-200 dark:border-slate-800 rounded-xl text-xs shrink-0 py-1.5 h-auto"
+              className="col-span-2 sm:col-span-1 gap-1.5 border-slate-200 dark:border-slate-800 rounded-xl text-xs shrink-0 h-9 font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 shadow-2xs"
             >
               <Download className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Export</span>
+              <span>Export CSV</span>
             </Button>
           </div>
         </div>
 
         {/* Table Content */}
-        <div className="overflow-x-auto rounded-b-3xl pb-2">
+        <div className="overflow-x-auto w-full rounded-b-3xl pb-2">
           <table className="w-full text-sm text-left">
-            <thead className="bg-slate-50 dark:bg-slate-900/80 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 uppercase tracking-wider text-xs font-semibold">
+            <thead className="bg-slate-50 dark:bg-slate-900/80 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold whitespace-nowrap">
               <tr>
-                <th className="px-6 py-4 font-semibold">Customer Details</th>
-                <th className="px-6 py-4 font-semibold">Joined Date</th>
-                <th className="px-6 py-4 font-semibold">Total Orders</th>
-                <th className="px-6 py-4 font-semibold">Total Spent (ETB)</th>
-                <th className="px-6 py-4 font-semibold">Status</th>
-                <th className="px-6 py-4 font-semibold text-right">Actions</th>
+                <th className="px-5 py-4 font-semibold">Customer Details</th>
+                <th className="px-4 py-4 font-semibold hidden lg:table-cell">Joined Date</th>
+                <th className="px-4 py-4 font-semibold hidden sm:table-cell">Total Orders</th>
+                <th className="px-4 py-4 font-semibold hidden sm:table-cell">Total Spent (ETB)</th>
+                <th className="px-4 py-4 font-semibold">Status</th>
+                <th className="px-4 py-4 font-semibold text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
               {isLoading ? (
                 Array.from({ length: 4 }).map((_, idx) => (
                   <tr key={idx} className="animate-pulse">
-                    <td className="px-6 py-4">
+                    <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-800 shrink-0" />
-                        <div className="space-y-2">
+                        <div className="space-y-2 min-w-0 flex-1">
                           <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded" />
                           <div className="h-3 w-40 bg-slate-100 dark:bg-slate-900 rounded" />
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4"><div className="h-4 w-24 bg-slate-200 dark:bg-slate-800 rounded" /></td>
-                    <td className="px-6 py-4"><div className="h-4 w-12 bg-slate-200 dark:bg-slate-800 rounded" /></td>
-                    <td className="px-6 py-4"><div className="h-4 w-24 bg-slate-200 dark:bg-slate-800 rounded" /></td>
-                    <td className="px-6 py-4"><div className="h-6 w-16 bg-slate-200 dark:bg-slate-800 rounded-full" /></td>
-                    <td className="px-6 py-4 text-right"><div className="h-8 w-8 bg-slate-200 dark:bg-slate-800 rounded ml-auto" /></td>
+                    <td className="px-4 py-4 hidden lg:table-cell"><div className="h-4 w-24 bg-slate-200 dark:bg-slate-800 rounded" /></td>
+                    <td className="px-4 py-4 hidden sm:table-cell"><div className="h-4 w-12 bg-slate-200 dark:bg-slate-800 rounded" /></td>
+                    <td className="px-4 py-4 hidden sm:table-cell"><div className="h-4 w-24 bg-slate-200 dark:bg-slate-800 rounded" /></td>
+                    <td className="px-4 py-4"><div className="h-6 w-16 bg-slate-200 dark:bg-slate-800 rounded-full" /></td>
+                    <td className="px-4 py-4 text-right"><div className="h-8 w-8 bg-slate-200 dark:bg-slate-800 rounded ml-auto" /></td>
                   </tr>
                 ))
               ) : customers.length === 0 ? (
@@ -324,54 +346,60 @@ export function CustomerTable({
                       onClick={() => router.push(`/admin/customers/${customer.id}`)}
                     >
                       {/* Customer Details */}
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-3 min-w-0">
                           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-indigo-600/10 to-violet-500/10 text-indigo-600 dark:text-indigo-400 dark:bg-indigo-950/50 font-bold text-sm shrink-0 uppercase border border-indigo-200/50 dark:border-indigo-800/50 group-hover:scale-105 transition-transform">
                             {customer.first_name?.[0] || customer.email?.[0] || "U"}
                           </div>
-                          <div>
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-bold text-slate-900 dark:text-white block group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <span className="font-bold text-slate-900 dark:text-white block group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate" title={customer.full_name || "Anonymous Buyer"}>
                                 {customer.full_name || "Anonymous Buyer"}
                               </span>
                               {customer.is_email_verified && (
                                 <ShieldCheck className="h-3.5 w-3.5 text-blue-500 shrink-0" />
                               )}
                             </div>
-                            <span className="text-xs text-slate-500 dark:text-slate-400 block font-mono">
+                            <span className="text-xs text-slate-500 dark:text-slate-400 block font-mono truncate" title={customer.email}>
                               {customer.email}
                             </span>
                             {customer.phone_number && (
-                              <span className="text-[11px] text-slate-400 dark:text-slate-500 block font-mono">
+                              <span className="text-[11px] text-slate-400 dark:text-slate-500 block font-mono truncate" title={customer.phone_number}>
                                 {customer.phone_number}
                               </span>
                             )}
+                            {/* Mobile inline essential info */}
+                            <div className="flex items-center gap-2 mt-1 sm:hidden text-[11px] font-mono text-slate-500 dark:text-slate-400">
+                              <span>{customer.total_orders} orders</span>
+                              <span>•</span>
+                              <span className={isPositive ? "text-emerald-600 dark:text-emerald-400 font-bold" : ""}>{formatETB(customer.total_spent)} ETB</span>
+                            </div>
                           </div>
                         </div>
                       </td>
 
-                      {/* Joined Date */}
-                      <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-600 dark:text-slate-400">
+                      {/* Joined Date (Desktop) */}
+                      <td className="px-4 py-4 truncate text-xs text-slate-600 dark:text-slate-400 hidden lg:table-cell">
                         {formatDate(customer.created_at)}
                       </td>
 
-                      {/* Total Orders */}
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      {/* Total Orders (Desktop) */}
+                      <td className="px-4 py-4 truncate hidden sm:table-cell">
                         <div className="flex items-center gap-1.5 font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">
-                          <ShoppingBag className="h-3.5 w-3.5 text-slate-400" />
+                          <ShoppingBag className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                           {customer.total_orders}
                         </div>
                       </td>
 
-                      {/* Total Spent (ETB) */}
-                      <td className="px-6 py-4 whitespace-nowrap font-mono text-xs">
-                        <span className={`font-bold ${isPositive ? "text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"}`}>
+                      {/* Total Spent (ETB) (Desktop) */}
+                      <td className="px-4 py-4 truncate font-mono text-xs hidden sm:table-cell">
+                        <span className={`font-bold truncate block ${isPositive ? "text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"}`}>
                           {formatETB(customer.total_spent)} ETB
                         </span>
                       </td>
 
                       {/* Status */}
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap">
                         {customer.is_active ? (
                           <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 text-[11px] font-semibold gap-1">
                             <CheckCircle2 className="h-3 w-3" /> Active
@@ -384,7 +412,7 @@ export function CustomerTable({
                       </td>
 
                       {/* Actions */}
-                      <td className="px-6 py-4 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                      <td className="px-4 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                         <DropdownMenu>
                           <DropdownMenuTrigger
                             disabled={isActionLoading}

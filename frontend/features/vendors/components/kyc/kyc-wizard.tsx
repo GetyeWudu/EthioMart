@@ -282,7 +282,7 @@ export function KYCWizard({
             KYC Verification Submitted!
           </h2>
           <p className="text-sm text-slate-600 dark:text-slate-300">
-            Thank you for completing your merchant KYC application. The GechExpress compliance team has received your documents and will review your submission within 24–48 hours.
+            Thank you for completing your merchant KYC application. The EthioMart compliance team has received your documents and will review your submission within 24–48 hours.
           </p>
         </div>
         <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-500 text-left space-y-1.5">

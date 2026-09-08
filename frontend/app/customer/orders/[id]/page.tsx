@@ -83,7 +83,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
   const allItems = order.sub_orders?.flatMap((sub: any) => 
     sub.items?.map((item: any) => ({
       ...item,
-      vendorName: sub.vendor_name || sub.vendor?.store_name || "GechExpress Direct"
+      vendorName: sub.vendor_name || sub.vendor?.store_name || "EthioMart Direct"
     })) || []
   ) || [];
 
@@ -172,7 +172,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
               const rawStatus = (subOrder.derived_status === 'DELIVERED' || subOrder.delivered_at || shipment?.status === 'DELIVERED')
                 ? 'DELIVERED'
                 : (subOrder.derived_status || shipment?.status || 'PENDING');
-              const vendorDisplayName = subOrder.vendor_name || subOrder.vendor?.store_name || "GechExpress Direct";
+              const vendorDisplayName = subOrder.vendor_name || subOrder.vendor?.store_name || "EthioMart Direct";
 
               const stepIndex = (() => {
                 if (rawStatus === 'DELIVERED') return 4;
@@ -287,7 +287,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
 
               <div className="divide-y divide-slate-100 dark:divide-slate-800">
                 {order.sub_orders?.map((subOrder: any) => {
-                  const vendorDisplayName = subOrder.vendor_name || subOrder.vendor?.store_name || "GechExpress Direct";
+                  const vendorDisplayName = subOrder.vendor_name || subOrder.vendor?.store_name || "EthioMart Direct";
 
                   return (
                     <div key={subOrder.id} className="p-5 sm:p-6 space-y-4">
@@ -501,7 +501,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
               </div>
               <div>
                 <h1 className="text-2xl font-black tracking-tight text-slate-900" style={{ fontFamily: "serif" }}>
-                  GechExpress
+                  EthioMart
                 </h1>
                 <p className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">
                   Ethiopia Multi-Vendor Marketplace
@@ -510,10 +510,10 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
             </div>
             
             <div className="mt-3 text-xs text-slate-600 space-y-0.5">
-              <p className="font-semibold text-slate-800">GechExpress Marketplace PLC</p>
+              <p className="font-semibold text-slate-800">EthioMart Marketplace PLC</p>
               <p>Bole Sub-City, Woreda 03, Addis Ababa, Ethiopia</p>
               <p>TIN: 0078923412 • VAT Reg: 1548902-8</p>
-              <p>support@gechexpress.com • +251 911 23 45 67</p>
+              <p>support@ethiomart.com • +251 911 23 45 67</p>
             </div>
           </div>
 
@@ -654,7 +654,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
           <div className="space-y-1 max-w-md">
             <p className="font-semibold text-slate-700">🔒 Official Chapa Escrow Verified Receipt</p>
             <p>This is a computer-generated commercial receipt and tax document. Payment authorized via Chapa Financial Technologies.</p>
-            <p>© 2026 GechExpress Inc. All rights reserved. • www.gechexpress.com</p>
+            <p>© 2026 EthioMart Inc. All rights reserved. • www.ethiomart.com</p>
           </div>
 
           <div className="text-right border border-emerald-300 bg-emerald-50 text-emerald-800 p-2.5 rounded-lg">

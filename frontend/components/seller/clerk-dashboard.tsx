@@ -115,9 +115,9 @@ export function ClerkDashboard() {
               <table className="w-full text-left text-sm whitespace-nowrap">
                 <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400">
                   <tr>
-                    <th className="px-5 py-3 font-semibold text-xs tracking-wider uppercase">SKU / Variant</th>
-                    <th className="px-5 py-3 font-semibold text-xs tracking-wider uppercase">On Hand</th>
-                    <th className="px-5 py-3 font-semibold text-xs tracking-wider uppercase text-right">Action</th>
+                    <th className="px-5 py-3 font-semibold text-xs">SKU / Variant</th>
+                    <th className="px-5 py-3 font-semibold text-xs">On Hand</th>
+                    <th className="px-5 py-3 font-semibold text-xs text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">

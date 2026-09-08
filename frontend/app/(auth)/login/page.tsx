@@ -119,7 +119,7 @@ export default function LoginPage() {
           Welcome back
         </h1>
         <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-          Sign in to your GechExpress account
+          Sign in to your EthioMart account
         </p>
       </div>
 

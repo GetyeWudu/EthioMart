@@ -14,9 +14,6 @@ import {
   ChevronDown,
   ChevronUp,
   Loader2,
-  DollarSign,
-  Wallet,
-  AlertCircle,
   ExternalLink,
   Store,
   Phone,
@@ -112,154 +109,97 @@ export function OrderTable() {
     return num.replace(/^#?ORD-#?ORD-/, "ORD-").replace(/^#/, "");
   };
 
-  const totalGMV = orders.reduce(
-    (sum: number, o: any) => sum + parseFloat(o.total_amount || 0),
-    0
-  );
-  const totalFees = totalGMV * 0.1;
-  const openSplits = orders.reduce((count: number, o: any) => {
-    const pending =
-      o.sub_orders?.filter((sub: any) =>
-        sub.items?.some(
-          (item: any) =>
-            item.status === "PENDING" ||
-            item.status === "PROCESSING" ||
-            item.status === "READY_FOR_DISPATCH"
-        )
-      ).length || 0;
-    return count + pending;
-  }, 0);
+  const sortedOrders = React.useMemo(() => {
+    return [...orders].sort((a: any, b: any) => {
+      const timeA = new Date(a.created_at).getTime() || 0;
+      const timeB = new Date(b.created_at).getTime() || 0;
+      return timeB - timeA;
+    });
+  }, [orders]);
 
-  const filteredOrders = orders.filter((o: any) => {
-    const cleanNum = cleanOrderNumber(o.order_number);
-    const cust = o.customer_details;
-    const custName = `${cust?.first_name || ""} ${cust?.last_name || ""}`.toLowerCase();
-    const custEmail = (cust?.email || "").toLowerCase();
-    const custPhone = (cust?.phone_number || "").toLowerCase();
-    const q = searchQuery.toLowerCase();
+  const filteredOrders = React.useMemo(() => {
+    return sortedOrders.filter((o: any) => {
+      const cleanNum = cleanOrderNumber(o.order_number);
+      const cust = o.customer_details;
+      const custName = `${cust?.first_name || ""} ${cust?.last_name || ""}`.toLowerCase();
+      const custEmail = (cust?.email || "").toLowerCase();
+      const custPhone = (cust?.phone_number || "").toLowerCase();
+      const q = searchQuery.toLowerCase();
 
-    const matchesSearch =
-      !q ||
-      cleanNum.toLowerCase().includes(q) ||
-      custName.includes(q) ||
-      custEmail.includes(q) ||
-      custPhone.includes(q);
+      const matchesSearch =
+        !q ||
+        cleanNum.toLowerCase().includes(q) ||
+        custName.includes(q) ||
+        custEmail.includes(q) ||
+        custPhone.includes(q);
 
-    const payStatus = (o.payment_status || "").toUpperCase();
-    const matchesStatus =
-      statusFilter === "ALL" || payStatus === statusFilter;
+      const payStatus = (o.payment_status || "").toUpperCase();
+      const matchesStatus =
+        statusFilter === "ALL" || payStatus === statusFilter;
 
-    return matchesSearch && matchesStatus;
-  });
+      return matchesSearch && matchesStatus;
+    });
+  }, [sortedOrders, searchQuery, statusFilter]);
 
   const hasFilter = searchQuery !== "" || statusFilter !== "ALL";
 
   return (
-    <div className="space-y-5">
-      {/* Summary KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900 flex items-center gap-4">
-          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl dark:bg-emerald-950/50 dark:text-emerald-400">
-            <DollarSign className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-              Marketplace GMV
-            </p>
-            <h3 className="text-xl font-black text-slate-900 dark:text-white font-mono">
-              ETB{" "}
-              {totalGMV.toLocaleString("en-ET", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-            </h3>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900 flex items-center gap-4">
-          <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl dark:bg-indigo-950/50 dark:text-indigo-400">
-            <Wallet className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-              Platform Fees (10%)
-            </p>
-            <h3 className="text-xl font-black text-slate-900 dark:text-white font-mono">
-              ETB{" "}
-              {totalFees.toLocaleString("en-ET", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-            </h3>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900 flex items-center gap-4">
-          <div className="p-3 bg-amber-50 text-amber-600 rounded-xl dark:bg-amber-950/50 dark:text-amber-400">
-            <AlertCircle className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-              Open Fulfillments
-            </p>
-            <h3 className="text-xl font-black text-slate-900 dark:text-white font-mono">
-              {openSplits} packages
-            </h3>
-          </div>
-        </div>
-      </div>
-
+    <div className="space-y-4">
       {/* Table Card */}
       <div className="rounded-2xl border border-slate-200 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900 overflow-hidden">
-        {/* Toolbar */}
-        <div className="px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-slate-50/60 dark:bg-slate-900/60">
+        {/* Toolbar: Search on left, attractive dropdown on right */}
+        <div className="p-3.5 sm:px-5 sm:py-3.5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 bg-slate-50/60 dark:bg-slate-900/60">
           {/* Search — left */}
-          <div className="relative w-full sm:max-w-xs">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <div className="relative flex-1 sm:max-w-xs w-full">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search order #, customer, phone…"
-              className="w-full pl-9 pr-8 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white placeholder:text-slate-400 transition"
+              className="w-full pl-9.5 pr-8 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950 text-xs focus:outline-none focus:ring-2 focus:ring-[#1261C9]/20 focus:border-[#1261C9] text-slate-900 dark:text-white placeholder:text-slate-400 transition-all shadow-2xs"
             />
             {searchQuery && (
               <button
+                type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-white"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-full transition-colors"
+                title="Clear search"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
 
-          {/* Right controls */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Right controls: Attractive Status Dropdown */}
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end shrink-0">
             {/* Status dropdown */}
-            <div className="relative">
+            <div className="relative flex-1 sm:flex-initial">
               <button
+                type="button"
                 onClick={() => setStatusOpen((v) => !v)}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900 transition min-w-[130px] justify-between"
+                className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-950 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-600 transition-all shadow-2xs min-w-[135px]"
               >
-                <span className="flex items-center gap-1.5">
-                  <Filter className="w-3.5 h-3.5 text-slate-400" />
-                  {STATUS_OPTIONS.find((o) => o.value === statusFilter)?.label ?? "Status"}
+                <span className="flex items-center gap-1.5 truncate">
+                  <Filter className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                  <span className="truncate">{STATUS_OPTIONS.find((o) => o.value === statusFilter)?.label ?? "Status"}</span>
                 </span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
               </button>
 
               {statusOpen && (
-                <div className="absolute right-0 top-full mt-1.5 z-[200] w-44 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 shadow-lg py-1 text-xs">
+                <div className="absolute right-0 top-full mt-1.5 z-[300] w-48 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl shadow-xl py-1.5 text-xs">
                   {STATUS_OPTIONS.map((opt) => (
                     <button
                       key={opt.value}
+                      type="button"
                       onClick={() => {
                         setStatusFilter(opt.value);
                         setStatusOpen(false);
                       }}
-                      className={`w-full text-left px-3 py-2 flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-900 transition font-medium ${
+                      className={`w-full text-left px-3.5 py-2 flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-900 transition font-medium ${
                         statusFilter === opt.value
-                          ? "text-indigo-600 dark:text-indigo-400"
+                          ? "text-[#1261C9] dark:text-[#4D8FE0] font-bold"
                           : "text-slate-700 dark:text-slate-300"
                       }`}
                     >
@@ -277,42 +217,43 @@ export function OrderTable() {
 
             {hasFilter && (
               <button
+                type="button"
                 onClick={() => {
                   setSearchQuery("");
                   setStatusFilter("ALL");
                 }}
-                className="flex items-center gap-1 px-2.5 py-2 rounded-lg text-xs font-semibold text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-950/60 transition"
+                className="flex items-center gap-1 px-3 py-2.5 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-950/60 transition shadow-2xs"
               >
-                <X className="w-3 h-3" /> Reset
+                <X className="w-3.5 h-3.5" /> <span className="hidden xs:inline">Reset</span>
               </button>
             )}
 
             {/* Result count */}
-            <span className="text-[11px] font-mono text-slate-400 dark:text-slate-600">
+            <span className="text-[11px] font-mono text-slate-400 dark:text-slate-600 shrink-0">
               {filteredOrders.length} orders
             </span>
           </div>
         </div>
 
-        {/* Table */}
-        <div className="overflow-x-auto" onClick={() => setStatusOpen(false)}>
+        {/* Table: Essential columns on mobile, full columns on desktop */}
+        <div className="overflow-x-auto w-full" onClick={() => setStatusOpen(false)}>
           <table className="w-full text-xs text-left">
-            <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 uppercase tracking-wider font-semibold text-[10px]">
+            <thead className="bg-slate-50/80 dark:bg-slate-950/80 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 font-semibold text-[11px] whitespace-nowrap">
               <tr>
-                <th className="px-5 py-3.5 w-10" />
-                <th className="px-5 py-3.5">Order ID</th>
-                <th className="px-5 py-3.5">Customer</th>
-                <th className="px-5 py-3.5">Date</th>
-                <th className="px-5 py-3.5">Payment</th>
-                <th className="px-5 py-3.5 text-right">Amount</th>
-                <th className="px-5 py-3.5 text-right">Actions</th>
+                <th className="w-8 sm:w-10 px-2 sm:px-3 py-3.5 text-center" />
+                <th className="px-3 sm:px-4 py-3.5 min-w-[120px]">Order ID</th>
+                <th className="hidden sm:table-cell px-4 py-3.5 min-w-[180px]">Customer</th>
+                <th className="hidden md:table-cell px-4 py-3.5">Date</th>
+                <th className="px-2.5 sm:px-4 py-3.5">Payment</th>
+                <th className="px-3 sm:px-4 py-3.5 text-right">Amount</th>
+                <th className="px-2.5 sm:px-4 py-3.5 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
               {isLoading ? (
                 <tr>
                   <td colSpan={7} className="px-5 py-16 text-center text-slate-500">
-                    <Loader2 className="w-6 h-6 animate-spin mx-auto text-indigo-600 mb-2" />
+                    <Loader2 className="w-6 h-6 animate-spin mx-auto text-[#1261C9] mb-2" />
                     <p className="text-xs">Loading orders…</p>
                   </td>
                 </tr>
@@ -335,7 +276,7 @@ export function OrderTable() {
                           setSearchQuery("");
                           setStatusFilter("ALL");
                         }}
-                        className="mt-2 text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline"
+                        className="mt-2 text-[11px] text-[#1261C9] dark:text-[#4D8FE0] hover:underline"
                       >
                         Clear filters
                       </button>
@@ -357,7 +298,7 @@ export function OrderTable() {
                         className="hover:bg-slate-50/70 dark:hover:bg-slate-900/30 transition-colors cursor-pointer"
                         onClick={() => router.push(`/admin/orders/${order.id}`)}
                       >
-                        <td className="px-5 py-4">
+                        <td className="w-8 sm:w-10 px-2 sm:px-3 py-3 sm:py-4 text-center">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -371,50 +312,64 @@ export function OrderTable() {
                             )}
                           </Button>
                         </td>
-                        <td className="px-5 py-4 font-mono font-bold text-slate-900 dark:text-white text-[11px]">
-                          #{cleanNum}
+                        <td className="px-3 sm:px-4 py-3 sm:py-4">
+                          <span className="font-mono font-bold text-slate-900 dark:text-white text-[11px] block whitespace-nowrap" title={`#${cleanNum}`}>
+                            #{cleanNum}
+                          </span>
+                          {/* Mobile-only inline customer & date */}
+                          <div className="sm:hidden mt-0.5 min-w-0">
+                            <span className="font-medium text-slate-700 dark:text-slate-300 block text-[11px] truncate max-w-[120px]" title={custFullName}>
+                              {custFullName}
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-mono block">
+                              {new Date(order.created_at).toLocaleDateString("en-GB", {
+                                day: "2-digit",
+                                month: "short",
+                              })}
+                            </span>
+                          </div>
                         </td>
-                        <td className="px-5 py-4">
-                          <div className="flex items-center gap-2.5">
-                            <div className="h-7 w-7 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
+                        <td className="hidden sm:table-cell px-4 py-4">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="h-7 w-7 rounded-full bg-gradient-to-br from-[#1261C9] to-purple-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
                               {custFullName.charAt(0).toUpperCase()}
                             </div>
                             <div className="min-w-0">
-                              <span className="font-bold text-slate-900 dark:text-white block truncate text-[12px]">
+                              <span className="font-bold text-slate-900 dark:text-white block text-[12px] truncate max-w-[200px]" title={custFullName}>
                                 {custFullName}
                               </span>
-                              <span className="text-[10px] text-slate-400 block truncate">
+                              <span className="text-[10px] text-slate-400 block truncate max-w-[200px]" title={custPhone || cust?.email}>
                                 {custPhone && (
                                   <Phone className="w-2.5 h-2.5 inline mr-0.5" />
                                 )}
-                                {custPhone || cust?.email}
+                                {custPhone || cust?.email || "No contact"}
                               </span>
                             </div>
                           </div>
                         </td>
-                        <td className="px-5 py-4 text-slate-400 text-[11px] font-mono">
+                        <td className="hidden md:table-cell px-4 py-4 text-slate-500 dark:text-slate-400 text-[11px] font-mono whitespace-nowrap">
                           {new Date(order.created_at).toLocaleDateString("en-GB", {
                             day: "2-digit",
                             month: "short",
                             year: "numeric",
                           })}
                         </td>
-                        <td className="px-5 py-4">
+                        <td className="px-2.5 sm:px-4 py-3 sm:py-4 whitespace-nowrap">
                           {getStatusBadge(order.payment_status)}
                         </td>
-                        <td className="px-5 py-4 text-right font-mono font-black text-slate-900 dark:text-white text-[13px]">
+                        <td className="px-3 sm:px-4 py-3 sm:py-4 text-right font-mono font-black text-slate-900 dark:text-white text-xs sm:text-[13px] whitespace-nowrap">
                           ETB{" "}
                           {totalAmt.toLocaleString("en-ET", {
                             minimumFractionDigits: 2,
                           })}
                         </td>
-                        <td className="px-5 py-4 text-right">
+                        <td className="px-2.5 sm:px-4 py-3 sm:py-4 text-right whitespace-nowrap">
                           <Link
                             href={`/admin/orders/${order.id}`}
                             onClick={(e) => e.stopPropagation()}
-                            className="inline-flex items-center gap-1 h-7 px-3 text-[11px] font-bold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700 dark:hover:bg-indigo-950/30 dark:hover:text-indigo-400 transition-colors"
+                            className="inline-flex items-center gap-1 h-7 px-2.5 sm:px-3 text-[11px] font-bold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 hover:bg-[#EBF2FC] hover:border-[#A8C4ED] hover:text-[#0D4FA8] dark:hover:bg-[#1261C9]/8 dark:hover:text-[#4D8FE0] transition-colors shadow-2xs"
                           >
-                            View <ExternalLink className="w-3 h-3" />
+                            <span className="hidden xs:inline sm:inline">View</span> <ExternalLink className="w-3 h-3" />
                           </Link>
                         </td>
                       </tr>
@@ -456,11 +411,11 @@ export function OrderTable() {
                                     >
                                       <div className="flex flex-wrap justify-between items-center mb-3 pb-2 border-b border-slate-100 dark:border-slate-800 gap-2">
                                         <div className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5 text-xs">
-                                          <Store className="w-3.5 h-3.5 text-indigo-600" />
+                                          <Store className="w-3.5 h-3.5 text-[#1261C9]" />
                                           <Link
                                             href={`/admin/sellers/${sub.vendor_id || sub.vendor?.id || ""}`}
                                             onClick={(e) => e.stopPropagation()}
-                                            className="hover:underline text-indigo-600 dark:text-indigo-400"
+                                            className="hover:underline text-[#1261C9] dark:text-[#4D8FE0]"
                                           >
                                             {vName}
                                           </Link>
@@ -521,7 +476,7 @@ export function OrderTable() {
                                             ETB {subTotal.toFixed(2)}
                                           </strong>
                                         </span>
-                                        <span className="font-semibold text-indigo-600 dark:text-indigo-400 font-mono">
+                                        <span className="font-semibold text-[#1261C9] dark:text-[#4D8FE0] font-mono">
                                           Platform 10%: ETB {cut.toFixed(2)}
                                         </span>
                                       </div>

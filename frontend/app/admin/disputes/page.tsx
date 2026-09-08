@@ -98,45 +98,45 @@ export default function AdminDisputesPage() {
       </div>
 
       {/* KPI Stats Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="border-amber-200/80 bg-amber-50/40 dark:bg-amber-950/20 dark:border-amber-900/40">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Pending Arbitration</p>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white mt-1">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 w-full min-w-0">
+        <Card className="border-amber-200/80 bg-amber-50/40 dark:bg-amber-950/20 dark:border-amber-900/40 min-w-0">
+          <CardContent className="p-3.5 sm:p-4 flex items-center justify-between min-w-0 gap-2">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 truncate">Pending Arbitration</p>
+              <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-1 truncate">
                 {disputes?.filter((d: any) => d.status === 'UNDER_REVIEW').length || 0}
               </h3>
             </div>
-            <div className="h-10 w-10 rounded-full bg-amber-100 dark:bg-amber-900/60 flex items-center justify-center text-amber-600 dark:text-amber-300">
-              <ShieldAlert className="h-5 w-5" />
+            <div className="h-8 w-8 sm:h-10 sm:w-10 shrink-0 rounded-full bg-amber-100 dark:bg-amber-900/60 flex items-center justify-center text-amber-600 dark:text-amber-300">
+              <ShieldAlert className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-rose-200/80 bg-rose-50/40 dark:bg-rose-950/20 dark:border-rose-900/40">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider">Refunds Authorized</p>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white mt-1">
+        <Card className="border-rose-200/80 bg-rose-50/40 dark:bg-rose-950/20 dark:border-rose-900/40 min-w-0">
+          <CardContent className="p-3.5 sm:p-4 flex items-center justify-between min-w-0 gap-2">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-rose-700 dark:text-rose-400 truncate">Refunds Authorized</p>
+              <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-1 truncate">
                 {disputes?.filter((d: any) => d.status === 'REFUNDED').length || 0}
               </h3>
             </div>
-            <div className="h-10 w-10 rounded-full bg-rose-100 dark:bg-rose-900/60 flex items-center justify-center text-rose-600 dark:text-rose-300">
-              <Receipt className="h-5 w-5" />
+            <div className="h-8 w-8 sm:h-10 sm:w-10 shrink-0 rounded-full bg-rose-100 dark:bg-rose-900/60 flex items-center justify-center text-rose-600 dark:text-rose-300">
+              <Receipt className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-emerald-200/80 bg-emerald-50/40 dark:bg-emerald-950/20 dark:border-emerald-900/40">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Escrows Released</p>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white mt-1">
+        <Card className="border-emerald-200/80 bg-emerald-50/40 dark:bg-emerald-950/20 dark:border-emerald-900/40 min-w-0 col-span-2 sm:col-span-1">
+          <CardContent className="p-3.5 sm:p-4 flex items-center justify-between min-w-0 gap-2">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 truncate">Escrows Released</p>
+              <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-1 truncate">
                 {disputes?.filter((d: any) => d.status === 'REJECTED' || d.status === 'CLOSED').length || 0}
               </h3>
             </div>
-            <div className="h-10 w-10 rounded-full bg-emerald-100 dark:bg-emerald-900/60 flex items-center justify-center text-emerald-600 dark:text-emerald-300">
-              <CheckCircle2 className="h-5 w-5" />
+            <div className="h-8 w-8 sm:h-10 sm:w-10 shrink-0 rounded-full bg-emerald-100 dark:bg-emerald-900/60 flex items-center justify-center text-emerald-600 dark:text-emerald-300">
+              <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
           </CardContent>
         </Card>
@@ -184,44 +184,44 @@ export default function AdminDisputesPage() {
             </div>
           ) : (
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-              <Table>
+              <Table containerClassName="overflow-hidden w-full" className="w-full text-xs text-left table-fixed">
                 <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
                   <TableRow>
-                    <TableHead>Case Ref</TableHead>
-                    <TableHead>Order</TableHead>
-                    <TableHead>Buyer</TableHead>
-                    <TableHead>Merchant</TableHead>
-                    <TableHead>Reason</TableHead>
-                    <TableHead>Disputed Amt</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Arbitration</TableHead>
+                    <TableHead className="w-[12%] text-xs font-semibold">Case Ref</TableHead>
+                    <TableHead className="w-[12%] text-xs font-semibold">Order</TableHead>
+                    <TableHead className="w-[18%] text-xs font-semibold">Buyer</TableHead>
+                    <TableHead className="w-[14%] text-xs font-semibold">Merchant</TableHead>
+                    <TableHead className="w-[14%] text-xs font-semibold">Reason</TableHead>
+                    <TableHead className="w-[12%] text-xs font-semibold">Disputed Amt</TableHead>
+                    <TableHead className="w-[10%] text-xs font-semibold">Status</TableHead>
+                    <TableHead className="w-[8%] text-xs font-semibold text-right">Arbitration</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredDisputes.map((dispute: any) => (
                     <TableRow key={dispute.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-900/40 transition-colors">
-                      <TableCell className="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">
+                      <TableCell className="font-mono text-xs font-bold text-slate-700 dark:text-slate-300 truncate" title={`#${dispute.id.slice(0, 8).toUpperCase()}`}>
                         #{dispute.id.slice(0, 8).toUpperCase()}
                       </TableCell>
-                      <TableCell className="text-xs font-semibold">
+                      <TableCell className="text-xs font-semibold truncate" title={`#${dispute.order_number || String(dispute.sub_order).slice(0, 8).toUpperCase()}`}>
                         #{dispute.order_number || String(dispute.sub_order).slice(0, 8).toUpperCase()}
                       </TableCell>
-                      <TableCell className="text-xs">
-                        <div className="font-medium text-slate-900 dark:text-white">{dispute.customer_name}</div>
-                        <div className="text-[11px] text-slate-400">{dispute.customer_email}</div>
+                      <TableCell className="text-xs truncate">
+                        <div className="font-medium text-slate-900 dark:text-white truncate" title={dispute.customer_name}>{dispute.customer_name}</div>
+                        <div className="text-[11px] text-slate-400 truncate" title={dispute.customer_email}>{dispute.customer_email}</div>
                       </TableCell>
-                      <TableCell className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                      <TableCell className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate" title={dispute.vendor_name}>
                         {dispute.vendor_name}
                       </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="text-xs font-semibold">
+                      <TableCell className="truncate">
+                        <Badge variant="outline" className="text-xs font-semibold truncate">
                           {dispute.reason.replace(/_/g, ' ')}
                         </Badge>
                       </TableCell>
-                      <TableCell className="font-mono text-xs font-bold text-slate-900 dark:text-white">
+                      <TableCell className="font-mono text-xs font-bold text-slate-900 dark:text-white truncate">
                         {Number(dispute.disputed_amount).toLocaleString()} ETB
                       </TableCell>
-                      <TableCell>{getStatusBadge(dispute.status)}</TableCell>
+                      <TableCell className="truncate">{getStatusBadge(dispute.status)}</TableCell>
                       <TableCell className="text-right">
                         <Button 
                           variant="outline" 

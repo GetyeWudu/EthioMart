@@ -33,7 +33,7 @@ export function SuspendedCustomerBanner() {
 
         <div className="flex items-center gap-3 shrink-0">
           <a
-            href="mailto:support@gechexpress.com?subject=Customer%20Account%20Suspension%20Appeal"
+            href="mailto:support@ethiomart.com?subject=Customer%20Account%20Suspension%20Appeal"
             className="inline-flex items-center gap-1.5 font-semibold text-amber-700 dark:text-amber-300 hover:underline"
           >
             <Mail className="h-3.5 w-3.5" />

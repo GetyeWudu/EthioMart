@@ -92,7 +92,7 @@ export function ProductReviews({ productId, productSlug, avgRating, reviewCount 
           <p className="text-slate-500 text-sm mt-1">If you've bought this item, we'd love to hear about your experience.</p>
         </div>
         {eligibilityData?.eligible && !eligibilityData?.has_reviewed ? (
-          <Button onClick={() => setShowReviewForm(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl">
+          <Button onClick={() => setShowReviewForm(true)} className="bg-[#1261C9] hover:bg-[#0D4FA8] text-white rounded-xl">
             Write a Review
           </Button>
         ) : eligibilityData?.has_reviewed ? (
@@ -103,7 +103,7 @@ export function ProductReviews({ productId, productSlug, avgRating, reviewCount 
       </div>
 
       {showReviewForm && (
-        <div className="bg-slate-50 dark:bg-slate-900/50 border border-indigo-100 dark:border-indigo-900/30 rounded-3xl p-6 md:p-8 animate-in fade-in slide-in-from-top-4">
+        <div className="bg-slate-50 dark:bg-slate-900/50 border border-[#C2D9F5] dark:border-[#1261C9]/15 rounded-3xl p-6 md:p-8 animate-in fade-in slide-in-from-top-4">
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-bold text-xl text-slate-900 dark:text-white">Write your Review</h3>
             <button onClick={() => setShowReviewForm(false)} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5"/></button>
@@ -121,13 +121,13 @@ export function ProductReviews({ productId, productSlug, avgRating, reviewCount 
              </div>
              <div className="space-y-2">
                 <label className="text-sm font-semibold">Review Title</label>
-                <input required value={title} onChange={e => setTitle(e.target.value)} placeholder="Summarize your experience" className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+                <input required value={title} onChange={e => setTitle(e.target.value)} placeholder="Summarize your experience" className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#1261C9] focus:outline-none" />
              </div>
              <div className="space-y-2">
                 <label className="text-sm font-semibold">Review Body</label>
-                <textarea required rows={4} value={body} onChange={e => setBody(e.target.value)} placeholder="What did you like or dislike? What should other shoppers know?" className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none" />
+                <textarea required rows={4} value={body} onChange={e => setBody(e.target.value)} placeholder="What did you like or dislike? What should other shoppers know?" className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#1261C9] focus:outline-none resize-none" />
              </div>
-             <Button type="submit" disabled={isSubmitting} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl py-6 font-bold">
+             <Button type="submit" disabled={isSubmitting} className="w-full bg-[#1261C9] hover:bg-[#0D4FA8] text-white rounded-xl py-6 font-bold">
                {isSubmitting ? "Submitting..." : "Submit Review"}
              </Button>
           </form>
@@ -147,7 +147,7 @@ export function ProductReviews({ productId, productSlug, avgRating, reviewCount 
             <div key={review.id} className="pb-8 border-b border-slate-100 dark:border-slate-800 last:border-0 last:pb-0">
                <div className="flex items-start justify-between">
                  <div className="flex gap-4">
-                   <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-full flex items-center justify-center font-bold text-lg">
+                   <div className="w-12 h-12 bg-[#D5E5F8] dark:bg-[#1261C9]/15 text-[#0D4FA8] dark:text-[#7AB0EE] rounded-full flex items-center justify-center font-bold text-lg">
                      {review.customer_name.substring(0, 2).toUpperCase()}
                    </div>
                    <div>
@@ -181,7 +181,7 @@ export function ProductReviews({ productId, productSlug, avgRating, reviewCount 
                     <div className="absolute -left-3 top-6 w-3 h-px bg-slate-200 dark:bg-slate-700"></div>
                     <div className="absolute -left-3 top-2 w-px h-4 bg-slate-200 dark:bg-slate-700"></div>
                     <div className="flex items-center gap-2 mb-2">
-                       <Store className="w-4 h-4 text-indigo-600" />
+                       <Store className="w-4 h-4 text-[#1261C9]" />
                        <span className="font-bold text-sm text-slate-900 dark:text-white">Response from {review.seller_reply.seller_name}</span>
                        <span className="text-xs text-slate-500 ml-auto">{new Date(review.seller_reply.created_at).toLocaleDateString()}</span>
                     </div>

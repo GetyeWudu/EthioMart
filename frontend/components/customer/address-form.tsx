@@ -137,7 +137,7 @@ export function AddressForm({ onSave, onCancel, initialData }: AddressFormProps)
             name="isDefault" 
             checked={formData.isDefault} 
             onChange={handleChange} 
-            className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600 dark:border-slate-700 dark:bg-slate-900 dark:checked:bg-indigo-500"
+            className="h-4 w-4 rounded border-slate-300 text-[#1261C9] focus:ring-[#1261C9] dark:border-slate-700 dark:bg-slate-900 dark:checked:bg-[#1261C9]"
           />
           <Label htmlFor="isDefault" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
             Set as default shipping address
@@ -146,7 +146,7 @@ export function AddressForm({ onSave, onCancel, initialData }: AddressFormProps)
       </div>
       
       <div className="flex flex-col sm:flex-row gap-3 pt-4">
-        <Button type="submit" className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white">
+        <Button type="submit" className="w-full sm:w-auto bg-gradient-to-r from-[#1261C9] to-[#0D4FA8] hover:from-[#0D4FA8] hover:to-[#0A3D82] text-white font-bold shadow-md shadow-[#1261C9]/20 rounded-xl">
           Save Address
         </Button>
         {onCancel && (

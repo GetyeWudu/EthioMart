@@ -68,8 +68,8 @@ export const useAuthStore = create<AuthState>()(
           localStorage.setItem("userAuth", "true");
 
           // Set cookies on current origin for Next.js middleware route access
-          document.cookie = `gechexpress_access=${encodeURIComponent(access)}; path=/; max-age=86400; SameSite=Lax`;
-          document.cookie = `gechexpress_refresh=${encodeURIComponent(refresh)}; path=/; max-age=2592000; SameSite=Lax`;
+          document.cookie = `ethiomart_access=${encodeURIComponent(access)}; path=/; max-age=86400; SameSite=Lax`;
+          document.cookie = `ethiomart_refresh=${encodeURIComponent(refresh)}; path=/; max-age=2592000; SameSite=Lax`;
         }
         set({
           user,
@@ -114,8 +114,8 @@ export const useAuthStore = create<AuthState>()(
             useCartStore.setState({ sessionId: crypto.randomUUID() });
 
             // Expire cookies
-            document.cookie = "gechexpress_access=; path=/; max-age=0; SameSite=Lax";
-            document.cookie = "gechexpress_refresh=; path=/; max-age=0; SameSite=Lax";
+            document.cookie = "ethiomart_access=; path=/; max-age=0; SameSite=Lax";
+            document.cookie = "ethiomart_refresh=; path=/; max-age=0; SameSite=Lax";
           }
           set({
             user: null,
@@ -148,7 +148,7 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: "gechexpress-auth-store",
+      name: "ethiomart-auth-store",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         user: state.user,

@@ -7,8 +7,8 @@ import {
 import { MessageCircleQuestion } from "lucide-react";
 
 export const metadata = {
-  title: "Frequently Asked Questions | GechExpress",
-  description: "Find answers to the most commonly asked questions about ordering, shipping, and returns on GechExpress.",
+  title: "Frequently Asked Questions | EthioMart",
+  description: "Find answers to the most commonly asked questions about ordering, shipping, and returns on EthioMart.",
 };
 
 const faqs = [

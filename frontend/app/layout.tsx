@@ -5,8 +5,12 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "GechExpress",
-  description: "Premium Multi-Vendor E-commerce Platform",
+  title: "EthioMart",
+  description: "Ethiopia's Premier Multi-Vendor Marketplace — Shop Local, Support Ethiopia, Build the Future.",
+  icons: {
+    icon: "/logo/abukii.png",
+    apple: "/logo/abukii.png",
+  },
 };
 
 import { ThemeProvider } from "@/components/theme-provider";

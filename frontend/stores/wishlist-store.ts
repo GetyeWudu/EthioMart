@@ -64,8 +64,8 @@ export const useWishlistStore = create<WishlistStore>()(
           // Clear local cache after successful sync, fetch will repopulate it
           set({ savedProductIds: [] });
           await get().fetchWishlistIds();
-        } catch (error) {
-          console.error("Failed to sync guest wishlist", error);
+        } catch (error: any) {
+          console.warn("Unable to sync guest wishlist:", error?.message || error);
         }
       },
       
@@ -74,8 +74,8 @@ export const useWishlistStore = create<WishlistStore>()(
         try {
           const res = await api.get<string[]>('/wishlists/ids/');
           set({ savedProductIds: res.data || [] });
-        } catch (error) {
-          console.error("Failed to fetch wishlist IDs", error);
+        } catch (error: any) {
+          console.warn("Unable to fetch wishlist IDs:", error?.message || error);
         } finally {
           set({ isLoading: false });
         }
@@ -86,7 +86,7 @@ export const useWishlistStore = create<WishlistStore>()(
       },
     }),
     {
-      name: 'gechexpress-wishlist-storage',
+      name: 'ethiomart-wishlist-storage',
       // We only want to persist savedProductIds. 
       // If user is authenticated, we hydrate it on load anyway, but persisting it keeps it fast.
       partialize: (state) => ({ savedProductIds: state.savedProductIds }),

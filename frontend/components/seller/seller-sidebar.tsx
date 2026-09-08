@@ -18,6 +18,7 @@ import {
 } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 import { useAuthStore } from "@/stores/auth-store";
@@ -59,13 +60,18 @@ export function SellerSidebar() {
     )}>
       {/* Brand */}
       <div className={cn("flex h-16 shrink-0 items-center border-b border-slate-200 dark:border-slate-800", isSidebarCollapsed ? "justify-center px-0" : "justify-between px-6")}>
-        <div className="flex items-center gap-2 overflow-hidden">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-indigo-600 text-white shadow-sm">
-            <BackpackIcon className="h-4 w-4 stroke-[2.5]" />
+        <div className="flex items-center gap-2.5 overflow-hidden">
+          <div className="relative h-8 w-8 shrink-0 rounded-lg overflow-hidden border border-slate-200/80 dark:border-slate-700 shadow-sm">
+            <Image
+              src="/logo/abukii.png"
+              alt="EthioMart Logo"
+              fill
+              className="object-cover"
+            />
           </div>
           {!isSidebarCollapsed && (
             <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white whitespace-nowrap">
-              Gech<span className="text-indigo-600 dark:text-indigo-400">Express</span>
+              Ethio<span className="text-[#FF7900]">Mart</span>
             </span>
           )}
         </div>
@@ -113,14 +119,14 @@ export function SellerSidebar() {
                     "flex items-center px-4 py-2.5 text-sm font-medium transition-all relative overflow-hidden whitespace-nowrap",
                     isSidebarCollapsed ? "justify-center rounded-xl px-0 w-12 mx-auto" : "gap-3 rounded-r-xl",
                     isActive
-                      ? (isSidebarCollapsed ? "text-indigo-700 bg-indigo-50 dark:bg-indigo-500/10 dark:text-indigo-400" : "text-indigo-700 bg-indigo-50 dark:bg-indigo-500/10 dark:text-indigo-400")
-                      : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/30 dark:hover:text-white"
+                      ? "text-[#FF7900] bg-[#FF7900]/10 dark:bg-[#FF7900]/20 dark:text-orange-300 font-bold"
+                      : "text-slate-600 hover:bg-[#FF7900]/5 hover:text-[#FF7900] dark:text-slate-400 dark:hover:bg-slate-800/30 dark:hover:text-white"
                   )}
                 >
                   {isActive && !isSidebarCollapsed && (
-                    <span className="absolute left-0 top-0 bottom-0 w-[3px] bg-indigo-600 dark:bg-indigo-500 rounded-r-full" />
+                    <span className="absolute left-0 top-0 bottom-0 w-[3px] bg-[#FF7900] rounded-r-full" />
                   )}
-                  <item.icon className={cn("h-4 w-4 shrink-0", isActive ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400")} />
+                  <item.icon className={cn("h-4 w-4 shrink-0 transition-colors", isActive ? "text-[#FF7900] dark:text-orange-400" : "text-slate-400")} />
                   {!isSidebarCollapsed && <span>{item.name}</span>}
                 </Link>
               </li>

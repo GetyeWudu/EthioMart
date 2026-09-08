@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { MapPin, Mail, Phone } from "lucide-react";
 
 export function Footer() {
@@ -10,9 +11,26 @@ export function Footer() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand & Contact */}
           <div className="col-span-2 lg:col-span-1 space-y-4">
-            <h3 className="text-xl font-bold tracking-tight">GechExpress</h3>
+            <div className="flex items-center gap-3">
+              <div className="relative h-11 w-11 sm:h-12 sm:w-12 rounded-2xl overflow-hidden shadow-lg shadow-[#1261C9]/25 shrink-0 border border-white/40 dark:border-slate-700">
+                <Image
+                  src="/logo/abukii.png"
+                  alt="EthioMart Logo"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="text-left">
+                <h3 className="text-xl sm:text-2xl font-black tracking-tight leading-none">
+                  <span className="text-[#1261C9]">Ethio</span><span className="text-[#FF7900]">Mart</span>
+                </h3>
+                <span className="block text-[11px] font-semibold tracking-normal text-[#1261C9] dark:text-blue-400 mt-0.5">
+                  Ethiopia&apos;s local marketplace
+                </span>
+              </div>
+            </div>
             <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xs">
-              Your one-stop destination for premium products and exceptional shopping experience.
+              Shop Local &bull; Support Ethiopia &bull; Build the Future.
             </p>
             <div className="space-y-2 pt-2">
               <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
@@ -25,7 +43,7 @@ export function Footer() {
               </div>
               <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
                 <Mail className="h-4 w-4 shrink-0" />
-                <span>support@gechexpress.com</span>
+                <span>support@ethiomart.com</span>
               </div>
             </div>
           </div>
@@ -99,7 +117,7 @@ export function Footer() {
               />
               <button
                 type="submit"
-                className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-white bg-slate-900 text-slate-50 hover:bg-slate-900/90 h-10 py-2 px-4 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50/90 dark:focus-visible:ring-slate-300"
+                className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1261C9]/50 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none bg-[#1261C9] text-white hover:bg-[#0D4FA8] h-10 py-2 px-4"
               >
                 Subscribe
               </button>
@@ -110,7 +128,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-slate-500 dark:text-slate-400 text-center md:text-left">
-            &copy; {new Date().getFullYear()} GechExpress. All rights reserved.
+            &copy; {new Date().getFullYear()} EthioMart. All rights reserved.
           </p>
           <div className="flex items-center space-x-4 text-slate-500 dark:text-slate-400">
             <Link href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">

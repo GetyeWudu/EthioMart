@@ -36,7 +36,7 @@ export default function ChapaGatewaySimulation() {
             <ShieldCheck className="h-10 w-10" />
           </div>
           <h2 className="text-2xl font-bold text-slate-900">Payment Successful!</h2>
-          <p className="text-slate-500">Redirecting you back to GechExpress...</p>
+          <p className="text-slate-500">Redirecting you back to EthioMart...</p>
         </div>
       </div>
     );
@@ -63,7 +63,7 @@ export default function ChapaGatewaySimulation() {
               <span>Amount Due</span>
             </div>
             <div className="flex justify-between items-end">
-              <span className="text-xl font-bold">GechExpress</span>
+              <span className="text-xl font-bold">EthioMart</span>
               <span className="text-3xl font-black">ETB 323.99</span>
             </div>
           </div>

@@ -1,6 +1,6 @@
 export const metadata = {
-  title: "Terms & Conditions | GechExpress",
-  description: "Read the terms and conditions for using the GechExpress platform.",
+  title: "Terms & Conditions | EthioMart",
+  description: "Read the terms and conditions for using the EthioMart platform.",
 };
 
 export default function TermsPage() {
@@ -20,7 +20,7 @@ export default function TermsPage() {
           <div className="prose prose-slate dark:prose-invert max-w-none prose-headings:font-serif prose-headings:font-bold prose-a:text-indigo-600 dark:prose-a:text-indigo-400">
             <h2>1. Introduction</h2>
             <p>
-              Welcome to GechExpress. These Terms & Conditions govern your use of our website and services. By accessing or using GechExpress, you agree to be bound by these terms. If you disagree with any part of the terms, you may not access our services.
+              Welcome to EthioMart. These Terms & Conditions govern your use of our website and services. By accessing or using EthioMart, you agree to be bound by these terms. If you disagree with any part of the terms, you may not access our services.
             </p>
 
             <h2>2. User Accounts</h2>
@@ -38,12 +38,12 @@ export default function TermsPage() {
 
             <h2>4. Intellectual Property</h2>
             <p>
-              The service and its original content, features, and functionality are and will remain the exclusive property of GechExpress and its licensors. The service is protected by copyright, trademark, and other laws of both the local and foreign jurisdictions.
+              The service and its original content, features, and functionality are and will remain the exclusive property of EthioMart and its licensors. The service is protected by copyright, trademark, and other laws of both the local and foreign jurisdictions.
             </p>
 
             <h2>5. Limitation of Liability</h2>
             <p>
-              In no event shall GechExpress, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the service.
+              In no event shall EthioMart, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the service.
             </p>
 
             <h2>6. Changes to Terms</h2>
@@ -53,7 +53,7 @@ export default function TermsPage() {
 
             <h2>7. Contact Us</h2>
             <p>
-              If you have any questions about these Terms, please contact us at <a href="mailto:legal@gechexpress.com">legal@gechexpress.com</a>.
+              If you have any questions about these Terms, please contact us at <a href="mailto:legal@ethiomart.com">legal@ethiomart.com</a>.
             </p>
           </div>
         </div>

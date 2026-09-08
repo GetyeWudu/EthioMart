@@ -1,6 +1,6 @@
 export const metadata = {
-  title: "Privacy Policy | GechExpress",
-  description: "Learn how GechExpress collects, uses, and protects your personal data.",
+  title: "Privacy Policy | EthioMart",
+  description: "Learn how EthioMart collects, uses, and protects your personal data.",
 };
 
 export default function PrivacyPage() {
@@ -30,7 +30,7 @@ export default function PrivacyPage() {
 
             <h2>2. How We Use Your Information</h2>
             <p>
-              GechExpress uses the collected data for various purposes:
+              EthioMart uses the collected data for various purposes:
             </p>
             <ul>
               <li>To process and fulfill your orders, including sending emails to confirm your order status and shipment.</li>
@@ -61,7 +61,7 @@ export default function PrivacyPage() {
 
             <h2>7. Contact Us</h2>
             <p>
-              If you have any questions about this Privacy Policy, please contact us at <a href="mailto:privacy@gechexpress.com">privacy@gechexpress.com</a>.
+              If you have any questions about this Privacy Policy, please contact us at <a href="mailto:privacy@ethiomart.com">privacy@ethiomart.com</a>.
             </p>
           </div>
         </div>

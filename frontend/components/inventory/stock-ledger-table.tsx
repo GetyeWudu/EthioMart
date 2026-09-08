@@ -107,9 +107,9 @@ export function StockLedgerTable({ movements }: StockLedgerTableProps) {
 
       {/* Table Box */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-hidden w-full">
         <table className="w-full text-left text-xs table-fixed">
-          <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 uppercase text-[10px] font-bold tracking-wider border-b border-slate-200 dark:border-slate-800">
+          <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 font-semibold text-[11px] border-b border-slate-200 dark:border-slate-800">
             <tr>
               <th className="px-4 py-3 w-[15%]">Timestamp</th>
               <th className="px-4 py-3 w-[25%]">Product &amp; SKU</th>

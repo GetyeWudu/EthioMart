@@ -30,7 +30,7 @@ export function CustomerSidebar() {
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950 sticky top-24">
         <div className="mb-6 px-4 py-2">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-white">My Account</h2>
-          <p className="text-sm text-slate-500">{user?.email || "customer@gechexpress.com"}</p>
+          <p className="text-sm text-slate-500">{user?.email || "customer@ethiomart.com"}</p>
         </div>
         
         <nav className="space-y-1">

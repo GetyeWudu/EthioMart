@@ -332,7 +332,7 @@ export default function PublicVendorStorePage({
                     </h3>
                     <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                       {store.store_description ||
-                        `${store.store_name} is an approved independent merchant operating on GechExpress Marketplace, delivering authentic goods and certified products to customers across Ethiopia.`}
+                        `${store.store_name} is an approved independent merchant operating on EthioMart Marketplace, delivering authentic goods and certified products to customers across Ethiopia.`}
                     </p>
                   </div>
 
@@ -344,7 +344,7 @@ export default function PublicVendorStorePage({
                     <div className="space-y-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
                       <div className="flex items-start gap-2.5">
                         <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                        <span><strong>Multi-Party Escrow:</strong> Your payment remains securely held by GechExpress until delivery is physically confirmed.</span>
+                        <span><strong>Multi-Party Escrow:</strong> Your payment remains securely held by EthioMart until delivery is physically confirmed.</span>
                       </div>
                       <div className="flex items-start gap-2.5">
                         <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
@@ -374,7 +374,7 @@ export default function PublicVendorStorePage({
                       </div>
                       <div>
                         <span className="text-slate-400 block mb-0.5">Contact Email</span>
-                        <span className="font-semibold text-slate-900 dark:text-white">{store.contact_email || "compliance@gechexpress.com"}</span>
+                        <span className="font-semibold text-slate-900 dark:text-white">{store.contact_email || "compliance@ethiomart.com"}</span>
                       </div>
                       <div>
                         <span className="text-slate-400 block mb-0.5">Contact Phone</span>

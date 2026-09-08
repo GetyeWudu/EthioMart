@@ -130,7 +130,7 @@ export default async function ProductsPage({
             {currentCategoryName}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Browse verified products backed by GechExpress escrow payment safety.
+            Browse verified products backed by EthioMart escrow payment safety.
           </p>
         </div>
 

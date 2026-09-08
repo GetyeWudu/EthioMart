@@ -92,7 +92,7 @@ export default function CheckoutSuccessPage() {
               <CheckCircle2 className={`h-10 w-10 ${isPaid ? "text-emerald-600" : "text-indigo-600"}`} />
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-white mb-2 tracking-tight">Payment Successful!</h1>
-            <p className="text-emerald-50 text-sm font-medium opacity-90">Thank you for shopping with GechExpress</p>
+            <p className="text-emerald-50 text-sm font-medium opacity-90">Thank you for shopping with EthioMart</p>
           </div>
         </div>
 
