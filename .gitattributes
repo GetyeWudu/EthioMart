@@ -1,0 +1,3 @@
+# Ensure shell scripts always use Linux LF line endings
+*.sh text eol=lf
+backend/build.sh text eol=lf
