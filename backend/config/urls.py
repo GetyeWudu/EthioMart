@@ -45,7 +45,8 @@ urlpatterns = [
     path("", api_root_view, name="root"),
     path("api/v1/", api_root_view, name="api-v1-root"),
 
-    # Django admin technical fallback
+    # Django admin
+    path("admin/", admin.site.urls),
     path("django-admin/", admin.site.urls),
 
     # Phase 1 APIs
