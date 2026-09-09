@@ -78,7 +78,8 @@ function ProductShelf({
 }) {
   if (!products || products.length === 0) return null;
 
-  const productPages = chunkProducts(products, 6);
+  const chunkSize = isTrending ? 9 : 6;
+  const productPages = chunkProducts(products, chunkSize);
 
   return (
     <section className="container mx-auto px-3 sm:px-4 mt-6 sm:mt-10">
@@ -136,7 +137,7 @@ function ProductShelf({
       {productPages.length > 1 && (
         <div className="sm:hidden flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 mt-1 mb-2 px-1">
           <span>
-            Showing 1-{Math.min(9, products.length)} of {products.length} products
+            Showing 1-{Math.min(chunkSize, products.length)} of {products.length} products
           </span>
           <span className="font-semibold text-primary flex items-center gap-1">
             Swipe for more →
@@ -195,31 +196,39 @@ export default async function CustomerHomePage() {
     const now = Date.now();
     const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
-    // 1. Trending Now: Fresh new arrivals & popular marketplace items
-    // Priority 1: Products created within the last 7 days appear first with "New" badge
-    const recentProducts = mappedAllProducts
-      .filter((p: any) => {
-        if (!p.createdAt) return false;
-        const createdTime = new Date(p.createdAt).getTime();
-        return now - createdTime <= SEVEN_DAYS_MS;
-      })
-      .sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+    // 1. Trending Now: Select about 18 diverse products across different categories
+    const productsByCat: Record<string, any[]> = {};
+    mappedAllProducts.forEach((p: any) => {
+      const catKey = (p.categorySlug || p.categoryName || "general").toLowerCase();
+      if (!productsByCat[catKey]) {
+        productsByCat[catKey] = [];
+      }
+      productsByCat[catKey].push(p);
+    });
 
-    // Priority 2: Popular, top-rated, and newest items to ensure a full shelf (up to 18 products)
-    const recentIds = new Set(recentProducts.map((p: any) => p.id));
-    const backfillProducts = [...mappedAllProducts]
-      .filter((p: any) => !recentIds.has(p.id))
-      .sort((a: any, b: any) => {
+    // Sort products inside each category by rating and recency
+    Object.values(productsByCat).forEach((catList) => {
+      catList.sort((a: any, b: any) => {
         const ratingDiff = (b.rating || 0) - (a.rating || 0);
         if (ratingDiff !== 0) return ratingDiff;
-        const reviewsDiff = (b.reviewsCount || 0) - (a.reviewsCount || 0);
-        if (reviewsDiff !== 0) return reviewsDiff;
         return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
       });
+    });
 
-    const combinedTrending = [...recentProducts, ...backfillProducts].slice(0, 6);
+    const catKeys = Object.keys(productsByCat);
+    const diverseTrending: any[] = [];
+    const maxProdsPerCat = Math.max(...catKeys.map((k) => productsByCat[k].length), 0);
 
-    trendingProducts = combinedTrending.map((p: any) => {
+    for (let i = 0; i < maxProdsPerCat && diverseTrending.length < 18; i++) {
+      for (const k of catKeys) {
+        if (productsByCat[k][i]) {
+          diverseTrending.push(productsByCat[k][i]);
+          if (diverseTrending.length >= 18) break;
+        }
+      }
+    }
+
+    trendingProducts = diverseTrending.map((p: any) => {
       const createdTime = new Date(p.createdAt || 0).getTime();
       const isRecent = p.createdAt ? (now - createdTime <= SEVEN_DAYS_MS) : false;
       return {
@@ -261,39 +270,55 @@ export default async function CustomerHomePage() {
       })
       .filter((shelf) => shelf.products.length > 0);
 
-    // Fetch category card thumbnails for all root categories that have products
-    const activeRoots = categories.filter((c) => {
-      const descKeys = getDescendantKeys(c);
-      return mappedAllProducts.some(
-        (p: any) =>
-          descKeys.has(p.categorySlug?.toLowerCase()) ||
-          descKeys.has(p.categoryName?.toLowerCase())
-      );
-    });
-
-    const displayCategories = activeRoots.length > 0 ? activeRoots : categories.slice(0, 8);
-
-    mappedCategories = displayCategories.map((c) => {
+    // Fetch category card thumbnails for categories that have at least 4 products
+    // (ensuring each 2x2 card has 4 genuine distinct product photos from that category)
+    const categoryProductCounts = categories.map((c) => {
       const descKeys = getDescendantKeys(c);
       const prodsForCat = mappedAllProducts.filter(
         (p: any) =>
           descKeys.has(p.categorySlug?.toLowerCase()) ||
           descKeys.has(p.categoryName?.toLowerCase())
       );
-      const productImages = prodsForCat.map((p: any) => p.image).filter(Boolean).slice(0, 4);
-      const images =
-        productImages.length > 0
-          ? productImages
-          : c.image
-          ? [getImageUrl(c.image, c.id)]
-          : [getImageUrl(null, c.id + "1"), getImageUrl(null, c.id + "2")];
+      // Collect unique product images for this category
+      const uniqueImages = Array.from(
+        new Set(prodsForCat.map((p: any) => p.image).filter(Boolean))
+      );
+      return {
+        category: c,
+        products: prodsForCat,
+        images: uniqueImages,
+        count: prodsForCat.length,
+      };
+    });
+
+    // Filter categories having AT LEAST 4 products as requested by user
+    const qualifiedCategories = categoryProductCounts.filter(
+      (item) => item.count >= 4
+    );
+
+    // If fewer than 4 categories have >= 4 items, backfill with the most populated ones
+    const displayItems =
+      qualifiedCategories.length >= 4
+        ? qualifiedCategories
+        : categoryProductCounts
+            .filter((item) => item.count > 0)
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 8);
+
+    mappedCategories = displayItems.map(({ category: c, images: uniqueImages, count }) => {
+      let cardImages = uniqueImages.slice(0, 4);
+      if (cardImages.length > 0 && cardImages.length < 4) {
+        cardImages = Array.from({ length: 4 }, (_, i) => cardImages[i % cardImages.length]);
+      } else if (cardImages.length === 0) {
+        cardImages = c.image ? [getImageUrl(c.image, c.id)] : [];
+      }
 
       return {
         id: c.id,
         name: c.name,
         slug: c.slug,
-        images,
-        itemCount: prodsForCat.length || c.product_count || 0,
+        images: cardImages,
+        itemCount: count || c.product_count || 0,
       };
     });
   } catch (error) {
