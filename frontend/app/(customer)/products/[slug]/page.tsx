@@ -287,7 +287,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 min-h-[60vh] flex flex-col items-center justify-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16 min-h-[60vh] flex flex-col items-center justify-center">
         <div className="w-12 h-12 rounded-full border-4 border-indigo-500/20 border-t-indigo-600 animate-spin mb-4" />
         <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Loading catalog specs & warehouse inventory...</p>
       </div>
@@ -296,7 +296,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
   if (notFound || !product) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 text-center min-h-[60vh] flex flex-col items-center justify-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-24 text-center min-h-[60vh] flex flex-col items-center justify-center">
         <h1 className="text-4xl font-black mb-4 text-slate-900 dark:text-white">Product Not Found</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-8 max-w-md mx-auto">
           We couldn't find <span className="font-mono font-bold text-slate-700 dark:text-slate-300">"{slug}"</span>. It may have been archived or is pending compliance approval.
@@ -312,9 +312,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
   const pickupHubs = activeVariant?.warehouse_stocks?.filter((ws) => ws.is_pickup_point) || [];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 md:pt-32 pb-12">
       {/* Breadcrumbs */}
-      <nav className="mb-6 flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 overflow-x-auto whitespace-nowrap">
+      <nav className="mb-6 flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 overflow-x-auto whitespace-nowrap scrollbar-none py-1">
         <Link href="/" className="flex items-center gap-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors shrink-0">
           <Home className="h-3.5 w-3.5" /><span>Home</span>
         </Link>
@@ -323,9 +323,15 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
         {product.category?.breadcrumbs?.map((bc, i) => (
           <React.Fragment key={i}>
             <ChevronRight className="h-3.5 w-3.5 text-slate-300 dark:text-slate-700 shrink-0" />
-            <Link href={`/products/category/${bc.slug}`} className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors shrink-0">{bc.name}</Link>
+            <Link href={`/products?category=${bc.slug}`} className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors shrink-0">{bc.name}</Link>
           </React.Fragment>
         ))}
+        {product.category && !product.category.breadcrumbs?.some((b: any) => b.slug === product.category.slug) && (
+          <React.Fragment>
+            <ChevronRight className="h-3.5 w-3.5 text-slate-300 dark:text-slate-700 shrink-0" />
+            <Link href={`/products?category=${product.category.slug}`} className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors shrink-0">{product.category.name}</Link>
+          </React.Fragment>
+        )}
         <ChevronRight className="h-3.5 w-3.5 text-slate-300 dark:text-slate-700 shrink-0" />
         <span className="text-slate-900 dark:text-white font-bold truncate max-w-xs">{product.title}</span>
       </nav>
