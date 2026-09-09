@@ -4,27 +4,44 @@
  * Base HTTP client configuration for EthioMart API with credentials and token support.
  */
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+export const PROD_API_URL = "https://gechexpress-backend.onrender.com/api/v1";
+export const LOCAL_API_URL = "http://127.0.0.1:8000/api/v1";
 
 export function getBaseApiUrl(): string {
-  const envUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+  const envUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  // 1. Client-side browser execution
   if (typeof window !== "undefined") {
-    try {
-      const parsed = new URL(envUrl);
-      if (
-        (parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost") &&
-        window.location.hostname &&
-        parsed.hostname !== window.location.hostname
-      ) {
-        parsed.hostname = window.location.hostname;
-        return parsed.toString().replace(/\/$/, "");
+    const hostname = window.location.hostname;
+    const isLocal =
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname === "0.0.0.0";
+
+    if (!isLocal) {
+      // Deployed web storefront (e.g. *.vercel.app)
+      if (envUrl && !envUrl.includes("127.0.0.1") && !envUrl.includes("localhost")) {
+        return envUrl.replace(/\/$/, "");
       }
-    } catch {
-      // ignore parsing errors
+      return PROD_API_URL;
     }
+
+    // Local development browser
+    return (envUrl || LOCAL_API_URL).replace(/\/$/, "");
   }
-  return envUrl;
+
+  // 2. Server-side execution (Next.js SSR / SSG / Vercel serverless)
+  if (process.env.NODE_ENV === "production" || process.env.VERCEL || process.env.VERCEL_ENV) {
+    if (envUrl && !envUrl.includes("127.0.0.1") && !envUrl.includes("localhost")) {
+      return envUrl.replace(/\/$/, "");
+    }
+    return PROD_API_URL;
+  }
+
+  return (envUrl || LOCAL_API_URL).replace(/\/$/, "");
 }
+
+export const API_URL = getBaseApiUrl();
 
 export function getImageUrl(path: string | undefined | null, seed: string = "default"): string {
   if (!path) {

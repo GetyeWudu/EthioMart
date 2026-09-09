@@ -47,7 +47,7 @@ CORS_ALLOWED_ORIGINS = [
     o.strip().rstrip("/")
     for o in config(
         "CORS_ALLOWED_ORIGINS",
-        default=config("FRONTEND_URL", default="http://localhost:3000,http://127.0.0.1:3000"),
+        default=config("FRONTEND_URL", default="https://ethio-mart-ten.vercel.app,http://localhost:3000,http://127.0.0.1:3000"),
     ).split(",")
     if o.strip()
 ]
@@ -61,7 +61,7 @@ CSRF_TRUSTED_ORIGINS = [
     o.strip().rstrip("/")
     for o in config(
         "CSRF_TRUSTED_ORIGINS",
-        default=config("FRONTEND_URL", default="http://localhost:3000,http://127.0.0.1:3000"),
+        default=config("FRONTEND_URL", default="https://ethio-mart-ten.vercel.app,http://localhost:3000,http://127.0.0.1:3000"),
     ).split(",")
     if o.strip()
 ]
