@@ -44,7 +44,7 @@ X_FRAME_OPTIONS = "DENY"
 # CORS & CSRF Trusted Origins (Vercel Frontend Integration)
 # ---------------------------------------------------------------------------
 CORS_ALLOWED_ORIGINS = [
-    o.strip()
+    o.strip().rstrip("/")
     for o in config(
         "CORS_ALLOWED_ORIGINS",
         default=config("FRONTEND_URL", default="http://localhost:3000,http://127.0.0.1:3000"),
@@ -58,7 +58,7 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    o.strip()
+    o.strip().rstrip("/")
     for o in config(
         "CSRF_TRUSTED_ORIGINS",
         default=config("FRONTEND_URL", default="http://localhost:3000,http://127.0.0.1:3000"),
@@ -67,7 +67,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 if RENDER_EXTERNAL_HOSTNAME:
-    render_url = f"https://{RENDER_EXTERNAL_HOSTNAME}"
+    render_url = f"https://{RENDER_EXTERNAL_HOSTNAME}".rstrip("/")
     if render_url not in CSRF_TRUSTED_ORIGINS:
         CSRF_TRUSTED_ORIGINS.append(render_url)
 
