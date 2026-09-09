@@ -41,6 +41,8 @@ db.sqlite3-journal
 backend/test_guest_*.py
 backend/fix_mock_data.py
 backend/mock_product_response.json
+*.tmp
+*.bak
 
 # Node.js & Next.js Build Artifacts
 node_modules/
@@ -50,7 +52,7 @@ frontend/.next/
 out/
 frontend/out/
 
-# IDE, OS, and System Artifacts
+# IDE, Agent, OS, and System Artifacts
 .DS_Store
 Thumbs.db
 .vscode/
@@ -58,3 +60,7 @@ Thumbs.db
 *.swp
 *.swo
 .gemini/
+.antigravity*
+*AGENTS.md
+*CLAUDE.md
+
