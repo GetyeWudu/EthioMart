@@ -485,16 +485,16 @@ class SellerProductListCreateAPIView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
             
-        # Strict fallback: even if admin bypassed status, ensure documents exist!
+        # If the vendor is approved by admin / established merchant, they are authorized to create listings
         from apps.vendors.enums import VendorType
-        if vendor.vendor_type != VendorType.PLATFORM:
+        if vendor.vendor_type != VendorType.PLATFORM and vendor.status != VendorStatus.APPROVED:
             try:
                 from apps.vendors.services.kyc_service import KYCVerificationService
                 KYCVerificationService._validate_kyc_documents(vendor)
             except Exception as e:
                 return Response(
                     {
-                        "error": f"Incomplete KYC Profile: {str(e)} You must upload all required documents before posting products, even if approved.",
+                        "error": f"Incomplete KYC Profile: {str(e)} You must upload all required documents before posting products.",
                         "status": vendor.status,
                     },
                     status=status.HTTP_403_FORBIDDEN
@@ -623,15 +623,15 @@ class SellerProductDetailAPIView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
             
-        # Strict fallback: even if admin bypassed status, ensure documents exist!
+        # If the vendor is approved by admin / established merchant, they are authorized to modify listings
         from apps.vendors.enums import VendorType
-        if vendor.vendor_type != VendorType.PLATFORM:
+        if vendor.vendor_type != VendorType.PLATFORM and vendor.status != VendorStatus.APPROVED:
             try:
                 from apps.vendors.services.kyc_service import KYCVerificationService
                 KYCVerificationService._validate_kyc_documents(vendor)
             except Exception as e:
                 return Response(
-                    {"error": f"Incomplete KYC Profile: {str(e)} You must upload all required documents before modifying products, even if approved."},
+                    {"error": f"Incomplete KYC Profile: {str(e)} You must upload all required documents before modifying products."},
                     status=status.HTTP_403_FORBIDDEN
                 )
         product = get_object_or_404(Product, pk=pk, vendor=vendor)

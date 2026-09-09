@@ -18,8 +18,8 @@ from apps.catalog.models import (
 )
 from apps.catalog.enums import ProductStatus, ProductType, AttributeType
 from apps.inventory.models import WarehouseLocation, WarehouseStock
-from apps.vendors.models import VendorProfile
-from apps.vendors.enums import VendorStatus, TrustTier, BusinessType
+from apps.vendors.models import VendorProfile, KYCDocument, VendorBankDetails
+from apps.vendors.enums import VendorStatus, TrustTier, BusinessType, DocumentType
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -200,7 +200,42 @@ class Command(BaseCommand):
             vendor.status = VendorStatus.APPROVED
             vendor.tier = TrustTier.VIP
             vendor.is_verified = True
+            if not vendor.tin_number:
+                vendor.tin_number = f"00{abs(hash(vendor.store_name)) % 90000000 + 10000000}"
+            if not vendor.business_license_number:
+                vendor.business_license_number = f"LIC-ADD-{abs(hash(vendor.store_name)) % 90000 + 10000}"
+            vendor.street_address = "Main Commercial Road, Suite 101"
+            vendor.wereda = "03"
             vendor.save()
+
+            # Seed verified KYC documents
+            for doc_type, doc_num, doc_note in [
+                (DocumentType.TIN_CERTIFICATE, vendor.tin_number, "Verified Ethiopian Revenue Authority Certificate"),
+                (DocumentType.FAYDA_ID, f"FYD-{abs(hash(vendor.store_name)) % 9000000000 + 1000000000}", "Verified National Fayda Digital ID"),
+                (DocumentType.PASSPORT_OR_KEBELE, f"KEB-03-{abs(hash(vendor.store_name)) % 90000 + 10000}", "Verified Subcity Kebele Resident ID"),
+                (DocumentType.TRADE_LICENSE, vendor.business_license_number, "Ministry of Trade Renewed License"),
+            ]:
+                KYCDocument.objects.get_or_create(
+                    vendor=vendor,
+                    document_type=doc_type,
+                    defaults={
+                        "document_number": doc_num,
+                        "is_verified": True,
+                        "notes": doc_note,
+                        "file": f"vendors/kyc/{doc_type.lower()}_sample.pdf",
+                    }
+                )
+
+            # Seed Bank Settlement Details
+            if not hasattr(vendor, "bank_details"):
+                VendorBankDetails.objects.create(
+                    vendor=vendor,
+                    bank_code="32",
+                    bank_name="Commercial Bank of Ethiopia (CBE)",
+                    account_number="1000" + str(abs(hash(vendor.store_name)))[:9],
+                    account_name=vendor.store_name,
+                    chapa_subaccount_id=f"ACCT_{abs(hash(vendor.store_name)) % 90000 + 10000}",
+                )
 
             # Assign all root categories to allowed_categories
             root_cats = Category.objects.filter(depth=1)
