@@ -209,9 +209,12 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
     def get_image_url(self, obj):
         if obj.image:
+            name = str(obj.image.name or "")
+            if name.startswith(("http://", "https://")):
+                return name
             url = obj.image.url
             if not url.startswith('http'):
-                pass
+                url = f"http://127.0.0.1:8000{url}"
             return url
         return None
 
@@ -357,6 +360,9 @@ class ProductListSerializer(serializers.ModelSerializer):
         images = list(obj.images.all())
         primary = next((img for img in images if img.is_primary), None) or (images[0] if images else None)
         if primary and primary.image:
+            name = str(primary.image.name or "")
+            if name.startswith(("http://", "https://")):
+                return name
             url = primary.image.url
             if not url.startswith('http'):
                 url = f"http://127.0.0.1:8000{url}"
