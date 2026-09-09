@@ -209,15 +209,24 @@ def _extract_clean_image_url(image_field):
         return f"https://{name[idx:]}"
     if name.startswith(("http://", "https://")):
         return name
+    if "media/products/" in name:
+        clean_path = name[name.find("media/products/"):]
+        return f"https://res.cloudinary.com/gechexpress/image/upload/v1/{clean_path}"
     try:
         url = image_field.url
         if "images.unsplash.com" in url:
             idx = url.find("images.unsplash.com")
             return f"https://{url[idx:]}"
+        if "media/products/" in url and not url.startswith("http"):
+            clean_path = url[url.find("media/products/"):]
+            return f"https://res.cloudinary.com/gechexpress/image/upload/v1/{clean_path}"
         if not url.startswith("http"):
-            url = f"http://127.0.0.1:8000{url}"
+            url = f"https://res.cloudinary.com/gechexpress/image/upload/v1/{url.lstrip('/')}"
         return url
     except Exception:
+        if name:
+            clean_name = name[name.find("media/products/"):] if "media/products/" in name else name.lstrip('/')
+            return f"https://res.cloudinary.com/gechexpress/image/upload/v1/{clean_name}"
         return None
 
 

@@ -1,0 +1,446 @@
+{
+  "Persian Style Living Room Rug": {
+    "slug": "persian-style-living-room-rug-526afa",
+    "category": "Persian Style Rugs",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/34195-ROYAL-SILK-6x9-1-768x768_bov75p",
+        "is_primary": true
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/35367-2-768x768_gov8dk",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/35538-768x768_ian10i",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/35634-9.1x11.11-768x768_xaxyet",
+        "is_primary": false
+      }
+    ]
+  },
+  "Nespresso Vertuo Next": {
+    "slug": "nespresso-vertuo-next-4be8bc",
+    "category": "Coffee & Espresso Machines",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/Hb6f97849751746d9af6719368f0eab91v_-_Copy_vhhswy",
+        "is_primary": true
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/H03eabbc5e1e4448c99a99f8979845d2eB_ko9dsx",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/H05de9faa18694fd9ade95b8c704fe90aN_1_n0ysjm",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/Hdfac11138a494a5fa096c595a0ff87eaK_-_Copy_tkxe6p",
+        "is_primary": false
+      }
+    ]
+  },
+  "Modern Fabric Sofa": {
+    "slug": "modern-fabric-sofa-267404",
+    "category": "Fabric Sofas & Couches",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/Sea-Breeze-Cover-25.10.25-v4_vwygx1",
+        "is_primary": true
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/Cozy-Cloud-3_rcrpjt",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/Cozy-Cloud-3-1_rlpziq",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/Dining-table-Black-Pearl-cover-scaled-1_usefwn",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/GOLDEN-SAND-05.06.23-1-1200x923_ctwyvt",
+        "is_primary": false
+      }
+    ]
+  },
+  "Philips High Speed Blender": {
+    "slug": "philips-high-speed-blender-6f09c7",
+    "category": "Blenders & Juicers",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/H03eabbc5e1e4448c99a99f8979845d2eB_oa18tv",
+        "is_primary": true
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/H05de9faa18694fd9ade95b8c704fe90aN_1_ywfxat",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/H05de9faa18694fd9ade95b8c704fe90aN_d01qnt",
+        "is_primary": false
+      }
+    ]
+  },
+  "De'Longhi Magnifica Espresso Machine": {
+    "slug": "delonghi-magnifica-espresso-machine-1e8a60",
+    "category": "Coffee & Espresso Machines",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/delonghi-magnifica-espresso-machine-3a015d_j029sb",
+        "is_primary": true
+      }
+    ]
+  },
+  "Gymshark Vital Seamless Set": {
+    "slug": "gymshark-vital-seamless-set-a0ad0f",
+    "category": "Activewear Sets",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/gymshark-vital-seamless-set-d03dfb_ojj0fa",
+        "is_primary": true
+      }
+    ]
+  },
+  "Adidas Ultraboost Light": {
+    "slug": "adidas-ultraboost-light-6ce242",
+    "category": "Running & Sports Sneakers",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/Adizero_EVO_SL_Shoes_White_JH6206_HM3_hover_ysfzxb",
+        "is_primary": true
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/Adizero_EVO_SL_Shoes_Silver_JR3419_02_standard_hover_cxuhxw",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/Adizero_EVO_SL_Shoes_White_JS4495_HM3_hover_ltvmzo",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/Handball_Spezial_Shoes_Blue_BD7633_02_standard_hover_swr3bq",
+        "is_primary": false
+      }
+    ]
+  },
+  "Nike Air Zoom Pegasus 40": {
+    "slug": "nike-air-zoom-pegasus-40-81c0a9",
+    "category": "Running & Sports Sneakers",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/WNIKEFREEMETCON7_orieso",
+        "is_primary": true
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/NIKEVOMEROPLUS_3_rim23e",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/NIKEVOMEROPLUS_chrwqf",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/NIKEVOMEROPLUSESS_d3kn9g",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/WNIKEFREEMETCON7_1_hhrz2m",
+        "is_primary": false
+      }
+    ]
+  },
+  "Zara Silk Evening Gown": {
+    "slug": "zara-silk-evening-gown-a67392",
+    "category": "Women's Dresses & Gowns",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/zara-silk-evening-gown-978e04_qf8unt",
+        "is_primary": true
+      }
+    ]
+  },
+  "Hugo Boss Tailored Fit Suit": {
+    "slug": "hugo-boss-tailored-fit-suit-aa4087",
+    "category": "Men's Suits & Tuxedos",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/1ef8255cde183e33b8b51e186ad6c4b2_ugwohz",
+        "is_primary": true
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/956fd711a8c34fa9ab7e2fa0b16f6c01_xlwjjv",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/32731be47dd7e11f59e853a995aae422_d2xvy6",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/47711dfd94fb5f70ecf9d92306d4e2fc_sjl8kt",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/6abe2f5bd9a69f9adde3404caa30b828_zu69hc",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/786dac47078b40758a82a0437fa354cd_q6e6yt",
+        "is_primary": false
+      }
+    ]
+  },
+  "Apple iPhone 15 Pro": {
+    "slug": "apple-iphone-15-pro-214de9",
+    "category": "Flagship Smartphones",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/iphone-17pro-digitalmat-gallery-5-202509_whnelw",
+        "is_primary": true
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/iphone-17pro-digitalmat-gallery-2-202509_rnbq5k",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/iphone-17pro-digitalmat-gallery-3-202509_krb1wk",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/iphone-17pro-digitalmat-gallery-4-202509_sxvf51",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/iphone-17pro-digitalmat-gallery-6-202603_mpw8fe",
+        "is_primary": false
+      }
+    ]
+  },
+  "Sony WH-1000XM5": {
+    "slug": "sony-wh-1000xm5-7d1fac",
+    "category": "Noise-Cancelling Headphones",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/sony-wh-1000xm5-53c513_d9mhhe",
+        "is_primary": true
+      }
+    ]
+  },
+  "Dell XPS 15": {
+    "slug": "dell-xps-15-8b0b3c",
+    "category": "Laptops & Ultrabooks",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/Dell_XPS_15_2017_jgba8a",
+        "is_primary": true
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/us-microrgb-r95h-mrn75r95hafxza-552540009_k9wn5r",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/us-viewfinity-s8-40s85th-ls40h850tanxza-552576247_ax4pip",
+        "is_primary": false
+      }
+    ]
+  },
+  "Samsung Galaxy S24 Ultra": {
+    "slug": "samsung-galaxy-s24-ultra-c773ea",
+    "category": "Flagship Smartphones",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/3_H8_ExclusiveColor_snnnra",
+        "is_primary": true
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/us-galaxy-z-fold8-ultra-f976-600251-sm-f976udgaxaa-553838522_ulnygc",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/us-galaxy-z-fold8-ultra-f976-600251-sm-f976udgaxaa-553838526_rznugc",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/us-galaxy-z-fold8-ultra-f976-600251-sm-f976udgaxaa-553838527_zq0fve",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/us-galaxy-z-fold8-ultra-f976-600251-sm-f976udgaxaa-553838537_tt6qdl",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/us-microrgb-r95h-mrn75r95hafxza-552540009_ag2rz8",
+        "is_primary": false
+      }
+    ]
+  },
+  "New Brand T-Shirt": {
+    "slug": "new-brand-t-shirt-328669",
+    "category": "Men's T-Shirts & Polos",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/09/cat4_qqnrez",
+        "is_primary": true
+      }
+    ]
+  },
+  "gfhjkghjk": {
+    "slug": "gfhjkghjk-fa5454",
+    "category": "Hilling Shoe",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/coat4_cf5eym",
+        "is_primary": true
+      }
+    ]
+  },
+  "new Dress Nigga": {
+    "slug": "new-dress-nigga-a64baf",
+    "category": "Dresses",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/il_1588xN.6667930308_6wtw_wmnmyi",
+        "is_primary": true
+      }
+    ]
+  },
+  "this is another one nigga": {
+    "slug": "this-is-another-one-nigga-53d806-archived-1788367098",
+    "category": "Dresses",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/Dell_XPS_15_2017_iezubu",
+        "is_primary": true
+      }
+    ]
+  },
+  "khhhjnmn": {
+    "slug": "khhhjnmn-3f24ad",
+    "category": "Hilling Shoe",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/cat3_xhc0ac",
+        "is_primary": true
+      }
+    ]
+  },
+  "bhbf,MB": {
+    "slug": "bhbfmb-f937ad",
+    "category": "Liquid Foundations",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/coat2_-_Copy_refnqt",
+        "is_primary": true
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/coat2_vwrpha",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/coat3_jjjtam",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/coat4_imbfon",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/Dell_XPS_15_2017_qlyzmj",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/download_1_e8uiax",
+        "is_primary": false
+      }
+    ]
+  },
+  "I Love My Hot Latina Wife Shirt – Funny Husband Gift": {
+    "slug": "i-love-my-hot-latina-wife-shirt-funny-husband-gift-4a0ef1",
+    "category": "Men's T-Shirts & Polos",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/il_1588xN.6715970865_1iu1_ajhrsd",
+        "is_primary": true
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/il_1588xN.6667930382_dwe0_kggrzf",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/il_1588xN.6715970899_kwjx_fkpnar",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/il_1588xN.6715970937_fzca_k6q0e7",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/il_1588xN.6667930308_6wtw_uuocq7",
+        "is_primary": false
+      }
+    ]
+  },
+  "Men's Premium Oxford Casual Shirt": {
+    "slug": "mens-premium-oxford-casual-shirt-4beed8",
+    "category": "Men's T-Shirts & Polos",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/cat3_mqixd2",
+        "is_primary": true
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/cat4_pg41vv",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/coat1_-_Copy_inir2u",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/coat3_echyym",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/coat4_jc0mvg",
+        "is_primary": false
+      }
+    ]
+  },
+  "TECNO CAMON 50 Ultra 5G": {
+    "slug": "tecno-camon-50-ultra-5g-52657f",
+    "category": "Mid-Range Smartphones",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/images-design-img-purple-1.jpg_bi6m9a",
+        "is_primary": true
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/images-design-img-black-1.jpg_i5vguo",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/images-design-img-titanium-1.jpg_mswkyr",
+        "is_primary": false
+      },
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/images-design-img-orange-1.jpg_vgovgw",
+        "is_primary": false
+      }
+    ]
+  },
+  "Apple MacBook Pro M3 Max": {
+    "slug": "apple-macbook-pro-m3-max-42aff5",
+    "category": "Laptops & Ultrabooks",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/gechexpress/image/upload/v1/media/products/2026/08/apple-macbook-pro-m3-max-5c4483_e0nqiz",
+        "is_primary": true
+      }
+    ]
+  }
+}

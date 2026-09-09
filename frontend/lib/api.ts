@@ -94,6 +94,11 @@ export function getImageUrl(path: string | undefined | null, seed: string = "def
     }
   }
 
+  if (path.includes("media/products/")) {
+    const cleanPath = path.slice(path.indexOf("media/products/"));
+    return `https://res.cloudinary.com/gechexpress/image/upload/w_600,c_limit,f_auto,q_auto/v1/${cleanPath}`;
+  }
+
   if (path.startsWith("http")) return path;
 
   // Extract base URL from getBaseApiUrl (e.g. "http://127.0.0.1:8000" or "http://localhost:8000")

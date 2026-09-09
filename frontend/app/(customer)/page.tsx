@@ -206,9 +206,15 @@ export default async function CustomerHomePage() {
       productsByCat[catKey].push(p);
     });
 
-    // Sort products inside each category by rating and recency
+    const hasRealImage = (p: any) =>
+      Boolean(p.image && !p.image.includes("images.unsplash.com"));
+
+    // Sort products inside each category: real uploaded images ALWAYS first, then rating and recency
     Object.values(productsByCat).forEach((catList) => {
       catList.sort((a: any, b: any) => {
+        const aReal = hasRealImage(a) ? 1 : 0;
+        const bReal = hasRealImage(b) ? 1 : 0;
+        if (bReal !== aReal) return bReal - aReal;
         const ratingDiff = (b.rating || 0) - (a.rating || 0);
         if (ratingDiff !== 0) return ratingDiff;
         return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
@@ -251,15 +257,22 @@ export default async function CustomerHomePage() {
       return keys;
     };
 
-    // 2. Category Shelves: Display 6 curated products per category on homepage
+    // 2. Category Shelves: Display 6 curated products per category on homepage (real images first)
     categoryShelves = categories
       .map((cat) => {
         const descKeys = getDescendantKeys(cat);
-        const catProducts = mappedAllProducts.filter(
-          (p: any) =>
-            descKeys.has(p.categorySlug?.toLowerCase()) ||
-            descKeys.has(p.categoryName?.toLowerCase())
-        );
+        const catProducts = mappedAllProducts
+          .filter(
+            (p: any) =>
+              descKeys.has(p.categorySlug?.toLowerCase()) ||
+              descKeys.has(p.categoryName?.toLowerCase())
+          )
+          .sort((a: any, b: any) => {
+            const aReal = hasRealImage(a) ? 1 : 0;
+            const bReal = hasRealImage(b) ? 1 : 0;
+            if (bReal !== aReal) return bReal - aReal;
+            return (b.rating || 0) - (a.rating || 0);
+          });
         return {
           id: cat.id,
           name: cat.name,
@@ -271,18 +284,28 @@ export default async function CustomerHomePage() {
       .filter((shelf) => shelf.products.length > 0);
 
     // Fetch category card thumbnails for categories that have at least 4 products
-    // (ensuring each 2x2 card has 4 genuine distinct product photos from that category)
+    // (ensuring each 2x2 card prioritizes real uploaded product photos from that category)
     const categoryProductCounts = categories.map((c) => {
       const descKeys = getDescendantKeys(c);
-      const prodsForCat = mappedAllProducts.filter(
-        (p: any) =>
-          descKeys.has(p.categorySlug?.toLowerCase()) ||
-          descKeys.has(p.categoryName?.toLowerCase())
-      );
-      // Collect unique product images for this category
+      const prodsForCat = mappedAllProducts
+        .filter(
+          (p: any) =>
+            descKeys.has(p.categorySlug?.toLowerCase()) ||
+            descKeys.has(p.categoryName?.toLowerCase())
+        )
+        .sort((a: any, b: any) => {
+          const aReal = hasRealImage(a) ? 1 : 0;
+          const bReal = hasRealImage(b) ? 1 : 0;
+          return bReal - aReal;
+        });
+      // Collect unique product images for this category, real photos first
       const uniqueImages = Array.from(
         new Set(prodsForCat.map((p: any) => p.image).filter(Boolean))
-      );
+      ).sort((a: any, b: any) => {
+        const aReal = !a.includes("images.unsplash.com") ? 1 : 0;
+        const bReal = !b.includes("images.unsplash.com") ? 1 : 0;
+        return bReal - aReal;
+      });
       return {
         category: c,
         products: prodsForCat,
