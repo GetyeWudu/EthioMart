@@ -70,7 +70,7 @@ export default function EditProductPage() {
 
       const loadedImages: StagedImage[] = prod.images.map((img: any) => ({
         id: img.id,
-        previewUrl: img.image_url,
+        previewUrl: img.image_url || img.image,
         file: null,
         isPrimary: img.is_primary,
       }));
