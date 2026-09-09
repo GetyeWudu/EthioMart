@@ -16,6 +16,7 @@ python manage.py seed_platform_settings
 python manage.py seed_shipping_rates
 python manage.py seed_catalog_taxonomy
 python manage.py seed_demo_catalog
+python manage.py seed_mock_store
 
 # Automatically create superadmin if credentials are provided in environment
 if [ -n "$SUPERUSER_EMAIL" ] && [ -n "$SUPERUSER_PASSWORD" ]; then
