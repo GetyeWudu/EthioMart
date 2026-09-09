@@ -54,9 +54,22 @@ export function getImageUrl(path: string | undefined | null, seed: string = "def
     const selectedId = fallbacks[Math.abs(hash) % fallbacks.length];
     return `https://images.unsplash.com/photo-${selectedId}?q=80&w=600&auto=format&fit=crop`;
   }
-  
+
+  // Cloudinary auto-transform: inject thumbnail params if no transform is present
+  // e.g. https://res.cloudinary.com/demo/image/upload/sample.jpg
+  //   → https://res.cloudinary.com/demo/image/upload/w_400,c_limit,f_auto,q_auto/sample.jpg
+  if (path.includes("res.cloudinary.com") && path.includes("/upload/")) {
+    const uploadIndex = path.indexOf("/upload/") + "/upload/".length;
+    const afterUpload = path.slice(uploadIndex);
+    // Only inject if no existing transforms (transforms start with letters/digits followed by underscore or comma)
+    const hasTransforms = /^[a-z][a-z0-9_]+[_,]/.test(afterUpload);
+    if (!hasTransforms) {
+      return path.slice(0, uploadIndex) + "w_400,c_limit,f_auto,q_auto/" + afterUpload;
+    }
+  }
+
   if (path.startsWith("http")) return path;
-  
+
   // Extract base URL from getBaseApiUrl (e.g. "http://127.0.0.1:8000" or "http://localhost:8000")
   const baseUrl = getBaseApiUrl().split("/api/")[0];
   return `${baseUrl}${path.startsWith("/") ? "" : "/"}${path}`;

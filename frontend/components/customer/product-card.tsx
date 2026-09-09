@@ -54,9 +54,15 @@ export function ProductCard({
   const { isSuspended } = useCurrentUser();
   
   const [mounted, setMounted] = useState(false);
+  const [imgSrc, setImgSrc] = useState<string>(() => getImageUrl(image, id));
+
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    setImgSrc(getImageUrl(image, id));
+  }, [image, id]);
 
   const isWishlisted = mounted ? hasItem(id) : false;
   const isOutOfStock = totalAvailableStock <= 0;
@@ -126,10 +132,15 @@ export function ProductCard({
       <div className="relative h-[110px] sm:h-[190px] w-full overflow-hidden bg-slate-100 dark:bg-slate-800/50">
         <Link href={`/products/${slug}`} className="block h-full w-full">
           <Image
-            src={getImageUrl(image, id)}
+            src={imgSrc}
             alt={name || "Product image"}
             fill
-            unoptimized
+            onError={() => {
+              const fallback = getImageUrl(null, id);
+              if (imgSrc !== fallback) {
+                setImgSrc(fallback);
+              }
+            }}
             className="object-cover transition-transform duration-500 ease-out group-hover:scale-110 group-hover:-translate-y-1"
             sizes="(max-width: 768px) 33vw, (max-width: 1200px) 25vw, 20vw"
           />

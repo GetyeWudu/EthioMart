@@ -340,25 +340,31 @@ class ProductListSerializer(serializers.ModelSerializer):
         from apps.catalog.services.commission_service import CommissionService
         return str(CommissionService.get_effective_commission_rate(product=obj))
 
+    def _get_active_variants(self, obj):
+        """Return active variants from prefetched cache — zero extra SQL."""
+        return [v for v in obj.variants.all() if v.is_active]
+
     def get_default_variant_id(self, obj):
-        default_variant = obj.variants.filter(is_default=True).first() or obj.variants.first()
-        return str(default_variant.id) if default_variant else None
+        # Scan prefetched variants in memory — no extra SQL
+        variants = list(obj.variants.all())
+        default_v = next((v for v in variants if getattr(v, "is_default", False)), None)
+        if default_v is None and variants:
+            default_v = variants[0]
+        return str(default_v.id) if default_v else None
 
     def get_primary_image(self, obj):
-        primary = obj.images.filter(is_primary=True).first() or obj.images.first()
+        # Scan prefetched images in memory — no extra SQL
+        images = list(obj.images.all())
+        primary = next((img for img in images if img.is_primary), None) or (images[0] if images else None)
         if primary and primary.image:
             url = primary.image.url
             if not url.startswith('http'):
-                # Add absolute URL prefix for local development
                 url = f"http://127.0.0.1:8000{url}"
             return url
         return None
 
     def get_price_display(self, obj):
-        variants = obj.variants.filter(is_active=True)
-        if not variants.exists():
-            return "0.00 ETB"
-        prices = [v.price for v in variants if v.price is not None]
+        prices = [v.price for v in self._get_active_variants(obj) if v.price is not None]
         if not prices:
             return "0.00 ETB"
         min_p, max_p = min(prices), max(prices)
@@ -388,24 +394,26 @@ class ProductListSerializer(serializers.ModelSerializer):
         return self._get_promo_data(obj)['promotion_badge']
 
     def get_min_price(self, obj):
-        prices = [v.price for v in obj.variants.filter(is_active=True) if v.price is not None]
+        # In-memory scan over prefetched variants — no extra SQL
+        prices = [v.price for v in self._get_active_variants(obj) if v.price is not None]
         return float(min(prices)) if prices else 0.0
 
     def get_max_price(self, obj):
-        prices = [v.price for v in obj.variants.filter(is_active=True) if v.price is not None]
+        prices = [v.price for v in self._get_active_variants(obj) if v.price is not None]
         return float(max(prices)) if prices else 0.0
 
     def get_in_stock(self, obj):
-        for v in obj.variants.filter(is_active=True):
+        # In-memory scan over prefetched warehouse_stocks — no extra SQL
+        for v in self._get_active_variants(obj):
             for ws in v.warehouse_stocks.all():
                 if ws.quantity_available > 0:
                     return True
         return False
-        
+
     def get_total_available_stock(self, obj):
         return sum(
-            ws.quantity_available 
-            for v in obj.variants.filter(is_active=True) 
+            ws.quantity_available
+            for v in self._get_active_variants(obj)
             for ws in v.warehouse_stocks.all()
         )
 
@@ -482,11 +490,12 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             "city": obj.vendor.city,
         }
 
+    def _get_active_variants(self, obj):
+        """Return active variants from prefetched cache — zero extra SQL."""
+        return [v for v in obj.variants.all() if v.is_active]
+
     def get_price_display(self, obj):
-        variants = obj.variants.filter(is_active=True)
-        if not variants.exists():
-            return "0.00 ETB"
-        prices = [v.price for v in variants if v.price is not None]
+        prices = [v.price for v in self._get_active_variants(obj) if v.price is not None]
         if not prices:
             return "0.00 ETB"
         min_p, max_p = min(prices), max(prices)
@@ -516,11 +525,12 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         return self._get_promo_data(obj)['promotion_badge']
 
     def get_min_price(self, obj):
-        prices = [v.price for v in obj.variants.filter(is_active=True) if v.price is not None]
+        # In-memory scan over prefetched variants — no extra SQL
+        prices = [v.price for v in self._get_active_variants(obj) if v.price is not None]
         return float(min(prices)) if prices else 0.0
 
     def get_max_price(self, obj):
-        prices = [v.price for v in obj.variants.filter(is_active=True) if v.price is not None]
+        prices = [v.price for v in self._get_active_variants(obj) if v.price is not None]
         return float(max(prices)) if prices else 0.0
 
 

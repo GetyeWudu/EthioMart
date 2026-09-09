@@ -52,15 +52,6 @@ export function WithdrawModal({ isOpen, onClose, wallet, onSuccess }: WithdrawMo
   const transferFee = 15.0;
   const netReceived = Math.max(0, requestedNum - transferFee);
 
-  useEffect(() => {
-    if (isOpen) {
-      setError(null);
-      setSuccessData(null);
-      setAmount("");
-      loadBankInfo();
-    }
-  }, [isOpen]);
-
   const loadBankInfo = async () => {
     setIsFetchingInfo(true);
     try {
@@ -85,6 +76,15 @@ export function WithdrawModal({ isOpen, onClose, wallet, onSuccess }: WithdrawMo
       setIsFetchingInfo(false);
     }
   };
+
+  useEffect(() => {
+    if (isOpen) {
+      setError(null);
+      setSuccessData(null);
+      setAmount("");
+      loadBankInfo();
+    }
+  }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

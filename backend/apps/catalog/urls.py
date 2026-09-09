@@ -27,6 +27,7 @@ from apps.catalog.views import (
     AdminProductDetailAPIView,
     AdminProductApproveAPIView,
     AdminProductRejectAPIView,
+    AdminProductCountsAPIView,
     AdminBrandListCreateAPIView,
     AdminBrandDetailAPIView,
 )
@@ -64,6 +65,7 @@ urlpatterns = [
     path("admin/categories/<uuid:pk>/attributes/", AdminCategoryAttributeBindAPIView.as_view(), name="admin-category-attribute-bind"),
     path("admin/category-attributes/<uuid:pk>/", AdminCategoryAttributeDeleteAPIView.as_view(), name="admin-category-attribute-delete"),
     path("admin/products/", AdminProductModerationListAPIView.as_view(), name="admin-product-moderation-list"),
+    path("admin/products/counts/", AdminProductCountsAPIView.as_view(), name="admin-product-counts"),
     path("admin/products/<uuid:pk>/", AdminProductDetailAPIView.as_view(), name="admin-product-detail"),
     path("admin/products/<uuid:pk>/approve/", AdminProductApproveAPIView.as_view(), name="admin-product-approve"),
     path("admin/products/<uuid:pk>/reject/", AdminProductRejectAPIView.as_view(), name="admin-product-reject"),

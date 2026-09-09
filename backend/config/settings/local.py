@@ -23,7 +23,7 @@ if database_url:
             "PASSWORD": parsed.password or os.environ.get("POSTGRES_PASSWORD") or config("POSTGRES_PASSWORD", default="Gech@1234"),
             "HOST": parsed.hostname or os.environ.get("POSTGRES_HOST") or config("POSTGRES_HOST", default="127.0.0.1"),
             "PORT": str(parsed.port or os.environ.get("POSTGRES_PORT") or config("POSTGRES_PORT", default="5432")),
-            "CONN_MAX_AGE": 60,
+            "CONN_MAX_AGE": 600,  # Reuse connections for 10 min
         }
     }
 else:
@@ -35,7 +35,7 @@ else:
             "PASSWORD": os.environ.get("POSTGRES_PASSWORD") or config("POSTGRES_PASSWORD", default="Gech@1234"),
             "HOST": os.environ.get("POSTGRES_HOST") or config("POSTGRES_HOST", default="127.0.0.1"),
             "PORT": str(os.environ.get("POSTGRES_PORT") or config("POSTGRES_PORT", default="5432")),
-            "CONN_MAX_AGE": 60,
+            "CONN_MAX_AGE": 600,  # Reuse connections for 10 min
         }
     }
 
@@ -99,12 +99,14 @@ CSRF_TRUSTED_ORIGINS = [
 # ---------------------------------------------------------------------------
 LOGGING["handlers"]["console"]["level"] = "DEBUG"
 
-# Override media storage for local dev since Cloudinary keys are missing
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-    },
-}
+# Media storage: Use Cloudinary if credentials are configured in .env, otherwise fallback to local FileSystemStorage
+if not config("CLOUDINARY_CLOUD_NAME", default=""):
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+

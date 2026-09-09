@@ -285,8 +285,12 @@ class Product(BaseModel):
     class Meta:
         ordering = ["-created_at"]
         indexes = [
-            models.Index(fields=["status", "category"]),
-            models.Index(fields=["vendor", "status"]),
+            # Covers status-filtered + date-sorted queries (e.g. moderation queue)
+            models.Index(fields=["status", "-created_at"], name="idx_prod_status_created"),
+            # Covers category-browse queries filtered by status + sorted by date
+            models.Index(fields=["category", "status", "-created_at"], name="idx_prod_cat_stat_created"),
+            # Covers vendor product lists filtered by status + sorted by date
+            models.Index(fields=["vendor", "status", "-created_at"], name="idx_prod_vnd_stat_created"),
         ]
 
     def __str__(self):

@@ -5,13 +5,13 @@ import { SortDropdown } from "@/components/customer/sort-dropdown";
 
 import { Search, Sparkles, PackageOpen } from "lucide-react";
 import { catalogService } from "@/features/products/services/catalog-service";
-import { AutoRefresh } from "@/components/customer/auto-refresh";
 import { getImageUrl } from "@/lib/api";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const SORT_OPTIONS = [
   { label: "Featured", value: "featured" },
+  { label: "Trending", value: "trending" },
   { label: "Newest Arrivals", value: "newest" },
   { label: "Price: Low to High", value: "price-low" },
   { label: "Price: High to Low", value: "price-high" },
@@ -118,8 +118,6 @@ export default async function ProductsPage({
 
   return (
     <div className="container mx-auto px-4 py-8 pt-24 md:py-12 md:pt-28 max-w-[1400px]">
-      <AutoRefresh interval={10000} />
-
       {/* Page Header */}
       <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 pb-6 dark:border-slate-800">
         <div>

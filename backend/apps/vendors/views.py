@@ -465,14 +465,14 @@ class AdminVendorListView(APIView):
         tier_filter        = request.query_params.get("tier")
         search             = request.query_params.get("search")
 
-        if status_filter:
-            qs = qs.filter(status=status_filter)
-        if vendor_type_filter:
-            qs = qs.filter(vendor_type=vendor_type_filter)
-        if tier_filter:
-            qs = qs.filter(tier=tier_filter)
-        if search:
-            qs = qs.filter(store_name__icontains=search)
+        if status_filter and status_filter.strip().upper() not in ["", "ALL", "NONE"]:
+            qs = qs.filter(status=status_filter.strip())
+        if vendor_type_filter and vendor_type_filter.strip().upper() not in ["", "ALL", "NONE"]:
+            qs = qs.filter(vendor_type=vendor_type_filter.strip())
+        if tier_filter and tier_filter.strip().upper() not in ["", "ALL", "NONE"]:
+            qs = qs.filter(tier=tier_filter.strip())
+        if search and search.strip():
+            qs = qs.filter(store_name__icontains=search.strip())
 
         serializer = AdminVendorListSerializer(qs, many=True, context={"request": request})
         return Response({"count": qs.count(), "results": serializer.data})

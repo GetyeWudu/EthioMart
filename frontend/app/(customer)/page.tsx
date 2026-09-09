@@ -7,11 +7,10 @@ import { CategoryCard } from "@/components/customer/category-card";
 import { HeroSlider } from "@/components/customer/hero-slider";
 import { catalogService } from "@/features/products/services/catalog-service";
 import { CategoryNode } from "@/features/products/types";
-import { AutoRefresh } from "@/components/customer/auto-refresh";
 import { getImageUrl } from "@/lib/api";
 
-// Ensure this page runs dynamically to always fetch latest products
-export const dynamic = "force-dynamic";
+// ISR: Regenerate cached page at most once every 60 seconds
+export const revalidate = 60;
 
 function mapProduct(product: any, isNewOverride?: boolean) {
   const minPrice = Number(product.min_price || 0);
@@ -192,46 +191,52 @@ export default async function CustomerHomePage() {
     const mappedAllProducts = rawProducts.map((p: any) => mapProduct(p));
 
     const now = Date.now();
-    const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+    const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
-    // 1. Trending Now: new products created within the last 24 hours
-    let trendingRaw = mappedAllProducts.filter((p: any) => {
-      if (!p.createdAt) return false;
-      const createdTime = new Date(p.createdAt).getTime();
-      return now - createdTime <= ONE_DAY_MS;
+    // 1. Trending Now: Fresh new arrivals & popular marketplace items
+    // Priority 1: Products created within the last 7 days appear first with "New" badge
+    const recentProducts = mappedAllProducts
+      .filter((p: any) => {
+        if (!p.createdAt) return false;
+        const createdTime = new Date(p.createdAt).getTime();
+        return now - createdTime <= SEVEN_DAYS_MS;
+      })
+      .sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+
+    // Priority 2: Popular, top-rated, and newest items to ensure a full shelf (up to 18 products)
+    const recentIds = new Set(recentProducts.map((p: any) => p.id));
+    const backfillProducts = [...mappedAllProducts]
+      .filter((p: any) => !recentIds.has(p.id))
+      .sort((a: any, b: any) => {
+        const ratingDiff = (b.rating || 0) - (a.rating || 0);
+        if (ratingDiff !== 0) return ratingDiff;
+        const reviewsDiff = (b.reviewsCount || 0) - (a.reviewsCount || 0);
+        if (reviewsDiff !== 0) return reviewsDiff;
+        return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+      });
+
+    const combinedTrending = [...recentProducts, ...backfillProducts].slice(0, 18);
+
+    trendingProducts = combinedTrending.map((p: any) => {
+      const createdTime = new Date(p.createdAt || 0).getTime();
+      const isRecent = p.createdAt ? (now - createdTime <= SEVEN_DAYS_MS) : false;
+      return {
+        ...p,
+        isNew: Boolean(p.isNew || isRecent),
+      };
     });
 
-    // Fallback: If no products were created in the past 24 hours, display the newest products in Trending Now
-    if (trendingRaw.length === 0) {
-      trendingRaw = [...mappedAllProducts]
-        .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
-        .slice(0, 18);
-    }
-
-    trendingProducts = trendingRaw.map((p: any) => ({ ...p, isNew: true }));
-    const trendingIds = new Set(trendingProducts.map((p: any) => p.id));
-
-    // 2. Others (> 24 hours): grouped by categories
-    const remainingProducts = mappedAllProducts.filter((p: any) => !trendingIds.has(p.id));
-
+    // 2. Category Shelves: Display full catalog by category
     categoryShelves = categories
       .map((cat) => {
-        const catProducts = remainingProducts.filter(
+        const catProducts = mappedAllProducts.filter(
           (p: any) => p.categorySlug === cat.slug || p.categoryName?.toLowerCase() === cat.name?.toLowerCase()
         );
-        // Fallback: if remaining is sparse, include all products in this category
-        const finalProducts =
-          catProducts.length > 0
-            ? catProducts
-            : mappedAllProducts.filter(
-                (p: any) => p.categorySlug === cat.slug || p.categoryName?.toLowerCase() === cat.name?.toLowerCase()
-              );
-
         return {
           id: cat.id,
           name: cat.name,
           slug: cat.slug,
-          products: finalProducts,
+          products: catProducts,
         };
       })
       .filter((shelf) => shelf.products.length > 0);
@@ -277,7 +282,6 @@ export default async function CustomerHomePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900">
-      <AutoRefresh interval={5000} />
 
       {/* Hero: Full-screen video background with minimal paragraph */}
       <HeroSlider />

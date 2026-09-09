@@ -62,6 +62,7 @@ export interface AttributeValue {
   value: string;
   value_am?: string;
   color_code?: string;
+  is_global?: boolean;
 }
 
 export interface Attribute {

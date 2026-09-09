@@ -6,9 +6,8 @@ import { SortDropdown } from "@/components/customer/sort-dropdown";
 import { ActiveFilterChips } from "@/components/customer/active-filter-chips";
 import { Zap, Search, Flame, ArrowRight, Sparkles, RefreshCw } from "lucide-react";
 import { catalogService } from "@/features/products/services/catalog-service";
-import { AutoRefresh } from "@/components/customer/auto-refresh";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const SORT_OPTIONS = [
   { label: "Biggest Discount", value: "discount" },
@@ -96,7 +95,6 @@ export default async function DealsPage({
 
   return (
     <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950">
-      <AutoRefresh interval={10000} />
       <div className="container mx-auto px-4 py-8 pt-24 md:py-12 md:pt-28 max-w-[1400px]">
         {/* Flash Deals Hero Banner */}
         <div className="mb-10 relative overflow-hidden rounded-3xl bg-gradient-to-br from-rose-600 via-rose-500 to-orange-500 dark:from-rose-950 dark:via-rose-900 dark:to-orange-900 px-6 py-10 sm:p-12 shadow-xl isolate">

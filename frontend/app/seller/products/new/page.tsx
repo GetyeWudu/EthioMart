@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Brand, ProductType, CategoryAttributeBinding, CategoryNode } from "@/features/products/types";
@@ -13,9 +13,10 @@ import { ProductImageUploader, StagedImage } from "@/components/catalog/product-
 import {
   ArrowLeft, CheckCircle2, AlertCircle, Layers,
   Package, Layers as LayersIcon, Filter, Plus, Trash2, Warehouse, Store, Compass,
-  Truck, ShieldAlert, Download, Info, Mail, Sliders, ChevronDown, ChevronUp, Sparkles, X
+  Truck, ShieldAlert, Download, Info, Mail, Sliders, ChevronDown, ChevronUp, Sparkles, X, Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 
 
@@ -167,6 +168,7 @@ export default function NewProductPage() {
   type CustomDimension = { id: string; name: string; values: string[]; currentInput: string };
   const [customDimensions, setCustomDimensions] = useState<CustomDimension[]>([]);
   const [customAttrInputs, setCustomAttrInputs] = useState<{ [attrId: string]: string }>({});
+  const [addingCustomAttrId, setAddingCustomAttrId] = useState<string | null>(null);
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const [selectedWarehouseId, setSelectedWarehouseId] = useState("");
 
@@ -229,17 +231,7 @@ export default function NewProductPage() {
     ]).then(([tree, bnds, profile, whs]) => {
       setCategoryTree(tree || []);
       
-      // Default Electronics category if not already set by draft
-      if (tree && tree.length > 0) {
-        const electronicsNode = tree.find((c: any) => c.name.toLowerCase().includes('electronic'));
-        if (electronicsNode && selectedCategoryPath.length === 0) {
-          setSelectedCategoryPath([electronicsNode]);
-          catalogService.getCategoryAttributes(electronicsNode.id).then(attrs => {
-            setVariantAttributes(attrs || []);
-            setActiveVariantAttributes((attrs || []).map((a: any) => a.attribute.id));
-          }).catch(() => {});
-        }
-      }
+      // Keep category empty by default so seller selects their actual product category
       setAllBrands(bnds || []);
       setScopedBrands(bnds || []); // default all brands until category chosen
       if (whs && whs.length > 0) {
@@ -331,20 +323,29 @@ export default function NewProductPage() {
         catalogService.getCategoryBrands(nodeId).catch(() => []),
       ]);
       setVariantAttributes(attrs || []);
+      setActiveVariantAttributes((attrs || []).map((a: any) => a.attribute.id));
       setScopedBrands(bnds || allBrands);
     } catch (e) {
       console.error(e);
       setVariantAttributes([]);
+      setActiveVariantAttributes([]);
       setScopedBrands(allBrands);
     }
   };
 
   const generateVariantMatrix = (
     attrValueSelections: { [attrId: string]: string[] } = selectedAttrValues,
-    currentCustomDims: CustomDimension[] = customDimensions
+    currentCustomDims: CustomDimension[] = customDimensions,
+    currentActiveAttrIds: string[] = activeVariantAttributes
   ) => {
-    const activeStandardAttrs = Object.entries(attrValueSelections).filter(([_, vals]) => vals.length > 0);
-    const activeCustomDims = currentCustomDims.filter((d) => d.name.trim() && d.values.length > 0);
+    // 1. Only include standard attributes that are currently checked in activeVariantAttributes AND have at least 1 value
+    const activeStandardAttrs = Object.entries(attrValueSelections).filter(
+      ([attrId, vals]) => currentActiveAttrIds.includes(attrId) && vals.length > 0
+    );
+    // 2. Only include custom dimensions with a non-empty name and at least 1 value
+    const activeCustomDims = currentCustomDims.filter(
+      (d) => d.name.trim() && d.values.length > 0
+    );
 
     if (activeStandardAttrs.length === 0 && activeCustomDims.length === 0) {
       setVariants([]);
@@ -353,29 +354,32 @@ export default function NewProductPage() {
 
     let combinations: { [attrName: string]: { id: string; val: string; isCustom?: boolean } }[] = [{}];
 
-    // 1. Multiply standard attributes
+    // 3. Multiply standard attributes
     activeStandardAttrs.forEach(([attrId, valIds]) => {
       const binding = variantAttributes.find((b) => b.attribute.id === attrId);
       const attrName = binding?.attribute.name || "Option";
       const nextCombos: { [attrName: string]: { id: string; val: string; isCustom?: boolean } }[] = [];
+
       combinations.forEach((currentComb) => {
         valIds.forEach((vId) => {
-          const valObj = binding?.attribute.values.find((v) => v.id === vId);
-          if (valObj) {
-            nextCombos.push({
-              ...currentComb,
-              [attrName]: { id: valObj.id, val: valObj.value, isCustom: false }
-            });
-          }
+          const valObj = binding?.attribute.values?.find((v: any) => v.id === vId);
+          const valText = valObj ? valObj.value : vId;
+          nextCombos.push({
+            ...currentComb,
+            [attrName]: { id: valObj?.id || vId, val: valText, isCustom: false }
+          });
         });
       });
-      combinations = nextCombos;
+      if (nextCombos.length > 0) {
+        combinations = nextCombos;
+      }
     });
 
-    // 2. Multiply custom dimensions
+    // 4. Multiply custom dimensions
     activeCustomDims.forEach((dim) => {
       const attrName = dim.name.trim();
       const nextCombos: { [attrName: string]: { id: string; val: string; isCustom?: boolean } }[] = [];
+
       combinations.forEach((currentComb) => {
         dim.values.forEach((v) => {
           nextCombos.push({
@@ -384,8 +388,14 @@ export default function NewProductPage() {
           });
         });
       });
-      combinations = nextCombos;
+      if (nextCombos.length > 0) {
+        combinations = nextCombos;
+      }
     });
+
+    const defaultPrice = price && Number(price) > 0 ? Number(price) : 0;
+    const defaultComparePrice = compareAtPrice && Number(compareAtPrice) > 0 ? Number(compareAtPrice) : undefined;
+    const defaultStock = initialStock !== "" && !isNaN(Number(initialStock)) ? Number(initialStock) : 10;
 
     const newRows: VariantRow[] = combinations.map((comb, index) => {
       const labels: { [key: string]: { label: string } } = {};
@@ -396,49 +406,77 @@ export default function NewProductPage() {
           valIds.push(v.id);
         }
       });
-      const rawCode = Object.values(comb).map((v) => v.val.substring(0, 3).toUpperCase().replace(/[^A-Z0-9]/g, "")).join("-");
-      const currentCatSlug = selectedCategoryPath.length > 0 ? (selectedCategoryPath[selectedCategoryPath.length - 1].slug || "CAT") : "CAT";
-      const generatedSku = `${vendorStoreName}-${currentCatSlug.substring(0, 4).toUpperCase()}-${rawCode || index + 1}`;
-      const existing = variants.find((v) => v.sku === generatedSku);
+
+      const rawCode = Object.values(comb)
+        .map((v) => v.val.substring(0, 4).toUpperCase().replace(/[^A-Z0-9]/g, ""))
+        .filter(Boolean)
+        .join("-");
+
+      const currentCatSlug = selectedCategoryPath.length > 0
+        ? (selectedCategoryPath[selectedCategoryPath.length - 1].slug || "CAT")
+        : "CAT";
+
+      const generatedSku = `${vendorStoreName}-${currentCatSlug.substring(0, 4).toUpperCase()}-${rawCode || `VAR${index + 1}`}`;
+
+      const comboKey = Object.entries(labels)
+        .map(([k, l]) => `${k}:${l.label}`)
+        .sort()
+        .join("|");
+
+      const existing = variants.find((v) => {
+        const existingKey = Object.entries(v.attribute_labels || {})
+          .map(([k, l]) => `${k}:${l.label}`)
+          .sort()
+          .join("|");
+        return existingKey === comboKey || v.sku === generatedSku;
+      });
+
       return {
         sku: existing?.sku || generatedSku,
-        price: existing?.price || (price ? Number(price) : 0),
-        compare_at_price: existing?.compare_at_price || (compareAtPrice ? Number(compareAtPrice) : undefined),
-        initial_stock: existing?.initial_stock ?? 10,
+        price: existing?.price !== undefined ? existing.price : defaultPrice,
+        compare_at_price: existing?.compare_at_price !== undefined ? existing.compare_at_price : defaultComparePrice,
+        initial_stock: existing?.initial_stock !== undefined ? existing.initial_stock : defaultStock,
         attribute_value_ids: valIds,
         attribute_labels: labels,
       };
     });
+
     setVariants(newRows);
   };
+
+  // Automatically recalculate variant matrix combinations reactively
+  useEffect(() => {
+    if (productType === "CONFIGURABLE_VARIANT") {
+      generateVariantMatrix(selectedAttrValues, customDimensions, activeVariantAttributes);
+    }
+  }, [selectedAttrValues, customDimensions, activeVariantAttributes, productType, variantAttributes, price, compareAtPrice, initialStock]);
 
   const handleToggleAttrValue = (attrId: string, valueId: string) => {
     const currentList = selectedAttrValues[attrId] || [];
     const exists = currentList.includes(valueId);
     const updated = exists ? currentList.filter((id) => id !== valueId) : [...currentList, valueId];
-    const nextSelections = { ...selectedAttrValues, [attrId]: updated };
-    setSelectedAttrValues(nextSelections);
-    generateVariantMatrix(nextSelections, customDimensions);
+    setSelectedAttrValues((prev) => ({ ...prev, [attrId]: updated }));
   };
 
   const handleAddCustomAttrValue = async (attributeId: string) => {
     const inputVal = (customAttrInputs[attributeId] || "").trim();
     if (!inputVal) return;
 
+    setAddingCustomAttrId(attributeId);
     try {
       const newVal = await catalogService.createSellerAttributeValue(attributeId, inputVal);
       setVariantAttributes((prev) =>
         prev.map((binding) => {
           if (binding.attribute.id === attributeId) {
-            const exists = binding.attribute.values.some(
-              (v) => v.id === newVal.id || v.value.toLowerCase() === inputVal.toLowerCase()
+            const exists = (binding.attribute.values || []).some(
+              (v: any) => v.id === newVal.id || v.value.toLowerCase() === inputVal.toLowerCase()
             );
             if (!exists) {
               return {
                 ...binding,
                 attribute: {
                   ...binding.attribute,
-                  values: [...binding.attribute.values, newVal],
+                  values: [...(binding.attribute.values || []), newVal],
                 },
               };
             }
@@ -446,15 +484,15 @@ export default function NewProductPage() {
           return binding;
         })
       );
-      const currentList = selectedAttrValues[attributeId] || [];
-      const updated = currentList.includes(newVal.id) ? currentList : [...currentList, newVal.id];
-      const nextSelections = { ...selectedAttrValues, [attributeId]: updated };
-      setSelectedAttrValues(nextSelections);
+      setSelectedAttrValues((prev) => {
+        const currentList = prev[attributeId] || [];
+        return currentList.includes(newVal.id) ? prev : { ...prev, [attributeId]: [...currentList, newVal.id] };
+      });
       setCustomAttrInputs((prev) => ({ ...prev, [attributeId]: "" }));
-      generateVariantMatrix(nextSelections, customDimensions);
-    } catch (err) {
-      console.error("Failed to add custom attribute value:", err);
-      const fallbackId = `local_custom_${Date.now()}`;
+      toast.success(`Added custom option: "${newVal.value}"`);
+    } catch (err: any) {
+      console.warn("Could not save to backend attribute values, registering locally:", err);
+      const fallbackId = `custom_${Date.now()}`;
       const fallbackVal: any = { id: fallbackId, value: inputVal, is_global: false };
       setVariantAttributes((prev) =>
         prev.map((binding) => {
@@ -463,18 +501,21 @@ export default function NewProductPage() {
               ...binding,
               attribute: {
                 ...binding.attribute,
-                values: [...binding.attribute.values, fallbackVal],
+                values: [...(binding.attribute.values || []), fallbackVal],
               },
             };
           }
           return binding;
         })
       );
-      const currentList = selectedAttrValues[attributeId] || [];
-      const nextSelections = { ...selectedAttrValues, [attributeId]: [...currentList, fallbackId] };
-      setSelectedAttrValues(nextSelections);
+      setSelectedAttrValues((prev) => {
+        const currentList = prev[attributeId] || [];
+        return { ...prev, [attributeId]: [...currentList, fallbackId] };
+      });
       setCustomAttrInputs((prev) => ({ ...prev, [attributeId]: "" }));
-      generateVariantMatrix(nextSelections, customDimensions);
+      toast.success(`Added custom option: "${inputVal}"`);
+    } finally {
+      setAddingCustomAttrId(null);
     }
   };
 
@@ -542,7 +583,15 @@ export default function NewProductPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedCategoryPath.length === 0) { setErrorMsg("Please select a category."); return; }
-    if (isSuggestingCustomCategory && !suggestedCategory.trim()) { setErrorMsg("Please provide a category path for your suggestion."); return; }
+    if (isSuggestingCustomCategory) {
+      if (!suggestedCategory.trim()) { setErrorMsg("Please provide a category path for your suggestion."); return; }
+    } else {
+      const lastNode = selectedCategoryPath[selectedCategoryPath.length - 1];
+      if (lastNode && lastNode.children && lastNode.children.length > 0) {
+        setErrorMsg(`Category '${lastNode.name}' has subcategories. Products must be attached to a terminal leaf node. Please select a specific subcategory.`);
+        return;
+      }
+    }
     if (productType === "SIMPLE") {
       if (!price || Number(price) <= 0) { setErrorMsg("Please set a valid selling price."); return; }
     } else {
@@ -655,7 +704,15 @@ export default function NewProductPage() {
     setErrorMsg(null);
     if (step === 1) {
       if (selectedCategoryPath.length === 0) { setErrorMsg("Please select a category."); return false; }
-      if (isSuggestingCustomCategory && !suggestedCategory.trim()) { setErrorMsg("Please provide a category path for your suggestion."); return false; }
+      if (isSuggestingCustomCategory) {
+        if (!suggestedCategory.trim()) { setErrorMsg("Please provide a category path for your suggestion."); return false; }
+      } else {
+        const lastNode = selectedCategoryPath[selectedCategoryPath.length - 1];
+        if (lastNode && lastNode.children && lastNode.children.length > 0) {
+          setErrorMsg(`Category '${lastNode.name}' has subcategories. Products must be attached to a terminal leaf node. Please select a specific subcategory.`);
+          return false;
+        }
+      }
       return true;
     }
     if (step === 2) {
@@ -686,7 +743,70 @@ export default function NewProductPage() {
   };
 
   // Pre-Submission Check Computations
-  const isCategorySelected = selectedCategoryPath.length > 0 && (!isSuggestingCustomCategory || suggestedCategory.trim().length > 0);
+  const lastSelectedCategory = selectedCategoryPath.length > 0 ? selectedCategoryPath[selectedCategoryPath.length - 1] : null;
+  const isLeafCategorySelected = lastSelectedCategory
+    ? (!lastSelectedCategory.children || lastSelectedCategory.children.length === 0)
+    : false;
+
+  // Compute category dropdown levels to render dynamically
+  const categoryLevels = useMemo(() => {
+    const levels: {
+      index: number;
+      label: string;
+      options: CategoryNode[];
+      selectedId: string;
+      disabled?: boolean;
+    }[] = [];
+
+    // Level 0: Main Category
+    levels.push({
+      index: 0,
+      label: "Main Category*",
+      options: categoryTree,
+      selectedId: selectedCategoryPath.length > 0 ? selectedCategoryPath[0].id : "",
+      disabled: categoryTree.length === 0,
+    });
+
+    // If no main category selected yet, show disabled Subcategory placeholder so 2-column layout stays balanced
+    if (selectedCategoryPath.length === 0) {
+      levels.push({
+        index: 1,
+        label: "Subcategory*",
+        options: [],
+        selectedId: "",
+        disabled: true,
+      });
+      return levels;
+    }
+
+    // Traverse down selectedCategoryPath and append each child level
+    for (let i = 0; i < selectedCategoryPath.length; i++) {
+      const parentNode = selectedCategoryPath[i];
+      if (parentNode.children && parentNode.children.length > 0) {
+        let label = "Subcategory*";
+        if (i === 1) label = "Child Category / Segment*";
+        else if (i === 2) label = "Specific Item Type*";
+        else if (i >= 3) label = `Specific Classification (Level ${i + 2})*`;
+
+        const isCustomSelected = isSuggestingCustomCategory && selectedCategoryPath.length === i + 1;
+        const nextSelected = selectedCategoryPath.length > i + 1
+          ? selectedCategoryPath[i + 1].id
+          : (isCustomSelected ? "create_new" : "");
+
+        levels.push({
+          index: i + 1,
+          label,
+          options: parentNode.children,
+          selectedId: nextSelected,
+          disabled: false,
+        });
+      }
+    }
+
+    return levels;
+  }, [categoryTree, selectedCategoryPath, isSuggestingCustomCategory]);
+
+  const isCategorySelected = (selectedCategoryPath.length > 0 && isLeafCategorySelected) || (isSuggestingCustomCategory && suggestedCategory.trim().length > 0);
   const isTitleValid = title.trim().length >= 5;
   const isPricingValid = productType === "SIMPLE" ? Number(price) > 0 : variants.length > 0 && variants.every(v => Number(v.price) > 0);
   const hasImages = images.length > 0;
@@ -725,7 +845,12 @@ export default function NewProductPage() {
                   <div key={step} className="flex items-center">
                     <button
                       type="button"
-                      onClick={() => setCurrentStep(step)}
+                      onClick={() => {
+                        if (step > currentStep) {
+                          if (!validateStep(currentStep)) return;
+                        }
+                        setCurrentStep(step);
+                      }}
                       className={cn(
                         "w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs transition-all hover:scale-105 active:scale-95 border",
                         currentStep === step ? "bg-white text-indigo-600 border-white shadow-md ring-4 ring-white/30" :
@@ -770,51 +895,92 @@ export default function NewProductPage() {
                 </div>
               </div>
 
-              {/* ROW 2: Category */}
+              {/* ROW 2: Category Cascading Hierarchy */}
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* MAIN CATEGORY */}
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Main Category*</label>
-                    <select 
-                      required
-                      value={selectedCategoryPath.length > 0 ? selectedCategoryPath[0].id : ""}
-                      onChange={(e) => handleCategoryLevelChange(0, e.target.value)}
-                      className="w-full text-sm px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all shadow-sm"
-                    >
-                      <option value="">-- Select Main Category --</option>
-                      {categoryTree.map((c) => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* SUBCATEGORY 1 */}
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Subcategory*</label>
-                    <select 
-                      required
-                      disabled={selectedCategoryPath.length === 0}
-                      value={selectedCategoryPath.length > 1 ? selectedCategoryPath[1].id : (isSuggestingCustomCategory ? "create_new" : "")}
-                      onChange={(e) => handleCategoryLevelChange(1, e.target.value)}
-                      className="w-full text-sm px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all shadow-sm disabled:opacity-50"
-                    >
-                      <option value="">-- Select Subcategory --</option>
-                      {selectedCategoryPath.length > 0 && selectedCategoryPath[0].children?.map((c) => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
-                      ))}
-                      {selectedCategoryPath.length > 0 && (
-                        <option value="create_new" className="font-bold text-indigo-600">+ Add Custom Category</option>
-                      )}
-                    </select>
-                  </div>
+                  {categoryLevels.map((lvl) => (
+                    <div key={lvl.index} className="animate-in fade-in duration-200">
+                      <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">
+                        {lvl.label}
+                      </label>
+                      <select 
+                        required={!lvl.disabled}
+                        disabled={lvl.disabled}
+                        value={lvl.selectedId}
+                        onChange={(e) => handleCategoryLevelChange(lvl.index, e.target.value)}
+                        className="w-full text-sm px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <option value="">
+                          {lvl.disabled 
+                            ? "-- Select Main Category First --" 
+                            : `-- Select ${lvl.label.replace("*", "")} --`}
+                        </option>
+                        {lvl.options.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name} {c.children && c.children.length > 0 ? "›" : ""}
+                          </option>
+                        ))}
+                        {lvl.index > 0 && !lvl.disabled && (
+                          <option value="create_new" className="font-bold text-indigo-600">
+                            + Add Custom Category
+                          </option>
+                        )}
+                      </select>
+                    </div>
+                  ))}
                 </div>
+
+                {/* Leaf Category Status Indicator or Warning */}
+                {!isSuggestingCustomCategory && selectedCategoryPath.length > 0 && (
+                  <div>
+                    {isLeafCategorySelected ? (
+                      <div className="p-3.5 bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 flex items-center justify-between gap-3 animate-in fade-in duration-200">
+                        <div className="flex items-center gap-2.5">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                          <div>
+                            <span className="font-semibold">Terminal Leaf Category:</span>{" "}
+                            <span className="text-emerald-700 dark:text-emerald-400 font-medium">
+                              {selectedCategoryPath.map((c) => c.name).join(" › ")}
+                            </span>
+                          </div>
+                        </div>
+                        <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 rounded-md shrink-0">
+                          Ready
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="p-3.5 bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-xl text-xs text-amber-800 dark:text-amber-300 flex items-start gap-2.5 animate-in fade-in duration-200">
+                        <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-semibold">
+                            Category &lsquo;{lastSelectedCategory?.name}&rsquo; has subcategories.
+                          </p>
+                          <p className="text-amber-700 dark:text-amber-400 mt-0.5">
+                            Products must be attached to a terminal leaf node. Please choose a specific subcategory from the dropdown above.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {isSuggestingCustomCategory && (
                   <div className="pt-2 animate-in fade-in slide-in-from-top-2">
-                    <label className="block text-[11px] font-bold text-indigo-500 uppercase tracking-wide mb-1 flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5" /> Suggest a Category Path
-                    </label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-[11px] font-bold text-indigo-500 uppercase tracking-wide flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5" /> Suggest a Custom Category Path
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsSuggestingCustomCategory(false);
+                          setSuggestedCategory("");
+                        }}
+                        className="text-[11px] text-slate-500 hover:text-indigo-600 underline"
+                      >
+                        Choose from catalog instead
+                      </button>
+                    </div>
                     <input
                       type="text"
                       required
@@ -1136,54 +1302,58 @@ export default function NewProductPage() {
               {/* === UNIFIED PRICING & VARIANTS CARD === */}
               <div className="space-y-6 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                 
-                {/* 1. BASE PRICING (ALWAYS AT TOP) */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Selling Price*</label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">ETB</span>
-                      <input type="number" required placeholder="85000" value={price} onChange={(e) => setPrice(e.target.value)}
-                        className="w-full text-lg font-bold pl-14 pr-4 py-3.5 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-300 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-600 transition-all shadow-sm" />
-                    </div>
+                {/* 1. VARIATIONS STRATEGY (TOP) */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Variations Strategy</label>
+                  <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-fit">
+                    {([
+                      { type: "SIMPLE" as ProductType, label: "No Variants (Simple)" },
+                      { type: "CONFIGURABLE_VARIANT" as ProductType, label: "Has Variants (Colors/Sizes)" },
+                    ] as const).map(({ type, label }) => (
+                      <button key={type} type="button" onClick={() => setProductType(type)}
+                        className={cn("px-4 py-1.5 rounded-lg text-xs font-bold transition-all",
+                          productType === type
+                            ? "bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 shadow-sm"
+                            : "text-slate-500 hover:text-slate-700")}>
+                        {label}
+                      </button>
+                    ))}
                   </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Discount Price</label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">ETB</span>
-                      <input type="number" placeholder="95000 (Optional)" value={compareAtPrice} onChange={(e) => setCompareAtPrice(e.target.value)}
-                        className="w-full text-lg font-bold pl-14 pr-4 py-3.5 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-300 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all shadow-sm" />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Available Stock*</label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">QTY</span>
-                      <input type="number" required placeholder="15" value={initialStock} onChange={(e) => setInitialStock(e.target.value)}
-                        className="w-full text-lg font-bold pl-14 pr-4 py-3.5 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-300 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all shadow-sm" />
-                    </div>
-                  </div>
+                  <p className="text-[10px] text-slate-500 mt-1">Toggle whether this product comes in different colors, sizes, or configurations.</p>
                 </div>
 
-                {/* 2. VARIATIONS STRATEGY (BOTTOM) */}
-                <div className="pt-6 border-t border-slate-200 dark:border-slate-800 space-y-4">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Variations Strategy</label>
-                    <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-fit">
-                      {([
-                        { type: "SIMPLE" as ProductType, label: "No Variants (Simple)" },
-                        { type: "CONFIGURABLE_VARIANT" as ProductType, label: "Has Variants (Colors/Sizes)" },
-                      ] as const).map(({ type, label }) => (
-                        <button key={type} type="button" onClick={() => setProductType(type)}
-                          className={cn("px-4 py-1.5 rounded-lg text-xs font-bold transition-all",
-                            productType === type
-                              ? "bg-white dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 shadow-sm"
-                              : "text-slate-500 hover:text-slate-700")}>
-                          {label}
-                        </button>
-                      ))}
+                {/* 2. BASE PRICING (ONLY SHOWN FOR SIMPLE PRODUCTS) */}
+                {productType === "SIMPLE" && (
+                  <div className="pt-6 border-t border-slate-200 dark:border-slate-800 space-y-4 animate-in fade-in duration-200">
+                    <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Simple Product Pricing & Stock</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Selling Price*</label>
+                        <div className="relative">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">ETB</span>
+                          <input type="number" required placeholder="e.g. 1500" value={price} onChange={(e) => setPrice(e.target.value)}
+                            className="w-full text-lg font-bold pl-14 pr-4 py-3.5 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-300 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-600 transition-all shadow-sm" />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Discount Price</label>
+                        <div className="relative">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">ETB</span>
+                          <input type="number" placeholder="Optional" value={compareAtPrice} onChange={(e) => setCompareAtPrice(e.target.value)}
+                            className="w-full text-lg font-bold pl-14 pr-4 py-3.5 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-300 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all shadow-sm" />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Available Stock*</label>
+                        <div className="relative">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">QTY</span>
+                          <input type="number" required placeholder="10" value={initialStock} onChange={(e) => setInitialStock(e.target.value)}
+                            className="w-full text-lg font-bold pl-14 pr-4 py-3.5 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-300 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all shadow-sm" />
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-[10px] text-slate-500 mt-1">Toggle whether this product comes in different colors, sizes, or configurations.</p>
                   </div>
+                )}
 
                   {/* DIMENSIONS GENERATOR & MATRIX */}
                   {productType === "CONFIGURABLE_VARIANT" && (
@@ -1253,16 +1423,63 @@ export default function NewProductPage() {
                                           ))}
                                         </select>
 
+                                        {/* Inline Custom Value Creator for this attribute (e.g. Custom Size or Custom Color) */}
+                                        <div className="flex items-center gap-2">
+                                          <div className="relative flex-1">
+                                            <input
+                                              type="text"
+                                              value={customAttrInputs[binding.attribute.id] || ""}
+                                              onChange={(e) => setCustomAttrInputs(prev => ({ ...prev, [binding.attribute.id]: e.target.value }))}
+                                              onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                  e.preventDefault();
+                                                  handleAddCustomAttrValue(binding.attribute.id);
+                                                }
+                                              }}
+                                              placeholder={
+                                                binding.attribute.name.toLowerCase().includes("color")
+                                                  ? "Or type custom color (e.g. Burgundy, Navy, Olive)..."
+                                                  : binding.attribute.name.toLowerCase().includes("size")
+                                                  ? "Or type custom size (e.g. 3XL, 4XL, Custom 38R)..."
+                                                  : `Or type custom ${binding.attribute.name.toLowerCase()}...`
+                                              }
+                                              className="w-full text-xs px-3.5 py-2.5 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-900/50 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-950 transition-all shadow-2xs"
+                                            />
+                                          </div>
+                                          <button
+                                            type="button"
+                                            disabled={!(customAttrInputs[binding.attribute.id] || "").trim() || addingCustomAttrId === binding.attribute.id}
+                                            onClick={() => handleAddCustomAttrValue(binding.attribute.id)}
+                                            className="px-3.5 py-2.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-bold text-xs rounded-xl border border-indigo-200 dark:border-indigo-800/60 transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs shrink-0"
+                                          >
+                                            {addingCustomAttrId === binding.attribute.id ? (
+                                              <>
+                                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                                <span>Adding...</span>
+                                              </>
+                                            ) : (
+                                              <>
+                                                <Plus className="w-3.5 h-3.5" />
+                                                <span>Add Custom</span>
+                                              </>
+                                            )}
+                                          </button>
+                                        </div>
+
                                         {/* Selected Pills */}
                                         {(selectedAttrValues[binding.attribute.id] || []).length > 0 && (
                                           <div className="flex flex-wrap gap-2 p-3 border border-slate-100 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-900/50">
                                             {(selectedAttrValues[binding.attribute.id] || []).map(valId => {
-                                              const v = binding.attribute.values?.find((x: any) => x.id === valId);
-                                              if (!v) return null;
+                                              const v = binding.attribute.values?.find((x: any) => x.id === valId) || { value: valId, is_global: false };
                                               return (
-                                                <span key={valId} className="flex items-center gap-2 px-3 py-1.5 bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 rounded-lg text-sm font-bold shadow-sm">
+                                                <span key={valId} className="flex items-center gap-2 px-3 py-1.5 bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 rounded-lg text-sm font-bold shadow-xs">
                                                   {v.value}
-                                                  <button type="button" className="hover:text-rose-500" onClick={() => {
+                                                  {v.is_global === false && (
+                                                    <span className="text-[9px] uppercase px-1.5 py-0.2 bg-indigo-200/80 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-200 rounded font-semibold tracking-wider">
+                                                      Custom
+                                                    </span>
+                                                  )}
+                                                  <button type="button" className="hover:text-rose-500 transition-colors" onClick={() => {
                                                     setSelectedAttrValues(prev => ({ 
                                                       ...prev, 
                                                       [binding.attribute.id]: (prev[binding.attribute.id] || []).filter(id => id !== valId) 
@@ -1291,7 +1508,7 @@ export default function NewProductPage() {
                                 <label className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide">
                                   Custom Measurement / Dimension
                                 </label>
-                                <button type="button" onClick={() => setCustomDimensions(prev => prev.filter(d => d.id !== dim.id))} className="text-slate-400 hover:text-rose-500 transition-colors p-1">
+                                <button type="button" onClick={() => removeCustomDimension(dim.id)} className="text-slate-400 hover:text-rose-500 transition-colors p-1">
                                   <Trash2 className="w-4 h-4" />
                                 </button>
                               </div>
@@ -1302,7 +1519,7 @@ export default function NewProductPage() {
                                   <input 
                                     type="text" 
                                     value={dim.name} 
-                                    onChange={(e) => setCustomDimensions(prev => prev.map(d => d.id === dim.id ? { ...d, name: e.target.value } : d))}
+                                    onChange={(e) => updateCustomDimensionName(dim.id, e.target.value)}
                                     placeholder="e.g. Material, Style, Fit..."
                                     className="w-full text-sm px-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 transition-all font-semibold text-slate-900 dark:text-white shadow-sm"
                                   />
@@ -1313,19 +1530,14 @@ export default function NewProductPage() {
                                     {dim.values.map((v) => (
                                       <span key={v} className="flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 rounded-lg text-sm font-bold shadow-sm">
                                         {v}
-                                        <button type="button" onClick={() => setCustomDimensions(prev => prev.map(d => d.id === dim.id ? { ...d, values: d.values.filter(val => val !== v) } : d))} className="hover:text-rose-500"><X className="w-3 h-3" /></button>
+                                        <button type="button" onClick={() => removeCustomDimensionValue(dim.id, v)} className="hover:text-rose-500"><X className="w-3 h-3" /></button>
                                       </span>
                                     ))}
                                     <input 
                                       type="text" 
                                       value={dim.currentInput} 
-                                      onChange={(e) => setCustomDimensions(prev => prev.map(d => d.id === dim.id ? { ...d, currentInput: e.target.value } : d))}
-                                      onKeyDown={(e) => {
-                                        if (e.key === "Enter" && dim.currentInput.trim()) {
-                                          e.preventDefault();
-                                          setCustomDimensions(prev => prev.map(d => d.id === dim.id ? { ...d, values: [...d.values, d.currentInput.trim()], currentInput: "" } : d));
-                                        }
-                                      }} 
+                                      onChange={(e) => updateCustomDimensionInput(dim.id, e.target.value)}
+                                      onKeyDown={(e) => addCustomDimensionValue(dim.id, e)} 
                                       placeholder="Type here..."
                                       className="flex-1 min-w-[120px] bg-transparent border-none focus:outline-none text-sm text-slate-900 dark:text-white placeholder:text-slate-400 ml-2"
                                     />
@@ -1335,7 +1547,7 @@ export default function NewProductPage() {
                             </div>
                           ))}
 
-                          <button type="button" onClick={() => setCustomDimensions(prev => [...prev, { id: Math.random().toString(), name: "", values: [], currentInput: "" }])} className="w-full py-4 border-2 border-dashed border-indigo-200 dark:border-indigo-800/60 rounded-2xl text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors flex items-center justify-center gap-2 shadow-sm">
+                          <button type="button" onClick={addCustomDimension} className="w-full py-4 border-2 border-dashed border-indigo-200 dark:border-indigo-800/60 rounded-2xl text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors flex items-center justify-center gap-2 shadow-sm">
                             <Plus className="w-5 h-5" /> Add Custom Measurement / Advanced Dimension
                           </button>
 
@@ -1351,7 +1563,6 @@ export default function NewProductPage() {
                       )}
                     </div>
                   )}
-                </div>
               </div>
               
           {/* ─── FINAL REVIEW CARD ─── */}
@@ -1364,7 +1575,7 @@ export default function NewProductPage() {
                   <div>
                     <span className="block text-slate-500 mb-1">Category</span>
                     <strong className="text-slate-900 dark:text-white line-clamp-1">
-                      {isSuggestingCustomCategory ? suggestedCategory : (selectedCategoryPath.length > 0 ? selectedCategoryPath[selectedCategoryPath.length - 1].name : "None")}
+                      {isSuggestingCustomCategory ? suggestedCategory : (selectedCategoryPath.length > 0 ? selectedCategoryPath.map((c) => c.name).join(" › ") : "None")}
                     </strong>
                   </div>
                   <div>

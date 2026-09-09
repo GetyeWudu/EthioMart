@@ -42,7 +42,6 @@ export const NAV_ITEMS: NavItem[] = [
   { name: "Overview", href: "/admin", icon: DashboardIcon },
   { name: "Analytics", href: "/admin/analytics", icon: PieChartIcon },
   { name: "Products Queue", href: "/admin/products", icon: CubeIcon },
-  { name: "Multi-Hub Inventory", href: "/admin/inventory", icon: TokensIcon, badgeKey: "low_stock_alerts" },
   { name: "Taxonomy Tree", href: "/admin/taxonomy", icon: ListBulletIcon },
   { name: "Dynamic Attributes", href: "/admin/attributes", icon: StarIcon },
   { name: "Brand Registry", href: "/admin/brands", icon: SunIcon },

@@ -1,7 +1,7 @@
 from decimal import Decimal
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
-from django.db.models import Q
+from django.db.models import Q, Count
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -315,7 +315,7 @@ class PublicProductListAPIView(APIView):
         elif sort == "rating":
             qs = qs.order_by("-avg_rating")
         elif sort == "trending":
-            qs = qs.order_by("-is_featured", "-review_count", "-avg_rating")
+            qs = qs.order_by("-is_featured", "-review_count", "-avg_rating", "-created_at")
         
         # Pre-fetch active automatic promotions to prevent N+1 queries
         now = timezone.now()
@@ -1090,14 +1090,44 @@ class AdminProductModerationListAPIView(generics.ListAPIView):
     serializer_class = ProductListSerializer
 
     def get_queryset(self):
-        status_param = self.request.query_params.get("status", ProductStatus.PENDING_REVIEW)
-        qs = Product.objects.all().select_related("vendor", "category", "brand").prefetch_related("images", "variants")
-        if status_param and status_param != "ALL":
-            qs = qs.filter(status=status_param)
+        params = getattr(self.request, "query_params", getattr(self.request, "GET", {}))
+        status_param = params.get("status")
+        qs = Product.objects.all().select_related("vendor", "category", "brand").prefetch_related("images", "variants", "variants__warehouse_stocks")
         
-        search = self.request.query_params.get("search")
-        if search:
-            qs = qs.filter(title__icontains=search)
+        # Status filtering: only filter if specific status is requested and not 'ALL'
+        if status_param and str(status_param).strip().upper() not in ["", "ALL", "NONE", "NULL"]:
+            qs = qs.filter(status=status_param.strip().upper())
+        
+        # Category filtering: matches selected category and all its descendant subcategories
+        category_param = params.get("category")
+        if category_param and str(category_param).strip().upper() not in ["", "ALL", "NONE", "NULL"]:
+            category_param = category_param.strip()
+            from apps.catalog.models import Category
+            cat_obj = None
+            try:
+                import uuid
+                cat_obj = Category.objects.filter(id=uuid.UUID(str(category_param))).first()
+            except (ValueError, AttributeError):
+                cat_obj = Category.objects.filter(slug=category_param).first()
+
+            if cat_obj:
+                descendants_and_self = list(cat_obj.get_descendants().values_list("id", flat=True)) + [cat_obj.id]
+                qs = qs.filter(category_id__in=descendants_and_self)
+            else:
+                qs = qs.filter(category__slug=category_param)
+
+        # Multi-field search
+        search = params.get("search")
+        if search and search.strip():
+            search = search.strip()
+            from django.db.models import Q
+            qs = qs.filter(
+                Q(title__icontains=search) |
+                Q(vendor__store_name__icontains=search) |
+                Q(vendor__user__phone_number__icontains=search) |
+                Q(variants__sku__icontains=search) |
+                Q(category__name__icontains=search)
+            ).distinct()
             
         return qs.order_by("-created_at")
 
@@ -1134,3 +1164,21 @@ class AdminProductRejectAPIView(APIView):
 
         rejected = ProductApprovalService.admin_reject(product, request.user, reason)
         return Response(ProductDetailSerializer(rejected).data, status=status.HTTP_200_OK)
+
+
+class AdminProductCountsAPIView(APIView):
+    """
+    Returns per-status product counts using a single aggregated SQL query.
+    Replaces the 4 separate SWR calls on the admin moderation KPI deck.
+    """
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def get(self, request):
+        counts = Product.objects.aggregate(
+            total=Count("id"),
+            pending=Count("id", filter=Q(status=ProductStatus.PENDING_REVIEW)),
+            active=Count("id", filter=Q(status=ProductStatus.ACTIVE)),
+            rejected=Count("id", filter=Q(status=ProductStatus.REJECTED)),
+            draft=Count("id", filter=Q(status=ProductStatus.DRAFT)),
+        )
+        return Response(counts, status=status.HTTP_200_OK)

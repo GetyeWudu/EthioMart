@@ -22,7 +22,7 @@ import {
 import { cn } from "@/lib/utils";
 
 export default function AdminProductsPage() {
-  const [activeTab, setActiveTab] = useState<"PENDING_REVIEW" | "ACTIVE" | "REJECTED" | "ALL">("ALL");
+  const [activeTab, setActiveTab] = useState<"PENDING_REVIEW" | "ACTIVE" | "REJECTED" | "DRAFT" | "ALL">("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [page, setPage] = useState(1);
@@ -44,44 +44,49 @@ export default function AdminProductsPage() {
 
   const { data: categories } = useSWR("admin-categories", () => catalogService.getCategoryTree());
 
+  const flattenedCategories = React.useMemo(() => {
+    if (!categories || !Array.isArray(categories)) return [];
+    const list: { id: string; name: string; slug: string; depth: number }[] = [];
+    const traverse = (nodes: any[], depth = 0) => {
+      for (const node of nodes) {
+        list.push({ id: node.id, name: node.name, slug: node.slug, depth });
+        if (node.children && node.children.length > 0) {
+          traverse(node.children, depth + 1);
+        }
+      }
+    };
+    traverse(categories);
+    return list;
+  }, [categories]);
+
   const { data, error, mutate, isLoading: loading } = useSWR(
     ["admin-products", activeTab, searchQuery, page, selectedCategory],
     ([_, status, search, p, cat]) => catalogService.getAdminProducts({
-      status: status === "ALL" ? undefined : status,
-      search: search,
+      status: status === "ALL" ? "ALL" : status,
+      search: search ? search.trim() : undefined,
       page: p,
       category: cat === "ALL" ? undefined : cat,
     }),
-    { refreshInterval: 5000 }
+    { refreshInterval: 25000, revalidateOnFocus: true }
   );
 
-  const { data: pendingData, mutate: mutatePending } = useSWR(
-    "admin-products-count-pending",
-    () => catalogService.getAdminProducts({ status: "PENDING_REVIEW", page: 1 })
-  );
-  const { data: activeData, mutate: mutateActive } = useSWR(
-    "admin-products-count-active",
-    () => catalogService.getAdminProducts({ status: "ACTIVE", page: 1 })
-  );
-  const { data: rejectedData, mutate: mutateRejected } = useSWR(
-    "admin-products-count-rejected",
-    () => catalogService.getAdminProducts({ status: "REJECTED", page: 1 })
+  // Single aggregated counts query — replaces 4 separate full-list fetches
+  const { data: countsData, mutate: mutateCounts } = useSWR(
+    "admin-product-counts",
+    () => catalogService.getAdminProductCounts(),
+    { refreshInterval: 25000, revalidateOnFocus: true }
   );
 
   const handleApprove = async (id: string) => {
     await catalogService.approveProduct(id);
     mutate();
-    mutatePending();
-    mutateActive();
-    mutateRejected();
+    mutateCounts();
   };
 
   const handleReject = async (id: string, reason: string) => {
     await catalogService.rejectProduct(id, reason);
     mutate();
-    mutatePending();
-    mutateActive();
-    mutateRejected();
+    mutateCounts();
   };
 
   const products = data?.results || [];
@@ -95,10 +100,10 @@ export default function AdminProductsPage() {
     });
   }, [products]);
 
-  const pendingCount = pendingData?.pagination?.count ?? (activeTab === "PENDING_REVIEW" ? pagination?.count ?? 0 : 0);
-  const activeCount = activeData?.pagination?.count ?? (activeTab === "ACTIVE" ? pagination?.count ?? 0 : 0);
-  const rejectedCount = rejectedData?.pagination?.count ?? (activeTab === "REJECTED" ? pagination?.count ?? 0 : 0);
-  const totalCount = pendingCount + activeCount + rejectedCount || (pagination?.count ?? 0);
+  const pendingCount = countsData?.pending ?? (activeTab === "PENDING_REVIEW" ? pagination?.count ?? 0 : 0);
+  const activeCount = countsData?.active ?? (activeTab === "ACTIVE" ? pagination?.count ?? 0 : 0);
+  const rejectedCount = countsData?.rejected ?? (activeTab === "REJECTED" ? pagination?.count ?? 0 : 0);
+  const totalCount = countsData?.total ?? (pendingCount + activeCount + rejectedCount || (pagination?.count ?? 0));
 
   return (
     <div className="space-y-6">
@@ -244,13 +249,13 @@ export default function AdminProductsPage() {
             >
               <span className="flex items-center gap-1.5 truncate">
                 <Tag className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
-                <span className="truncate">{selectedCategory === "ALL" ? "Categories" : categories?.find((c: any) => c.slug === selectedCategory)?.name || "Category"}</span>
+                <span className="truncate">{selectedCategory === "ALL" ? "Categories" : flattenedCategories.find((c: any) => c.slug === selectedCategory)?.name || "Category"}</span>
               </span>
               <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             </button>
 
             {categoryOpen && (
-              <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-1.5 z-[300] w-56 max-h-64 overflow-y-auto rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl shadow-xl py-1.5 text-xs">
+              <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-1.5 z-[300] w-64 max-h-64 overflow-y-auto rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl shadow-xl py-1.5 text-xs">
                 <button
                   type="button"
                   onClick={() => { setSelectedCategory("ALL"); setPage(1); setCategoryOpen(false); }}
@@ -260,16 +265,18 @@ export default function AdminProductsPage() {
                 >
                   All Categories
                 </button>
-                {categories?.map((cat: any) => (
+                {flattenedCategories.map((cat: any) => (
                   <button
                     key={cat.id}
                     type="button"
                     onClick={() => { setSelectedCategory(cat.slug); setPage(1); setCategoryOpen(false); }}
-                    className={`w-full text-left px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-900 transition font-medium ${
+                    className={`w-full text-left px-3.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-900 transition font-medium truncate ${
                       selectedCategory === cat.slug ? "text-indigo-600 dark:text-indigo-400 font-bold" : "text-slate-700 dark:text-slate-300"
                     }`}
                   >
-                    {cat.name}
+                    <span style={{ paddingLeft: `${cat.depth * 10}px` }}>
+                      {cat.depth > 0 ? "↳ " : ""}{cat.name}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -285,7 +292,7 @@ export default function AdminProductsPage() {
             >
               <span className="flex items-center gap-1.5 truncate">
                 <Filter className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
-                <span className="truncate">{activeTab === "ALL" ? "All Status" : activeTab === "PENDING_REVIEW" ? "Pending" : activeTab === "ACTIVE" ? "Active" : "Rejected"}</span>
+                <span className="truncate">{activeTab === "ALL" ? "All Status" : activeTab === "PENDING_REVIEW" ? "Pending" : activeTab === "ACTIVE" ? "Active" : activeTab === "DRAFT" ? "Draft" : "Rejected"}</span>
               </span>
               <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             </button>
@@ -297,6 +304,7 @@ export default function AdminProductsPage() {
                   { val: "PENDING_REVIEW", lbl: "Pending Review" },
                   { val: "ACTIVE", lbl: "Active Listings" },
                   { val: "REJECTED", lbl: "Rejected" },
+                  { val: "DRAFT", lbl: "Drafts" },
                 ].map((opt) => (
                   <button
                     key={opt.val}

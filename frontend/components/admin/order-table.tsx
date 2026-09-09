@@ -134,8 +134,9 @@ export function OrderTable() {
         custPhone.includes(q);
 
       const payStatus = (o.payment_status || "").toUpperCase();
+      const ordStatus = (o.status || "").toUpperCase();
       const matchesStatus =
-        statusFilter === "ALL" || payStatus === statusFilter;
+        statusFilter === "ALL" || payStatus === statusFilter || ordStatus === statusFilter;
 
       return matchesSearch && matchesStatus;
     });

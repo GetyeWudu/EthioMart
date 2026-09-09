@@ -3,5 +3,9 @@
 # WSGI Server
 gunicorn==23.0.0
 
+# Production Database & Static Files
+dj-database-url==2.3.0
+whitenoise==6.8.2
+
 # Sentry error tracking
 sentry-sdk[django]==2.19.0
