@@ -104,7 +104,7 @@ class ProductUpdateModerationService:
         if vendor.tier == TrustTier.PROBATION:
             return "PULLED_FOR_REVIEW", ProductStatus.PENDING_REVIEW, False, flags
             
-        elif vendor.tier == TrustTier.VERIFIED:
+        elif vendor.tier == TrustTier.TRUSTED:
             # Auto-Approve but create Audit Alert
             alert = AdminAuditAlert.objects.create(
                 product=product,
@@ -118,8 +118,8 @@ class ProductUpdateModerationService:
             )
             return "AUTO_APPROVED", product.status, True, flags
             
-        elif vendor.tier == TrustTier.TOP_SELLER:
-            # Top Seller -> Full Auto Approve
+        elif vendor.tier == TrustTier.VIP:
+            # VIP / Top Seller -> Full Auto Approve
             return "AUTO_APPROVED", product.status, True, []
             
         # Fallback
