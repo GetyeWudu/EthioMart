@@ -47,7 +47,6 @@ urlpatterns = [
 
     # Django admin
     path("admin/", admin.site.urls),
-    path("django-admin/", admin.site.urls),
 
     # Phase 1 APIs
     path("api/v1/auth/", include("apps.users.urls", namespace="auth")),

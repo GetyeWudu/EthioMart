@@ -11,9 +11,11 @@ python manage.py collectstatic --no-input
 echo "==> Running database migrations..."
 python manage.py migrate --no-input
 
-echo "==> Seeding platform settings and taxonomy..."
+echo "==> Seeding platform settings, shipping, and catalog..."
 python manage.py seed_platform_settings
+python manage.py seed_shipping_rates
 python manage.py seed_catalog_taxonomy
+python manage.py seed_demo_catalog
 
 # Automatically create superadmin if credentials are provided in environment
 if [ -n "$SUPERUSER_EMAIL" ] && [ -n "$SUPERUSER_PASSWORD" ]; then
