@@ -69,6 +69,7 @@ export const catalogService = {
     max_price?: number;
     sort?: string;
     page?: number;
+    page_size?: number;
     deals?: boolean;
     on_sale?: boolean;
     in_stock?: boolean;

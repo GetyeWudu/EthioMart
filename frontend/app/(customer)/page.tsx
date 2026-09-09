@@ -183,7 +183,7 @@ export default async function CustomerHomePage() {
         console.warn("Failed to fetch categories:", err.message);
         return [];
       }),
-      catalogService.getPublicProducts({ page: 1 }).catch((err) => {
+      catalogService.getPublicProducts({ page: 1, page_size: 100 }).catch((err) => {
         console.warn("Failed to fetch products:", err.message);
         return [];
       }),
@@ -291,33 +291,18 @@ export default async function CustomerHomePage() {
       };
     });
 
-    // Filter categories having AT LEAST 4 products as requested by user
+    // STRICT: Only include categories with AT LEAST 4 products and at least 4 distinct product images.
+    // If a category does not have a minimum of 4 products, it is NOT shown at all.
     const qualifiedCategories = categoryProductCounts.filter(
-      (item) => item.count >= 4
+      (item) => item.count >= 4 && item.images.length >= 4
     );
 
-    // If fewer than 4 categories have >= 4 items, backfill with the most populated ones
-    const displayItems =
-      qualifiedCategories.length >= 4
-        ? qualifiedCategories
-        : categoryProductCounts
-            .filter((item) => item.count > 0)
-            .sort((a, b) => b.count - a.count)
-            .slice(0, 8);
-
-    mappedCategories = displayItems.map(({ category: c, images: uniqueImages, count }) => {
-      let cardImages = uniqueImages.slice(0, 4);
-      if (cardImages.length > 0 && cardImages.length < 4) {
-        cardImages = Array.from({ length: 4 }, (_, i) => cardImages[i % cardImages.length]);
-      } else if (cardImages.length === 0) {
-        cardImages = c.image ? [getImageUrl(c.image, c.id)] : [];
-      }
-
+    mappedCategories = qualifiedCategories.map(({ category: c, images: uniqueImages, count }) => {
       return {
         id: c.id,
         name: c.name,
         slug: c.slug,
-        images: cardImages,
+        images: uniqueImages.slice(0, 4),
         itemCount: count || c.product_count || 0,
       };
     });
@@ -325,18 +310,8 @@ export default async function CustomerHomePage() {
     console.error("Failed to fetch homepage data", error);
   }
 
-  // Fallback map for CategoryCard props if API fails entirely
-  if (mappedCategories.length === 0 && categories.length > 0) {
-    mappedCategories = categories.slice(0, 8).map((c) => ({
-      id: c.id,
-      name: c.name,
-      slug: c.slug,
-      images: c.image
-        ? [getImageUrl(c.image, c.id)]
-        : [getImageUrl(null, c.id + "1"), getImageUrl(null, c.id + "2")],
-      itemCount: c.product_count || 0,
-    }));
-  }
+  // Never show empty or fallback cards for categories with < 4 items
+  // (mappedCategories already contains strictly validated categories with >= 4 items)
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-900">

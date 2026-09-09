@@ -11,18 +11,12 @@ export interface CategoryCardProps {
 }
 
 export function CategoryCard({ id, name, slug, images, itemCount }: CategoryCardProps) {
-  // Ensure we always have exactly 4 images for the 2x2 grid
-  const safeImages = images && images.length > 0 ? images.filter(Boolean) : [];
-  const displayImages = safeImages.length >= 4 
-    ? safeImages.slice(0, 4) 
-    : safeImages.length > 0
-    ? Array.from({ length: 4 }, (_, i) => safeImages[i % safeImages.length])
-    : [
-        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=300&auto=format&fit=crop", // Watch
-        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=300&auto=format&fit=crop", // Running shoe
-        "https://images.unsplash.com/photo-1585515320310-259814833e62?q=80&w=300&auto=format&fit=crop", // Cookware
-        "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=300&auto=format&fit=crop", // Smartphone
-      ];
+  // If a category does not have at least 4 distinct product images, do not show it at all
+  const safeImages = images && images.length >= 4 ? images.filter(Boolean) : [];
+  if (safeImages.length < 4) {
+    return null;
+  }
+  const displayImages = safeImages.slice(0, 4);
 
   return (
     <Link href={`/products?category=${slug}`} className="group flex flex-col overflow-hidden rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 transition-all duration-300 hover:shadow-xl hover:border-indigo-500/30">
