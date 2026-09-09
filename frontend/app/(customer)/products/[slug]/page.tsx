@@ -60,7 +60,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
       .then((data) => {
         setProduct(data);
         if (data.images?.length > 0) {
-          setSelectedImage(data.images[0].image);
+          setSelectedImage(data.images[0].image_url || data.images[0].image);
           setActiveImageIndex(0);
         }
         if (data.variants?.length > 0) {
@@ -343,7 +343,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                   <button
                     key={i}
                     type="button"
-                    onClick={() => handleImageSelect(img.image, i)}
+                    onClick={() => handleImageSelect(img.image_url || img.image, i)}
                     className={cn(
                       "w-[72px] h-[72px] aspect-square rounded-xl overflow-hidden border-2 transition-all shrink-0 bg-slate-100 dark:bg-slate-800",
                       activeImageIndex === i
@@ -351,7 +351,15 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                         : "border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500"
                     )}
                   >
-                    <img src={getImageUrl(img.image, product.id + i)} alt={img.alt_text || `View ${i + 1}`} className="w-full h-full object-cover" />
+                    <img
+                      src={getImageUrl(img.image_url || img.image, product.id + i)}
+                      alt={img.alt_text || `View ${i + 1}`}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/placeholder-product.svg';
+                        (e.target as HTMLImageElement).onerror = null;
+                      }}
+                      className="w-full h-full object-cover"
+                    />
                   </button>
                 ))}
               </div>
@@ -367,6 +375,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               <img
                 src={getImageUrl(selectedImage || null, product.id)}
                 alt={product.title}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/placeholder-product.svg';
+                  (e.target as HTMLImageElement).onerror = null;
+                }}
                 style={{
                   transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
                   transform: isZoomed ? "scale(2.2)" : "scale(1)",
@@ -404,8 +416,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                   </button>
                   {/* Indicator dots (mobile) */}
                   <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 md:hidden z-10">
-                    {product.images.map((_, i) => (
-                      <button key={i} onClick={() => handleImageSelect(product.images[i].image, i)}
+                    {product.images.map((img, i) => (
+                      <button key={i} onClick={() => handleImageSelect(img.image_url || img.image, i)}
                         className={cn("w-1.5 h-1.5 rounded-full transition-all", i === activeImageIndex ? "bg-indigo-600 w-4" : "bg-white/60")} />
                     ))}
                   </div>

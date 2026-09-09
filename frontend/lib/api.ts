@@ -55,6 +55,15 @@ export function getImageUrl(path: string | undefined | null, seed: string = "def
     return `https://images.unsplash.com/photo-${selectedId}?q=80&w=600&auto=format&fit=crop`;
   }
 
+  // If path contains an embedded unsplash URL, extract and return it cleanly
+  if (path.includes("images.unsplash.com")) {
+    const unsplashIdx = path.indexOf("images.unsplash.com");
+    if (unsplashIdx !== -1) {
+      const isHttps = path.includes("https://images.unsplash.com");
+      return (isHttps ? "https://" : "http://") + path.slice(unsplashIdx);
+    }
+  }
+
   // Cloudinary auto-transform: inject thumbnail params if no transform is present
   // e.g. https://res.cloudinary.com/demo/image/upload/sample.jpg
   //   → https://res.cloudinary.com/demo/image/upload/w_400,c_limit,f_auto,q_auto/sample.jpg

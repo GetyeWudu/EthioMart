@@ -226,11 +226,28 @@ export default async function CustomerHomePage() {
       };
     });
 
-    // 2. Category Shelves: Display full catalog by category
+    // Helper to get all descendant slugs & names for a category node
+    const getDescendantKeys = (node: CategoryNode): Set<string> => {
+      const keys = new Set<string>();
+      const walk = (n: CategoryNode) => {
+        if (n.slug) keys.add(n.slug.toLowerCase());
+        if (n.name) keys.add(n.name.toLowerCase());
+        if (n.children && n.children.length > 0) {
+          n.children.forEach(walk);
+        }
+      };
+      walk(node);
+      return keys;
+    };
+
+    // 2. Category Shelves: Display full catalog by category (including subcategory items)
     categoryShelves = categories
       .map((cat) => {
+        const descKeys = getDescendantKeys(cat);
         const catProducts = mappedAllProducts.filter(
-          (p: any) => p.categorySlug === cat.slug || p.categoryName?.toLowerCase() === cat.name?.toLowerCase()
+          (p: any) =>
+            descKeys.has(p.categorySlug?.toLowerCase()) ||
+            descKeys.has(p.categoryName?.toLowerCase())
         );
         return {
           id: cat.id,
@@ -241,11 +258,24 @@ export default async function CustomerHomePage() {
       })
       .filter((shelf) => shelf.products.length > 0);
 
-    // Fetch category card thumbnails for top categories
-    const topCategories = categories.slice(0, 4);
-    mappedCategories = topCategories.map((c) => {
+    // Fetch category card thumbnails for all root categories that have products
+    const activeRoots = categories.filter((c) => {
+      const descKeys = getDescendantKeys(c);
+      return mappedAllProducts.some(
+        (p: any) =>
+          descKeys.has(p.categorySlug?.toLowerCase()) ||
+          descKeys.has(p.categoryName?.toLowerCase())
+      );
+    });
+
+    const displayCategories = activeRoots.length > 0 ? activeRoots : categories.slice(0, 8);
+
+    mappedCategories = displayCategories.map((c) => {
+      const descKeys = getDescendantKeys(c);
       const prodsForCat = mappedAllProducts.filter(
-        (p: any) => p.categorySlug === c.slug || p.categoryName?.toLowerCase() === c.name?.toLowerCase()
+        (p: any) =>
+          descKeys.has(p.categorySlug?.toLowerCase()) ||
+          descKeys.has(p.categoryName?.toLowerCase())
       );
       const productImages = prodsForCat.map((p: any) => p.image).filter(Boolean).slice(0, 4);
       const images =
@@ -260,7 +290,7 @@ export default async function CustomerHomePage() {
         name: c.name,
         slug: c.slug,
         images,
-        itemCount: c.product_count || prodsForCat.length || 0,
+        itemCount: prodsForCat.length || c.product_count || 0,
       };
     });
   } catch (error) {
@@ -269,7 +299,7 @@ export default async function CustomerHomePage() {
 
   // Fallback map for CategoryCard props if API fails entirely
   if (mappedCategories.length === 0 && categories.length > 0) {
-    mappedCategories = categories.slice(0, 4).map((c) => ({
+    mappedCategories = categories.slice(0, 8).map((c) => ({
       id: c.id,
       name: c.name,
       slug: c.slug,

@@ -85,6 +85,7 @@ export interface CategoryAttributeBinding {
 export interface ProductImage {
   id: string;
   image: string;
+  image_url?: string;
   alt_text?: string;
   is_primary: boolean;
   display_order: number;

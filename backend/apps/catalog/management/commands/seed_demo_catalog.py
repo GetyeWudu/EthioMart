@@ -113,9 +113,9 @@ class Command(BaseCommand):
 
         # 2. Root & Leaf Categories (Treebeard MP_Node)
         # Root: Electronics
-        root_elec = Category.objects.filter(slug="electronics").first()
+        root_elec = Category.objects.filter(slug="consumer-electronics").first()
         if not root_elec:
-            root_elec = Category.add_root(name="Consumer Electronics", name_am="ኤሌክትሮኒክስ", slug="electronics", icon="laptop")
+            root_elec = Category.add_root(name="Consumer Electronics", name_am="ኤሌክትሮኒክስ", slug="consumer-electronics", icon="laptop")
 
         sub_mobile = Category.objects.filter(slug="phones-tablets").first()
         if not sub_mobile:
@@ -134,9 +134,9 @@ class Command(BaseCommand):
             leaf_laptops = sub_computers.add_child(name="Laptops & Notebooks", name_am="ላፕቶፖች", slug="laptops")
 
         # Root: Fashion
-        root_fashion = Category.objects.filter(slug="fashion").first()
+        root_fashion = Category.objects.filter(slug="fashion-apparel").first()
         if not root_fashion:
-            root_fashion = Category.add_root(name="Fashion & Traditional Wear", name_am="ፋሽንና የባህል አልባሳት", slug="fashion", icon="shirt")
+            root_fashion = Category.add_root(name="Fashion & Apparel", name_am="ፋሽንና አልባሳት", slug="fashion-apparel", icon="shirt")
 
         sub_shoes = Category.objects.filter(slug="footwear-shoes").first()
         if not sub_shoes:
@@ -146,10 +146,10 @@ class Command(BaseCommand):
         if not leaf_shoes:
             leaf_shoes = sub_shoes.add_child(name="Athletic & Running Shoes", name_am="የስፖርት ጫማዎች", slug="running-shoes")
 
-        # Root: Home & Living
-        root_home = Category.objects.filter(slug="home-living").first()
+        # Root: Home & Kitchen
+        root_home = Category.objects.filter(slug="home-kitchen").first()
         if not root_home:
-            root_home = Category.add_root(name="Home & Living", name_am="የቤት ዕቃዎች", slug="home-living", icon="home")
+            root_home = Category.add_root(name="Home & Kitchen", name_am="የቤት ዕቃዎች", slug="home-kitchen", icon="home")
 
         # Bind seller allowed categories
         vendor.allowed_categories.set([root_elec, root_fashion, root_home])

@@ -33,12 +33,26 @@ class Command(BaseCommand):
 
         try:
             with transaction.atomic():
+                self._cleanup_stale_categories()
                 self._seed_attributes()
                 self._seed_vendors_and_products()
+            from apps.catalog.services.taxonomy_service import TaxonomyService
+            TaxonomyService.invalidate_cache()
             self.stdout.write(self.style.SUCCESS("All 4 vendors and their product catalogs seeded successfully!"))
         except Exception as e:
             self.stdout.write(self.style.ERROR(f"Error seeding store: {str(e)}"))
             raise e
+
+    def _cleanup_stale_categories(self):
+        """Deactivates legacy duplicate categories so only clean 7-vertical taxonomy remains."""
+        for slug in ["home-living", "fashion", "electronics"]:
+            cat = Category.objects.filter(slug=slug).first()
+            if cat:
+                cat.is_active = False
+                cat.save()
+                for d in cat.get_descendants():
+                    d.is_active = False
+                    d.save()
 
     def _seed_attributes(self):
         """Ensures standard marketplace attributes and common values exist."""

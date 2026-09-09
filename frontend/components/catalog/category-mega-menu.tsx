@@ -81,11 +81,8 @@ export function CategoryMegaMenu({ headerSolid = true }: { headerSolid?: boolean
           {/* Left Panel (28%): Root Departments */}
           <div className="w-[28%] bg-slate-50 dark:bg-slate-900/60 border-r border-slate-200/80 dark:border-slate-800 py-3 flex flex-col justify-between">
             <div>
-              <div className="px-5 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Categories
-              </div>
               <div className="flex-1 overflow-y-auto max-h-[420px] scrollbar-none space-y-0.5 px-2">
-                {categories.slice(0, 8).map((cat) => {
+                {categories.map((cat) => {
                   const theme = getDepartmentTheme(cat.slug || cat.name);
                   const Icon = theme.icon;
                   const isSelected = activeRoot?.id === cat.id;

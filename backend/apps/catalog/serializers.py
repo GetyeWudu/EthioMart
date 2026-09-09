@@ -200,23 +200,40 @@ class AdminCategoryAttributeSerializer(serializers.ModelSerializer):
             return obj.category.name
 
 
+def _extract_clean_image_url(image_field):
+    if not image_field:
+        return None
+    name = str(getattr(image_field, "name", "") or "")
+    if "images.unsplash.com" in name:
+        idx = name.find("images.unsplash.com")
+        return f"https://{name[idx:]}"
+    if name.startswith(("http://", "https://")):
+        return name
+    try:
+        url = image_field.url
+        if "images.unsplash.com" in url:
+            idx = url.find("images.unsplash.com")
+            return f"https://{url[idx:]}"
+        if not url.startswith("http"):
+            url = f"http://127.0.0.1:8000{url}"
+        return url
+    except Exception:
+        return None
+
+
 class ProductImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
     image_url = serializers.SerializerMethodField()
 
     class Meta:
         model = ProductImage
         fields = ["id", "image", "image_url", "alt_text", "display_order", "is_primary"]
 
+    def get_image(self, obj):
+        return self.get_image_url(obj)
+
     def get_image_url(self, obj):
-        if obj.image:
-            name = str(obj.image.name or "")
-            if name.startswith(("http://", "https://")):
-                return name
-            url = obj.image.url
-            if not url.startswith('http'):
-                url = f"http://127.0.0.1:8000{url}"
-            return url
-        return None
+        return _extract_clean_image_url(obj.image)
 
 
 class ProductAttributeValueSerializer(serializers.ModelSerializer):
@@ -360,13 +377,7 @@ class ProductListSerializer(serializers.ModelSerializer):
         images = list(obj.images.all())
         primary = next((img for img in images if img.is_primary), None) or (images[0] if images else None)
         if primary and primary.image:
-            name = str(primary.image.name or "")
-            if name.startswith(("http://", "https://")):
-                return name
-            url = primary.image.url
-            if not url.startswith('http'):
-                url = f"http://127.0.0.1:8000{url}"
-            return url
+            return _extract_clean_image_url(primary.image)
         return None
 
     def get_price_display(self, obj):
