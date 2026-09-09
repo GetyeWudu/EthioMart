@@ -12,6 +12,8 @@ import requests
 from django.contrib.auth import authenticate
 from django.db import transaction
 from django.conf import settings
+from django.core.mail import send_mail
+from django.utils.html import strip_tags
 from rest_framework.exceptions import AuthenticationFailed, ValidationError, PermissionDenied
 from rest_framework_simplejwt.tokens import RefreshToken
 from apps.common.utils import (
@@ -179,11 +181,60 @@ class AuthService:
     def request_password_reset(email: str) -> None:
         """
         Generates password reset token if user exists (fail silently to prevent enumeration).
+        Sends an email containing the secure reset link.
         """
         try:
             user = CustomUser.objects.get(email=email.strip().lower(), is_active=True)
             reset_token = generate_signed_token(f"reset_pw:{user.id}")
             logger.info(f"Password reset token generated for {user.email}: {reset_token}")
+
+            frontend_url = getattr(settings, "FRONTEND_URL", "https://ethio-mart-ten.vercel.app").rstrip("/")
+            reset_link = f"{frontend_url}/reset-password?token={reset_token}"
+            subject = "Reset Your Password - EthioMart"
+
+            recipient_name = user.get_full_name() or user.first_name or "Valued Customer"
+            html_message = f"""
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 580px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff; color: #1e293b;">
+                <div style="margin-bottom: 24px; text-align: center;">
+                    <h1 style="color: #0f172a; margin: 0 0 8px 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">EthioMart</h1>
+                    <p style="color: #64748b; font-size: 14px; margin: 0;">Password Reset Request</p>
+                </div>
+                <p style="font-size: 15px; line-height: 1.6; color: #334155;">
+                    Hello <strong>{recipient_name}</strong>,
+                </p>
+                <p style="font-size: 15px; line-height: 1.6; color: #334155;">
+                    We received a request to reset the password for your account. Click the button below to choose a new password. This link will expire in <strong>2 hours</strong>.
+                </p>
+                <div style="margin: 32px 0; text-align: center;">
+                    <a href="{reset_link}" style="display: inline-block; background-color: #2563eb; color: #ffffff; padding: 14px 32px; font-size: 15px; font-weight: 600; text-decoration: none; border-radius: 8px; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);">
+                        Reset Password
+                    </a>
+                </div>
+                <p style="font-size: 13px; color: #64748b; line-height: 1.6;">
+                    If the button above does not work, copy and paste this URL into your browser:
+                    <br/>
+                    <a href="{reset_link}" style="color: #2563eb; word-break: break-all;">{reset_link}</a>
+                </p>
+                <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 24px 0;" />
+                <p style="font-size: 12px; color: #94a3b8; line-height: 1.5; margin: 0;">
+                    If you did not request a password reset, you can safely ignore this email. Your password will not change until you access the link above and create a new one.
+                </p>
+            </div>
+            """
+            plain_message = strip_tags(html_message)
+
+            try:
+                send_mail(
+                    subject=subject,
+                    message=plain_message,
+                    from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "EthioMart <wudugetye@gmail.com>"),
+                    recipient_list=[user.email],
+                    html_message=html_message,
+                    fail_silently=False,
+                )
+                logger.info(f"Password reset email dispatched successfully to {user.email}")
+            except Exception as mail_err:
+                logger.error(f"Failed to send password reset email to {user.email}: {mail_err}")
         except CustomUser.DoesNotExist:
             logger.info(f"Password reset requested for non-existent email: {email}")
 
