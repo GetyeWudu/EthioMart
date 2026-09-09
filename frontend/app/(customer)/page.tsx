@@ -65,6 +65,7 @@ function ProductShelf({
   viewAllHref,
   viewAllLabel = "View All",
   products,
+  totalCount,
   isTrending = false,
 }: {
   title: string;
@@ -72,11 +73,12 @@ function ProductShelf({
   viewAllHref: string;
   viewAllLabel?: string;
   products: any[];
+  totalCount?: number;
   isTrending?: boolean;
 }) {
   if (!products || products.length === 0) return null;
 
-  const productPages = chunkProducts(products, 9);
+  const productPages = chunkProducts(products, 6);
 
   return (
     <section className="container mx-auto px-3 sm:px-4 mt-6 sm:mt-10">
@@ -170,7 +172,7 @@ function ProductShelf({
 export default async function CustomerHomePage() {
   let categories: CategoryNode[] = [];
   let trendingProducts: any[] = [];
-  let categoryShelves: { id: string; name: string; slug: string; products: any[] }[] = [];
+  let categoryShelves: { id: string; name: string; slug: string; totalCount: number; products: any[] }[] = [];
   let mappedCategories: any[] = [];
 
   try {
@@ -215,7 +217,7 @@ export default async function CustomerHomePage() {
         return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
       });
 
-    const combinedTrending = [...recentProducts, ...backfillProducts].slice(0, 18);
+    const combinedTrending = [...recentProducts, ...backfillProducts].slice(0, 6);
 
     trendingProducts = combinedTrending.map((p: any) => {
       const createdTime = new Date(p.createdAt || 0).getTime();
@@ -240,7 +242,7 @@ export default async function CustomerHomePage() {
       return keys;
     };
 
-    // 2. Category Shelves: Display full catalog by category (including subcategory items)
+    // 2. Category Shelves: Display 6 curated products per category on homepage
     categoryShelves = categories
       .map((cat) => {
         const descKeys = getDescendantKeys(cat);
@@ -253,7 +255,8 @@ export default async function CustomerHomePage() {
           id: cat.id,
           name: cat.name,
           slug: cat.slug,
-          products: catProducts,
+          totalCount: catProducts.length,
+          products: catProducts.slice(0, 6),
         };
       })
       .filter((shelf) => shelf.products.length > 0);
@@ -368,15 +371,16 @@ export default async function CustomerHomePage() {
         isTrending={true}
       />
 
-      {/* Products by Category (> 24h): Shelves for each category | Mobile 3x3 with Horizontal Scroll */}
+      {/* Products by Category: Curated 6 products per shelf | Complete catalog via category pages */}
       {categoryShelves.map((shelf) => (
         <ProductShelf
           key={shelf.id}
           title={shelf.name}
           subtitle={`Top authentic products from verified ${shelf.name} merchants`}
           viewAllHref={`/products?category=${shelf.slug}`}
-          viewAllLabel={`Explore ${shelf.name}`}
+          viewAllLabel={shelf.totalCount > 6 ? `Explore All ${shelf.name} (${shelf.totalCount})` : `Explore ${shelf.name}`}
           products={shelf.products}
+          totalCount={shelf.totalCount}
         />
       ))}
 
