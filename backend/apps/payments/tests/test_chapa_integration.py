@@ -12,6 +12,7 @@ import hmac
 import hashlib
 import json
 from decimal import Decimal
+from unittest.mock import patch
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import APIClient
@@ -61,8 +62,19 @@ class ChapaIntegrationTests(TestCase):
         self.order.refresh_from_db()
         self.assertEqual(self.order.payment_status, OrderPaymentStatus.PENDING)
 
-    def test_webhook_successful_payment_transition(self):
+    @patch.object(ChapaClient, "verify_transaction")
+    def test_webhook_successful_payment_transition(self, mock_verify):
         """Valid HMAC signature transitions order from PENDING to PAID."""
+        mock_verify.return_value = {
+            "status": "success",
+            "message": "Payment verified",
+            "data": {
+                "status": "success",
+                "tx_ref": self.order.transaction_reference,
+                "amount": "2500.00",
+                "currency": "ETB",
+            },
+        }
         payload = {
             "tx_ref": self.order.transaction_reference,
             "status": "success",

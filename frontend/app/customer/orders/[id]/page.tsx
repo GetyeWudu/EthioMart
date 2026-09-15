@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { use, useState } from "react";
+import { use, useState, useMemo } from "react";
 import Image from "next/image";
 import { 
   ArrowLeft, 
@@ -21,7 +21,8 @@ import {
   CreditCard, 
   Receipt, 
   Printer,
-  ShoppingBag
+  ShoppingBag,
+  Star
 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,13 +30,28 @@ import { Separator } from "@/components/ui/separator";
 import useSWR, { mutate } from "swr";
 import api from "@/lib/api";
 import { DisputeModal } from "@/components/customer/dispute-modal";
+import { OrderItemReviewModal } from "@/components/reviews/order-item-review-modal";
 
 const fetcher = (url: string) => api.get(url).then(res => res.data);
 
 export default function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { data: order, error, isLoading } = useSWR(`/orders/${id}/`, fetcher);
+  const { data: customerReviews, mutate: mutateReviews } = useSWR(`/customer/reviews/`, fetcher);
   const [isRetrying, setIsRetrying] = useState(false);
+
+  // Map of customer reviews by product ID
+  const reviewByProductId = useMemo(() => {
+    const list: any[] = Array.isArray(customerReviews) ? customerReviews : (customerReviews?.results || []);
+    const map: Record<string, any> = {};
+    for (const r of list) {
+      const prodId = typeof r.product === "object" ? r.product?.id : (r.product || r.product_details?.id);
+      if (prodId) {
+        map[String(prodId)] = r;
+      }
+    }
+    return map;
+  }, [customerReviews]);
 
   const handleRetryPayment = async () => {
     try {
@@ -314,22 +330,45 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                         ) : null}
                       </div>
 
+                      {/* Delivered sub-order review banner */}
+                      {subOrder.derived_status === "DELIVERED" && (
+                        <div className="bg-amber-50/80 dark:bg-amber-950/20 border border-amber-200/70 dark:border-amber-800/40 rounded-xl p-3 flex items-center justify-between text-xs text-amber-900 dark:text-amber-300">
+                          <div className="flex items-center gap-2">
+                            <Star className="w-4 h-4 fill-amber-400 text-amber-400 shrink-0" />
+                            <span className="font-medium">
+                              Package delivered! Share your feedback by reviewing the items below.
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
                       <div className="divide-y divide-slate-100 dark:divide-slate-800/60">
-                        {subOrder.items?.map((item: any) => (
+                        {subOrder.items?.map((item: any) => {
+                          const isDelivered = (subOrder.derived_status === "DELIVERED" || !!subOrder.delivered_at || subOrder.shipment?.status === "DELIVERED" || item.status === "DELIVERED");
+                          const product = item.variant_details?.product;
+                          const existingReview = product?.id ? reviewByProductId[String(product.id)] : null;
+
+                          return (
                           <div key={item.id} className="py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                             <div className="flex items-center gap-4 min-w-0">
-                              <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-xl border border-slate-200/80 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 overflow-hidden shrink-0 relative">
+                              <Link 
+                                href={product?.slug ? `/products/${product.slug}` : "#"}
+                                className="w-18 h-18 sm:w-20 sm:h-20 rounded-xl border border-slate-200/80 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 overflow-hidden shrink-0 relative group"
+                              >
                                 <Image 
-                                  src={item.variant_details?.product?.images?.[0]?.image_url || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=200"} 
-                                  alt={item.variant_details?.product?.title || 'Product'} 
+                                  src={product?.images?.[0]?.image_url || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=200"} 
+                                  alt={product?.title || 'Product'} 
                                   fill 
-                                  className="object-cover" 
+                                  className="object-cover group-hover:scale-105 transition-transform" 
                                 />
-                              </div>
+                              </Link>
                               <div className="min-w-0 space-y-1">
-                                <h4 className="font-bold text-slate-900 dark:text-white line-clamp-1 text-sm">
-                                  {item.variant_details?.product?.title || 'Product Item'}
-                                </h4>
+                                <Link 
+                                  href={product?.slug ? `/products/${product.slug}` : "#"}
+                                  className="font-bold text-slate-900 dark:text-white line-clamp-1 text-sm hover:text-[#1261C9] transition-colors"
+                                >
+                                  {product?.title || 'Product Item'}
+                                </Link>
                                 <p className="text-xs text-slate-500 dark:text-slate-400">
                                   Qty: <strong className="text-slate-700 dark:text-slate-300">{item.quantity}</strong> • Unit Price: ETB {Number(item.unit_price).toLocaleString('en-ET', { minimumFractionDigits: 2 })}
                                 </p>
@@ -345,13 +384,32 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                               </div>
                             </div>
 
-                            <div className="text-right shrink-0">
+                            <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-2.5 shrink-0">
                               <span className="text-base font-bold text-slate-900 dark:text-white font-mono">
                                 ETB {(Number(item.unit_price) * item.quantity).toLocaleString('en-ET', { minimumFractionDigits: 2 })}
                               </span>
+
+                              {isDelivered && product?.id && (
+                                <OrderItemReviewModal
+                                  product={{
+                                    id: product.id,
+                                    title: product.title || "Product Item",
+                                    slug: product.slug,
+                                    images: product.images,
+                                  }}
+                                  existingReview={existingReview ? {
+                                    id: existingReview.id,
+                                    rating: existingReview.rating,
+                                    title: existingReview.title,
+                                    body: existingReview.body || existingReview.content || existingReview.comment || "",
+                                  } : null}
+                                  onSuccess={() => mutateReviews()}
+                                />
+                              )}
                             </div>
                           </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   );

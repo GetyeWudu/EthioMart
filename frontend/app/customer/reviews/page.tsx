@@ -2,17 +2,18 @@
 
 import React from "react";
 import useSWR from "swr";
-import { Star, ThumbsUp, MessageSquare, ShoppingBag, Loader2 } from "lucide-react";
+import { Star, ThumbsUp, MessageSquare, ShoppingBag, Loader2, Edit3 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { OrderItemReviewModal } from "@/components/reviews/order-item-review-modal";
 
 const fetcher = (url: string) => api.get(url).then(res => res.data);
 
 export default function ReviewsPage() {
-  const { data: reviewsData, isLoading } = useSWR("/customer/reviews/", fetcher);
+  const { data: reviewsData, isLoading, mutate } = useSWR("/customer/reviews/", fetcher);
 
   const reviews: any[] = Array.isArray(reviewsData) ? reviewsData : (reviewsData?.results || []);
 
@@ -26,9 +27,10 @@ export default function ReviewsPage() {
           </p>
         </div>
 
-        <Link href="/products">
-          <Button variant="outline" size="sm" className="text-xs font-bold">
-            Write More Reviews
+        <Link href="/customer/orders">
+          <Button variant="outline" size="sm" className="text-xs font-bold gap-1.5 rounded-xl border-slate-200 dark:border-slate-800">
+            <ShoppingBag className="w-3.5 h-3.5 text-indigo-600" />
+            Review From Delivered Orders
           </Button>
         </Link>
       </div>
@@ -41,16 +43,16 @@ export default function ReviewsPage() {
       ) : reviews.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 p-12 text-center bg-slate-50/50 dark:bg-slate-900/30 space-y-4">
           <div className="mx-auto w-14 h-14 rounded-full bg-amber-50 dark:bg-amber-950/50 flex items-center justify-center text-amber-500">
-            <Star className="w-7 h-7" />
+            <Star className="w-7 h-7 fill-amber-400 text-amber-400" />
           </div>
           <div className="space-y-1">
             <h3 className="text-base font-bold text-slate-900 dark:text-white">No reviews submitted yet</h3>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              Once your orders are delivered, you can rate and review your purchased products to help other Ethiopian shoppers.
+              Once your orders are delivered, you can rate and review your purchased items directly from your order details page.
             </p>
           </div>
           <Link href="/customer/orders" className="inline-block pt-2">
-            <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold gap-1.5 shadow-sm">
+            <Button size="sm" className="bg-[#1261C9] hover:bg-[#0D4FA8] text-white text-xs font-bold gap-1.5 shadow-sm rounded-xl">
               <ShoppingBag className="w-3.5 h-3.5" /> View Past Orders
             </Button>
           </Link>
@@ -58,8 +60,8 @@ export default function ReviewsPage() {
       ) : (
         <div className="space-y-4">
           {reviews.map((review) => {
-            const product = review.product || {};
-            const imageUrl = product.primary_image || product.images?.[0]?.image_url || "/placeholder-product.png";
+            const product = review.product_details || (typeof review.product === 'object' ? review.product : {}) || {};
+            const imageUrl = product.image_url || product.primary_image || product.images?.[0]?.image_url || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=200";
 
             return (
               <div 
@@ -70,22 +72,23 @@ export default function ReviewsPage() {
                   {/* Product Info */}
                   <div className="flex sm:flex-col gap-3 sm:w-44 shrink-0">
                     <Link 
-                      href={`/products/${product.slug || product.id}`} 
-                      className="relative h-20 w-20 sm:h-28 sm:w-full overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-900 block shrink-0 border border-slate-100 dark:border-slate-800"
+                      href={product.slug ? `/products/${product.slug}` : "#"} 
+                      className="relative h-20 w-20 sm:h-28 sm:w-full overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-900 block shrink-0 border border-slate-100 dark:border-slate-800 group"
                     >
                       <Image 
                         src={imageUrl} 
                         alt={product.title || product.name || "Product"} 
                         fill 
-                        className="object-cover"
+                        className="object-cover group-hover:scale-105 transition-transform"
                         sizes="(max-width: 640px) 5rem, 7rem"
                       />
                     </Link>
                     <div>
-                      <Link href={`/products/${product.slug || product.id}`} className="hover:underline">
-                        <h3 className="line-clamp-2 text-xs font-bold text-slate-900 dark:text-white">
-                          {product.title || product.name || "Product"}
-                        </h3>
+                      <Link 
+                        href={product.slug ? `/products/${product.slug}` : "#"} 
+                        className="hover:underline font-bold text-xs text-slate-900 dark:text-white line-clamp-2"
+                      >
+                        {product.title || product.name || "Product Item"}
                       </Link>
                     </div>
                   </div>
@@ -107,13 +110,38 @@ export default function ReviewsPage() {
                         </div>
                         <h4 className="font-bold text-sm text-slate-900 dark:text-white">{review.title || "Product Review"}</h4>
                       </div>
-                      <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800 text-[10px] font-bold shrink-0">
-                        {review.is_approved ? "Verified & Published" : "Under Moderation"}
-                      </Badge>
+
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800 text-[10px] font-bold shrink-0">
+                          {review.is_approved ? "Verified & Published" : "Published"}
+                        </Badge>
+
+                        <OrderItemReviewModal
+                          product={{
+                            id: product.id || review.product,
+                            title: product.title || "Product Item",
+                            slug: product.slug,
+                            imageUrl: imageUrl,
+                          }}
+                          existingReview={{
+                            id: review.id,
+                            rating: review.rating,
+                            title: review.title,
+                            body: review.body || review.content || review.comment || "",
+                          }}
+                          onSuccess={() => mutate()}
+                          trigger={
+                            <Button variant="ghost" size="sm" className="h-7 text-xs text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-lg gap-1">
+                              <Edit3 className="w-3 h-3" />
+                              Edit
+                            </Button>
+                          }
+                        />
+                      </div>
                     </div>
 
-                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                      {review.content || review.comment}
+                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-line">
+                      {review.body || review.content || review.comment}
                     </p>
 
                     <div className="flex items-center gap-4 text-[11px] text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800">
@@ -125,12 +153,14 @@ export default function ReviewsPage() {
                     </div>
 
                     {/* Merchant Reply if exists */}
-                    {review.reply && (
+                    {review.seller_reply && (
                       <div className="mt-3 p-3 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/30 text-xs space-y-1">
                         <span className="font-bold text-indigo-900 dark:text-indigo-200 block text-[11px]">
-                          Store Response from {product.vendor?.store_name || "Merchant"}:
+                          Store Response from {review.seller_reply.seller_name || "Merchant"}:
                         </span>
-                        <p className="text-slate-600 dark:text-slate-400 text-xs">{review.reply.comment || review.reply.content}</p>
+                        <p className="text-slate-600 dark:text-slate-400 text-xs whitespace-pre-line">
+                          {review.seller_reply.body}
+                        </p>
                       </div>
                     )}
                   </div>

@@ -63,15 +63,15 @@ export function DisputeModal({ subOrderId, vendorName, orderNumber, onSuccess, c
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {children ? (
-        <DialogTrigger render={children} />
-      ) : (
-        <DialogTrigger>
-          <Button variant="outline" size="sm" className="rounded-xl border-amber-300 text-amber-800 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-300">
-            Open Return / Dispute Request
-          </Button>
-        </DialogTrigger>
-      )}
+      <DialogTrigger
+        render={
+          children || (
+            <Button variant="outline" size="sm" className="rounded-xl border-amber-300 text-amber-800 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-300">
+              Open Return / Dispute Request
+            </Button>
+          )
+        }
+      />
       <DialogContent className="sm:max-w-[500px] rounded-2xl">
         <DialogHeader>
           <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 mb-1">

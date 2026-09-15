@@ -48,10 +48,14 @@ class ReviewEligibilityView(APIView):
             })
 
         slug = request.query_params.get('product_slug')
-        if not slug:
-            return Response({"error": "product_slug is required"}, status=400)
+        product_id = request.query_params.get('product_id')
+        if not slug and not product_id:
+            return Response({"error": "product_slug or product_id is required"}, status=400)
             
-        product = get_object_or_404(Product, slug=slug)
+        if product_id:
+            product = get_object_or_404(Product, id=product_id)
+        else:
+            product = get_object_or_404(Product, slug=slug)
         user = request.user
         
         existing_review = Review.objects.filter(customer=user, product=product).first()
@@ -59,13 +63,18 @@ class ReviewEligibilityView(APIView):
             return Response({
                 "eligible": False,
                 "has_reviewed": True,
-                "existing_review_id": str(existing_review.id)
+                "existing_review_id": str(existing_review.id),
+                "rating": existing_review.rating,
+                "title": existing_review.title,
+                "body": existing_review.body,
             })
             
+        from django.db import models
         has_purchased = OrderItem.objects.filter(
             vendor_sub_order__order__customer=user,
             variant__product=product,
-            status='DELIVERED'
+        ).filter(
+            models.Q(status='DELIVERED') | models.Q(vendor_sub_order__delivered_at__isnull=False)
         ).exists()
         
         return Response({
