@@ -66,7 +66,7 @@ class VendorSubOrder(BaseModel):
         return (self.sub_total * rate).quantize(Decimal('0.01'))
 
     def is_within_inspection_window(self) -> bool:
-        if not self.delivered_at:
+        if not self.delivered_at or self.is_payout_settled:
             return False
         from django.utils import timezone
         try:

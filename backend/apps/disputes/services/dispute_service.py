@@ -35,16 +35,19 @@ class DisputeService:
         Opens a dispute claim within the 48-hour delivery inspection window.
         Freezes vendor escrow funds on the sub-order.
         """
-        # 1. 48-Hour Validation
+        # 1. Delivery & Escrow Inspection Window Validation
         if sub_order.derived_status != 'DELIVERED':
             raise ValidationError("Disputes can only be filed on delivered orders.")
+
+        if sub_order.is_payout_settled:
+            raise ValidationError("The escrow inspection window has expired and seller payout has already been settled.")
 
         if not sub_order.delivered_at:
             sub_order.delivered_at = timezone.now()
             sub_order.save(update_fields=['delivered_at'])
 
         if not sub_order.is_within_inspection_window():
-            raise ValidationError("The 5-minute delivery inspection window has passed.")
+            raise ValidationError("The delivery inspection window has passed and escrow has ended.")
 
         # 2. Re-entry Guard: Check if dispute already exists
         if hasattr(sub_order, 'dispute') or Dispute.objects.filter(sub_order=sub_order).exists():
@@ -77,7 +80,7 @@ class DisputeService:
                 type="DISPUTE_ALERT",
                 title="Dispute Claim Filed",
                 message=f"Customer {customer_name} filed a dispute for Sub-Order #{str(sub_order.id)[:8].upper()} ({dispute.get_reason_display()}). Escrow is on hold.",
-                related_link="/seller/disputes"
+                related_link=f"/seller/orders/{sub_order.id}"
             )
 
         # 6. Notify Customer
@@ -149,7 +152,7 @@ class DisputeService:
                     type="DISPUTE_ALERT",
                     title="Dispute Resolved (Refunded)",
                     message=f"Dispute for Sub-Order #{str(sub_order.id)[:8].upper()} was resolved in the buyer's favor. Escrow has been reversed.",
-                    related_link="/seller/disputes"
+                    related_link=f"/seller/orders/{sub_order.id}"
                 )
 
         elif action == 'REJECT_CLAIM':
@@ -173,7 +176,7 @@ class DisputeService:
                     type="DISPUTE_ALERT",
                     title="Dispute Dismissed - Escrow Released",
                     message=f"Dispute for Sub-Order #{str(sub_order.id)[:8].upper()} was dismissed. Funds are now available in your wallet.",
-                    related_link="/seller/earnings"
+                    related_link=f"/seller/orders/{sub_order.id}"
                 )
 
         # Unlock sub-order dispute flag

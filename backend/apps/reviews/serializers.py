@@ -32,11 +32,18 @@ class ReviewSerializer(serializers.ModelSerializer):
         if not obj.product:
             return None
         first_img = obj.product.images.first()
+        img_url = None
+        if first_img and getattr(first_img, 'image', None):
+            try:
+                from apps.catalog.serializers import _extract_clean_image_url
+                img_url = _extract_clean_image_url(first_img.image)
+            except Exception:
+                img_url = str(first_img.image)
         return {
             'id': str(obj.product.id),
             'title': obj.product.title,
             'slug': obj.product.slug,
-            'image_url': first_img.image_url if first_img else None,
+            'image_url': img_url,
         }
 
 class ReviewWriteSerializer(serializers.ModelSerializer):

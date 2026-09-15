@@ -49,6 +49,7 @@ export function OrderItemReviewModal({
   trigger,
 }: OrderItemReviewModalProps) {
   const [open, setOpen] = useState(false);
+  const [reviewId, setReviewId] = useState<string | null>(existingReview?.id || null);
   const [rating, setRating] = useState<number>(existingReview?.rating || 5);
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [title, setTitle] = useState<string>(existingReview?.title || "");
@@ -60,15 +61,34 @@ export function OrderItemReviewModal({
   // Sync state when modal opens or existingReview changes
   useEffect(() => {
     if (open) {
-      setRating(existingReview?.rating || 5);
-      setTitle(existingReview?.title || "");
-      setBody(existingReview?.body || "");
       setErrorMessage("");
+      if (existingReview) {
+        setReviewId(existingReview.id);
+        setRating(existingReview.rating || 5);
+        setTitle(existingReview.title || "");
+        setBody(existingReview.body || "");
+      } else if (product.id) {
+        // Query eligibility check directly from server to verify if already reviewed
+        api.get(`/reviews/eligibility/?product_id=${product.id}`)
+          .then((res) => {
+            const data = res.data;
+            if (data?.has_reviewed && data?.existing_review_id) {
+              setReviewId(data.existing_review_id);
+              if (data.rating) setRating(data.rating);
+              if (data.title) setTitle(data.title);
+              if (data.body) setBody(data.body);
+            }
+          })
+          .catch(() => {
+            // Ignore eligibility check errors
+          });
+      }
     }
-  }, [open, existingReview]);
+  }, [open, existingReview, product.id]);
 
   const activeRating = hoverRating || rating;
   const ratingInfo = RATING_DESCRIPTIONS[activeRating] || RATING_DESCRIPTIONS[5];
+  const isEditMode = Boolean(reviewId || existingReview?.id);
 
   const productImage = 
     product.imageUrl || 
@@ -94,9 +114,10 @@ export function OrderItemReviewModal({
     setErrorMessage("");
 
     try {
-      if (existingReview?.id) {
+      const targetReviewId = reviewId || existingReview?.id;
+      if (targetReviewId) {
         // Update existing review
-        await api.patch(`/reviews/${existingReview.id}/`, {
+        await api.patch(`/reviews/${targetReviewId}/`, {
           rating,
           title: title.trim(),
           body: body.trim(),
@@ -116,8 +137,9 @@ export function OrderItemReviewModal({
       setOpen(false);
       if (onSuccess) onSuccess();
     } catch (err: any) {
-      const resp = err.response?.data;
+      const resp = err.data || err.response?.data;
       const errorText =
+        err.message ||
         resp?.non_field_errors?.[0] ||
         resp?.detail ||
         resp?.message ||
@@ -130,17 +152,22 @@ export function OrderItemReviewModal({
   };
 
   const handleDelete = async () => {
-    if (!existingReview?.id) return;
+    const targetReviewId = reviewId || existingReview?.id;
+    if (!targetReviewId) return;
     if (!confirm("Are you sure you want to delete this review?")) return;
 
     setIsDeleting(true);
     try {
-      await api.delete(`/reviews/${existingReview.id}/`);
+      await api.delete(`/reviews/${targetReviewId}/`);
       toast.success("Your review was deleted.");
+      setReviewId(null);
+      setRating(5);
+      setTitle("");
+      setBody("");
       setOpen(false);
       if (onSuccess) onSuccess();
     } catch (err: any) {
-      toast.error("Failed to delete review. Please try again.");
+      toast.error(err.message || "Failed to delete review. Please try again.");
     } finally {
       setIsDeleting(false);
     }
@@ -172,11 +199,11 @@ export function OrderItemReviewModal({
           <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
             <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
             <span className="text-xs font-bold uppercase tracking-wider">
-              {existingReview ? "Edit Your Review" : "Rate & Review Product"}
+              {isEditMode ? "Edit Your Review" : "Rate & Review Product"}
             </span>
           </div>
           <DialogTitle className="text-xl font-black text-slate-900 dark:text-white">
-            {existingReview ? "Update Your Feedback" : "How was your purchase?"}
+            {isEditMode ? "Update Your Feedback" : "How was your purchase?"}
           </DialogTitle>
           <DialogDescription className="text-xs text-slate-500 dark:text-slate-400">
             Your authentic review helps fellow Ethiopian buyers make informed shopping choices.
@@ -283,7 +310,7 @@ export function OrderItemReviewModal({
 
           {/* Action Buttons */}
           <div className="pt-2 flex items-center justify-between gap-3">
-            {existingReview ? (
+            {isEditMode ? (
               <Button
                 type="button"
                 variant="ghost"
@@ -309,7 +336,7 @@ export function OrderItemReviewModal({
             )}
 
             <div className="flex items-center gap-2 ml-auto">
-              {existingReview && (
+              {isEditMode && (
                 <Button
                   type="button"
                   variant="outline"
@@ -331,7 +358,7 @@ export function OrderItemReviewModal({
                     <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
                     Submitting...
                   </>
-                ) : existingReview ? (
+                ) : isEditMode ? (
                   "Update Review"
                 ) : (
                   "Submit Review"

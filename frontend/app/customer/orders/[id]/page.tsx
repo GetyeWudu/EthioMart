@@ -22,7 +22,8 @@ import {
   Receipt, 
   Printer,
   ShoppingBag,
-  Star
+  Star,
+  ExternalLink
 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +32,7 @@ import useSWR, { mutate } from "swr";
 import api from "@/lib/api";
 import { DisputeModal } from "@/components/customer/dispute-modal";
 import { OrderItemReviewModal } from "@/components/reviews/order-item-review-modal";
+import { useAuthStore } from "@/stores/auth-store";
 
 const fetcher = (url: string) => api.get(url).then(res => res.data);
 
@@ -39,6 +41,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
   const { data: order, error, isLoading } = useSWR(`/orders/${id}/`, fetcher);
   const { data: customerReviews, mutate: mutateReviews } = useSWR(`/customer/reviews/`, fetcher);
   const [isRetrying, setIsRetrying] = useState(false);
+  const currentUser = useAuthStore((s) => s.user);
 
   // Map of customer reviews by product ID
   const reviewByProductId = useMemo(() => {
@@ -67,6 +70,11 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
     }
   };
 
+  // Determine if the currently logged-in user is a vendor (merchant) for this order
+  const viewerIsVendor = Boolean(order?.viewer_is_vendor);
+  const vendorSubOrderIds: string[] = order?.vendor_sub_order_ids || [];
+  const firstVendorSubOrderId = vendorSubOrderIds[0] || null;
+
   if (isLoading) {
     return (
       <div className="flex flex-col justify-center items-center min-h-[60vh] gap-3 print:hidden">
@@ -77,12 +85,25 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
   }
 
   if (error || !order) {
+    const is401Or404 = error?.response?.status === 401 || error?.response?.status === 403 || error?.response?.status === 404;
     return (
       <div className="text-center py-20 bg-red-50 dark:bg-red-950/20 rounded-2xl border border-red-200 dark:border-red-900/30 p-8 max-w-lg mx-auto print:hidden">
-        <p className="text-red-600 dark:text-red-400 font-semibold mb-4">Failed to load order details.</p>
-        <Link href="/customer/orders" className={buttonVariants({ variant: "outline", size: "sm" })}>
-          &larr; Return to Orders
-        </Link>
+        <p className="text-red-600 dark:text-red-400 font-semibold mb-2">Failed to load order details.</p>
+        {is401Or404 && (
+          <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">
+            This order may not be associated with your current account.
+          </p>
+        )}
+        <div className="flex gap-2 justify-center flex-wrap">
+          <Link href="/customer/orders" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            &larr; Return to My Orders
+          </Link>
+          {currentUser?.role === 'SELLER' && (
+            <Link href="/seller/orders" className={buttonVariants({ variant: "default", size: "sm" })}>
+              Go to Seller Orders →
+            </Link>
+          )}
+        </div>
       </div>
     );
   }
@@ -109,8 +130,28 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
           1. ON-SCREEN WEB UI (Hidden when printing)
       ══════════════════════════════════════════════════════════════════════════ */}
       <div className="space-y-6 max-w-7xl mx-auto print:hidden">
-        
-        {/* Top Enterprise Header Bar */}
+
+        {/* ── Merchant Context Banner (only shown when a seller views this page) ─ */}
+        {viewerIsVendor && (
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 px-4 py-3 shadow-sm">
+            <div className="flex items-center gap-2 flex-1">
+              <Store className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
+              <span className="text-xs font-semibold text-amber-800 dark:text-amber-300">
+                <span className="font-bold">Merchant View:</span> You are the seller for this order. This is the customer-facing summary.
+              </span>
+            </div>
+            {firstVendorSubOrderId && (
+              <Link
+                href={`/seller/orders/${firstVendorSubOrderId}`}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-3 py-2 transition-colors shrink-0"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                Open in Seller Hub
+              </Link>
+            )}
+          </div>
+        )}
+
         <div className="bg-white dark:bg-slate-950 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
@@ -304,6 +345,16 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
               <div className="divide-y divide-slate-100 dark:divide-slate-800">
                 {order.sub_orders?.map((subOrder: any) => {
                   const vendorDisplayName = subOrder.vendor_name || subOrder.vendor?.store_name || "EthioMart Direct";
+                  const isDelivered = subOrder.derived_status === "DELIVERED" || !!subOrder.delivered_at || subOrder.shipment?.status === "DELIVERED";
+                  const isPayoutSettled = Boolean(subOrder.is_payout_settled);
+                  const isWithinWindow = subOrder.can_dispute !== undefined
+                    ? subOrder.can_dispute
+                    : (
+                        isDelivered &&
+                        !isPayoutSettled &&
+                        (!subOrder.inspection_expires_at || new Date(subOrder.inspection_expires_at).getTime() > Date.now())
+                      );
+                  const canDispute = !subOrder.active_dispute && !isPayoutSettled && isWithinWindow;
 
                   return (
                     <div key={subOrder.id} className="p-5 sm:p-6 space-y-4">
@@ -317,7 +368,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                           <Badge className="bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 text-xs font-bold">
                             🛡️ Dispute: {subOrder.active_dispute.status.replace(/_/g, ' ')}
                           </Badge>
-                        ) : subOrder.derived_status === "DELIVERED" ? (
+                        ) : canDispute ? (
                           <DisputeModal 
                             subOrderId={subOrder.id} 
                             vendorName={vendorDisplayName}
@@ -327,6 +378,11 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                               ⚠️ Report Issue
                             </Button>
                           </DisputeModal>
+                        ) : isPayoutSettled ? (
+                          <Badge variant="outline" className="text-[10px] text-emerald-700 dark:text-emerald-400 border-emerald-200 bg-emerald-50/60 dark:bg-emerald-950/20 font-semibold gap-1">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                            Escrow Settled
+                          </Badge>
                         ) : null}
                       </div>
 
@@ -418,19 +474,30 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
             </div>
 
             {/* Chapa Escrow Protection Card */}
-            <div className="bg-gradient-to-r from-emerald-50/70 to-teal-50/40 dark:from-emerald-950/20 dark:to-teal-950/10 border border-emerald-200/80 dark:border-emerald-900/40 rounded-2xl p-5 flex items-start sm:items-center gap-4">
-              <div className="h-10 w-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-emerald-900 dark:text-emerald-200 uppercase tracking-wider">
-                  🛡️ Chapa Escrow Buyer Protection
-                </h4>
-                <p className="text-xs text-emerald-800/90 dark:text-emerald-300/80 mt-0.5">
-                  Funds are securely held in escrow until 48 hours after delivery confirmation and customer inspection.
-                </p>
-              </div>
-            </div>
+            {(() => {
+              const holdMinutes = order.sub_orders?.[0]?.escrow_hold_minutes || 10;
+              const holdDisplay = holdMinutes >= 1440 
+                ? `${Math.round(holdMinutes / 1440)} day${Math.round(holdMinutes / 1440) > 1 ? 's' : ''}`
+                : holdMinutes >= 60 
+                ? `${Math.round(holdMinutes / 60)} hour${Math.round(holdMinutes / 60) > 1 ? 's' : ''}`
+                : `${holdMinutes} minutes`;
+
+              return (
+                <div className="bg-gradient-to-r from-emerald-50/70 to-teal-50/40 dark:from-emerald-950/20 dark:to-teal-950/10 border border-emerald-200/80 dark:border-emerald-900/40 rounded-2xl p-5 flex items-start sm:items-center gap-4">
+                  <div className="h-10 w-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-emerald-900 dark:text-emerald-200 uppercase tracking-wider">
+                      🛡️ Chapa Escrow Buyer Protection
+                    </h4>
+                    <p className="text-xs text-emerald-800/90 dark:text-emerald-300/80 mt-0.5">
+                      Funds are held in secure escrow for {holdDisplay} after delivery confirmation to guarantee item satisfaction. Once this window closes, funds are automatically released to the seller and disputes close.
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
 
           </div>
 

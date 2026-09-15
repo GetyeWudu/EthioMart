@@ -25,6 +25,10 @@ class VendorSubOrderSerializer(serializers.ModelSerializer):
     customer = serializers.SerializerMethodField()
     derived_status = serializers.CharField(read_only=True)
     active_dispute = serializers.SerializerMethodField()
+    can_dispute = serializers.SerializerMethodField()
+    is_within_inspection_window = serializers.SerializerMethodField()
+    inspection_expires_at = serializers.SerializerMethodField()
+    escrow_hold_minutes = serializers.SerializerMethodField()
     shipment = ShipmentTrackingSerializer(read_only=True)
 
     class Meta:
@@ -36,10 +40,44 @@ class VendorSubOrderSerializer(serializers.ModelSerializer):
             'dispatched_at', 'delivered_at', 'is_payout_settled',
             'derived_status',
             'active_dispute',
+            'can_dispute',
+            'is_within_inspection_window',
+            'inspection_expires_at',
+            'escrow_hold_minutes',
             'shipment',
             'items',
         ]
         read_only_fields = ['id', 'order_id', 'sub_total', 'shipping_fee', 'dispatched_at', 'delivered_at', 'is_payout_settled']
+
+    def get_escrow_hold_minutes(self, obj):
+        try:
+            from apps.core_settings.services import SettingsService
+            return int(SettingsService.get("escrow_hold_minutes", default=10))
+        except Exception:
+            return 10
+
+    def get_can_dispute(self, obj):
+        if obj.is_payout_settled or getattr(obj, 'is_disputed', False):
+            return False
+        if getattr(obj, 'dispute', None):
+            return False
+        if obj.derived_status != 'DELIVERED' and not obj.delivered_at:
+            return False
+        return obj.is_within_inspection_window()
+
+    def get_is_within_inspection_window(self, obj):
+        return obj.is_within_inspection_window()
+
+    def get_inspection_expires_at(self, obj):
+        if not obj.delivered_at:
+            return None
+        try:
+            from apps.core_settings.services import SettingsService
+            from datetime import timedelta
+            hold_minutes = int(SettingsService.get("escrow_hold_minutes", default=10))
+            return (obj.delivered_at + timedelta(minutes=hold_minutes)).isoformat()
+        except Exception:
+            return None
 
     def get_active_dispute(self, obj):
         dispute = getattr(obj, 'dispute', None)

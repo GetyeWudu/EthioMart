@@ -1,5 +1,5 @@
 from decimal import Decimal
-from django.db import transaction
+from django.db import transaction, models as django_models
 from django.utils import timezone
 from rest_framework import viewsets, status, views
 from rest_framework.response import Response
@@ -25,9 +25,33 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
         return [IsAuthenticated()]
 
     def get_queryset(self):
+        """
+        - For `list`: Only return orders that belong to the authenticated customer.
+        - For `retrieve`: Allow access if the user is the customer, a vendor of a
+          sub-order in this order, or an admin/staff member. Unauthenticated users
+          can also retrieve any order by UUID (needed for anonymous order tracking).
+        """
+        prefetch = 'sub_orders__items__variant__product', 'sub_orders__items__variant__attribute_values__attribute'
         if not self.request.user.is_authenticated:
-            return Order.objects.all().prefetch_related('sub_orders__items__variant')
-        return Order.objects.filter(customer=self.request.user).prefetch_related('sub_orders__items__variant')
+            # Anonymous: allow retrieve by UUID for order tracking links
+            return Order.objects.all().prefetch_related(*prefetch)
+
+        user = self.request.user
+
+        # Admins/staff see everything
+        if user.is_staff or user.is_superuser or getattr(user, 'role', None) == 'ADMIN':
+            return Order.objects.all().prefetch_related(*prefetch)
+
+        # Authenticated: return orders where the user is the customer OR a vendor of a sub-order
+        return (
+            Order.objects
+            .filter(
+                django_models.Q(customer=user) |
+                django_models.Q(sub_orders__vendor__user=user)
+            )
+            .distinct()
+            .prefetch_related(*prefetch)
+        )
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -44,7 +68,19 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
             except Exception:
                 pass
         serializer = self.get_serializer(instance)
-        return Response(serializer.data)
+        # Attach a flag so the frontend knows if the current user is a vendor for this order
+        data = serializer.data
+        if request.user.is_authenticated:
+            vendor_sub_orders = [
+                s for s in (data.get('sub_orders') or [])
+                if s.get('vendor') and instance.sub_orders.filter(
+                    id=s['id'], vendor__user=request.user
+                ).exists()
+            ]
+            data = dict(data)
+            data['viewer_is_vendor'] = bool(vendor_sub_orders)
+            data['vendor_sub_order_ids'] = [s['id'] for s in vendor_sub_orders]
+        return Response(data)
 
     @action(detail=False, methods=['post'])
     def checkout(self, request):

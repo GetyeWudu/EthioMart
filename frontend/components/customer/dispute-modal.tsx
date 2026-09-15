@@ -76,7 +76,7 @@ export function DisputeModal({ subOrderId, vendorName, orderNumber, onSuccess, c
         <DialogHeader>
           <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 mb-1">
             <ShieldCheck className="h-5 w-5" />
-            <span className="text-xs font-bold uppercase tracking-wider">48-Hour Escrow Protection</span>
+            <span className="text-xs font-bold uppercase tracking-wider">Escrow Buyer Protection</span>
           </div>
           <DialogTitle className="text-xl font-bold">Open Return / Dispute Claim</DialogTitle>
           <DialogDescription className="text-sm text-slate-500">
