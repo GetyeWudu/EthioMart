@@ -256,6 +256,7 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = "Africa/Addis_Ababa"
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+CELERY_TASK_DEFAULT_QUEUE = "default"
 
 # Periodic task schedules (these seed the DB scheduler on first run via management commands)
 CELERY_BEAT_SCHEDULE = {
@@ -273,15 +274,15 @@ CELERY_BEAT_SCHEDULE = {
 
 
 # ---------------------------------------------------------------------------
-# Email Configuration (Google SMTP)
+# Email Configuration (Brevo Transactional SMTP)
 # ---------------------------------------------------------------------------
 EMAIL_BACKEND = config("EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend")
-EMAIL_HOST = config("EMAIL_HOST", default="smtp.gmail.com")
+EMAIL_HOST = config("EMAIL_HOST", default="smtp-relay.brevo.com")
 EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
 EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
-EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="wudugetye@gmail.com")
-EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="ylyapzmemhnshtjo")
-DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="EthioMart <wudugetye@gmail.com>")
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="EthioMart <wudugetye12@gmail.com>")
 FRONTEND_URL = config("FRONTEND_URL", default="https://ethio-mart-ten.vercel.app")
 
 # ---------------------------------------------------------------------------

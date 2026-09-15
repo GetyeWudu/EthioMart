@@ -149,9 +149,13 @@ def auto_settle_delivered_orders():
     from datetime import timedelta
     from apps.orders.models import VendorSubOrder
     from apps.vendors.services import WalletService
+    try:
+        from apps.core_settings.services import SettingsService
+        hold_minutes = SettingsService.get("escrow_hold_minutes", default=10)
+    except Exception:
+        hold_minutes = 10
 
-    # 5-minute settlement clearance window for testing (was 48 hours)
-    clearance_cutoff = timezone.now() - timedelta(minutes=5)
+    clearance_cutoff = timezone.now() - timedelta(minutes=int(hold_minutes))
 
     pending_settlement = VendorSubOrder.objects.filter(
         delivered_at__isnull=False,

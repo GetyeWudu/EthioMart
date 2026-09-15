@@ -31,23 +31,16 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        # Proactively verify pending transactions with Chapa on demand
+        # Proactively verify pending transactions with Chapa on demand via PaymentConfirmationService
         if instance.payment_status == OrderPaymentStatus.PENDING and instance.transaction_reference:
             try:
-                from apps.payments.services.chapa_client import ChapaClient
-                result = ChapaClient.verify_transaction(instance.transaction_reference)
-                if result.get("status") == "success" and (
-                    result.get("data", {}).get("status") in ("success", "paid")
-                    if isinstance(result.get("data"), dict) else True
-                ):
-                    instance.payment_status = OrderPaymentStatus.PAID
-                    instance.save(update_fields=["payment_status", "updated_at"])
-                    from apps.vendors.services.wallet_service import WalletService
-                    for sub_order in instance.sub_orders.all():
-                        try:
-                            WalletService.credit_escrow(sub_order)
-                        except Exception:
-                            pass
+                from apps.payments.services.payment_confirmation_service import PaymentConfirmationService
+                res = PaymentConfirmationService.confirm_order_payment(
+                    instance.transaction_reference,
+                    source="order_retrieve",
+                )
+                if res.get("status") in ("success", "already_processed"):
+                    instance.refresh_from_db()
             except Exception:
                 pass
         serializer = self.get_serializer(instance)

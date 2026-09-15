@@ -94,7 +94,7 @@ export function ProductCard({
   const cashSavings = originalPrice && originalPrice > price ? Math.round(originalPrice - price) : 0;
 
   return (
-    <div className="group relative flex flex-col rounded-xl sm:rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 hover:border-slate-300 dark:hover:border-slate-700 dark:bg-slate-900/60 overflow-hidden">
+    <div className="group relative flex flex-col rounded-xl sm:rounded-2xl border border-slate-200/80 dark:border-transparent bg-white shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 hover:border-slate-300 dark:hover:border-slate-700/50 dark:bg-slate-900/70 overflow-hidden">
       {/* Top Badges */}
       <div className="absolute left-1.5 top-1.5 sm:left-2.5 sm:top-2.5 z-10 flex flex-col gap-1">
         {isNew && (
@@ -129,7 +129,7 @@ export function ProductCard({
       </Button>
 
       {/* Image Container */}
-      <div className="relative h-[110px] sm:h-[190px] w-full overflow-hidden bg-slate-100 dark:bg-slate-800/50">
+      <div className="relative h-[110px] sm:h-[190px] w-full overflow-hidden bg-slate-100 dark:bg-slate-800/40">
         <Link href={`/products/${slug}`} className="block h-full w-full">
           <Image
             src={imgSrc}
@@ -148,7 +148,7 @@ export function ProductCard({
       </div>
 
       {/* Content */}
-      <div className="flex flex-col justify-between p-2 sm:p-3 bg-white dark:bg-slate-900/60 rounded-b-xl sm:rounded-b-2xl">
+      <div className="flex flex-col justify-between p-2 sm:p-3 bg-white dark:bg-transparent rounded-b-xl sm:rounded-b-2xl">
         {/* Rating & Vendor Hub Location */}
         <div className="mb-1 flex items-center justify-between gap-1 text-[10px] sm:text-[11px]">
           <div className="flex items-center gap-0.5 sm:gap-1">

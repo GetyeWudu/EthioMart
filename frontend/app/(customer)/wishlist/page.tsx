@@ -19,12 +19,13 @@ interface WishlistItemPayload {
 
 export default function WishlistPage() {
   const [mounted, setMounted] = useState(false);
-  const { savedProductIds, toggleWishlist } = useWishlistStore();
+  const { savedProductIds, toggleWishlist, markWishlistViewed } = useWishlistStore();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    markWishlistViewed();
+  }, [markWishlistViewed]);
 
   const { data: wishlists, isLoading, mutate } = useSWR<WishlistItemPayload[]>(
     mounted ? (isAuthenticated ? "/wishlists/" : savedProductIds.length > 0 ? `/catalog/products/?ids=${savedProductIds.join(',')}` : null) : null,

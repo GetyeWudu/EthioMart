@@ -5,28 +5,38 @@ import { toast } from 'sonner';
 
 interface WishlistStore {
   savedProductIds: string[];
+  viewedProductIds: string[];
   isLoading: boolean;
   toggleWishlist: (productId: string, isAuthenticated: boolean) => Promise<void>;
   syncGuestWishlist: () => Promise<void>;
   fetchWishlistIds: () => Promise<void>;
   hasItem: (id: string) => boolean;
+  markWishlistViewed: () => void;
+  getUnviewedCount: () => number;
 }
 
 export const useWishlistStore = create<WishlistStore>()(
   persist(
     (set, get) => ({
       savedProductIds: [],
+      viewedProductIds: [],
       isLoading: false,
       
       toggleWishlist: async (productId: string, isAuthenticated: boolean) => {
-        const { savedProductIds } = get();
+        const { savedProductIds, viewedProductIds } = get();
         const isSaved = savedProductIds.includes(productId);
         
         // Optimistic UI Update
         if (isSaved) {
-          set({ savedProductIds: savedProductIds.filter(id => id !== productId) });
+          set({ 
+            savedProductIds: savedProductIds.filter(id => id !== productId),
+            viewedProductIds: (viewedProductIds || []).filter(id => id !== productId)
+          });
         } else {
-          set({ savedProductIds: [...savedProductIds, productId] });
+          set({ 
+            savedProductIds: [...savedProductIds, productId],
+            // Not adding to viewedProductIds, so it triggers badge for new items
+          });
         }
         
         if (isAuthenticated) {
@@ -39,7 +49,7 @@ export const useWishlistStore = create<WishlistStore>()(
             }
           } catch (error: any) {
             // Revert on failure
-            set({ savedProductIds });
+            set({ savedProductIds, viewedProductIds });
             let msg = "Failed to update wishlist";
             if (error.message && typeof error.message === "string") {
               msg = error.message;
@@ -84,12 +94,23 @@ export const useWishlistStore = create<WishlistStore>()(
       hasItem: (id: string) => {
         return get().savedProductIds.includes(id);
       },
+
+      markWishlistViewed: () => {
+        set({ viewedProductIds: [...get().savedProductIds] });
+      },
+
+      getUnviewedCount: () => {
+        const { savedProductIds, viewedProductIds } = get();
+        const viewedSet = new Set(viewedProductIds || []);
+        return savedProductIds.filter(id => !viewedSet.has(id)).length;
+      },
     }),
     {
       name: 'ethiomart-wishlist-storage',
-      // We only want to persist savedProductIds. 
-      // If user is authenticated, we hydrate it on load anyway, but persisting it keeps it fast.
-      partialize: (state) => ({ savedProductIds: state.savedProductIds }),
+      partialize: (state) => ({ 
+        savedProductIds: state.savedProductIds,
+        viewedProductIds: state.viewedProductIds || []
+      }),
     }
   )
 );

@@ -61,8 +61,10 @@ export function WithdrawModal({ isOpen, onClose, wallet, onSuccess }: WithdrawMo
       ]);
 
       if (bankRes.status === "fulfilled" && bankRes.value) {
-        setBankDetails(bankRes.value);
-        setSelectedBankCode(bankRes.value.bank_code || "");
+        let code = bankRes.value.bank_code || "";
+        if (code === "32") code = "946";
+        setBankDetails({ ...bankRes.value, bank_code: code });
+        setSelectedBankCode(code);
         setAccountNumber(bankRes.value.account_number || "");
         setAccountName(bankRes.value.account_name || "");
       }
@@ -105,14 +107,16 @@ export function WithdrawModal({ isOpen, onClose, wallet, onSuccess }: WithdrawMo
       return;
     }
 
+    const effectiveBankCode = (selectedBankCode === "32" ? "946" : selectedBankCode) || "946";
+
     setIsLoading(true);
     try {
       const result = await vendorService.requestWithdrawal({
         amount: requestedNum,
-        bank_code: selectedBankCode,
+        bank_code: effectiveBankCode,
         account_number: accountNumber,
         account_name: accountName,
-        bank_name: supportedBanks.find((b) => b.code === selectedBankCode)?.name || selectedBankCode,
+        bank_name: supportedBanks.find((b) => (b.code || b.id) === effectiveBankCode)?.name || effectiveBankCode,
       });
 
       setSuccessData(result);
@@ -282,11 +286,14 @@ export function WithdrawModal({ isOpen, onClose, wallet, onSuccess }: WithdrawMo
                       className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     >
                       <option value="">-- Choose Ethiopian Rail --</option>
-                      {supportedBanks.map((b, i) => (
-                        <option key={b.id || `bank-${i}`} value={b.code}>
-                          {b.name} ({b.code || b.id})
-                        </option>
-                      ))}
+                      {supportedBanks.map((b, i) => {
+                        const codeVal = b.code || b.id;
+                        return (
+                          <option key={b.id || `bank-${i}`} value={codeVal}>
+                            {b.name} ({codeVal})
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
 

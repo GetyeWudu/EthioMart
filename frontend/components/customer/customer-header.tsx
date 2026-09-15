@@ -92,9 +92,20 @@ export function CustomerHeader() {
 
   const { items } = useCartStore();
   const cartItemsCount = items.reduce((total, item) => total + item.quantity, 0);
-  const { savedProductIds } = useWishlistStore();
+  const { savedProductIds, viewedProductIds, markWishlistViewed } = useWishlistStore();
 
-  const wishlistCount = mounted ? savedProductIds.length : 0;
+  const isWishlistPage = pathname === "/wishlist";
+
+  useEffect(() => {
+    if (isWishlistPage && mounted) {
+      markWishlistViewed();
+    }
+  }, [isWishlistPage, mounted, markWishlistViewed]);
+
+  const unviewedWishlistCount = mounted
+    ? savedProductIds.filter((id) => !(viewedProductIds || []).includes(id)).length
+    : 0;
+  const showWishlistBadge = !isWishlistPage && unviewedWishlistCount > 0;
 
   useEffect(() => {
     setMounted(true);
@@ -436,11 +447,15 @@ export function CustomerHeader() {
             <ThemeToggle className={cn("h-9 w-9 rounded-full transition-colors", headerSolid ? "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" : "text-slate-200 hover:bg-white/10 hover:text-white")} />
 
             {/* Wishlist */}
-            <Link href="/wishlist" className={cn("hidden sm:flex h-9 w-9 items-center justify-center rounded-full transition-colors relative group", headerSolid ? "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" : "text-slate-200 hover:bg-white/10 hover:text-white")}>
+            <Link 
+              href="/wishlist" 
+              onClick={() => markWishlistViewed()}
+              className={cn("hidden sm:flex h-9 w-9 items-center justify-center rounded-full transition-colors relative group", headerSolid ? "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" : "text-slate-200 hover:bg-white/10 hover:text-white")}
+            >
               <Heart className="h-4 w-4 transition-transform group-hover:scale-110" />
-              {wishlistCount > 0 && (
+              {showWishlistBadge && (
                 <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white shadow-sm">
-                  {wishlistCount}
+                  {unviewedWishlistCount}
                 </span>
               )}
             </Link>

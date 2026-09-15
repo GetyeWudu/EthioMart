@@ -90,15 +90,25 @@ class SellerWalletView(APIView):
 
         vendor = VendorService.get_or_create_profile(request.user)
 
-        # Check and settle any sub-orders delivered over 5 minutes ago
-        clearance_cutoff = timezone.now() - timedelta(minutes=5)
+        # Check and settle any sub-orders delivered over the configured hold window ago
+        try:
+            from apps.core_settings.services import SettingsService
+            hold_minutes = SettingsService.get("escrow_hold_minutes", default=10)
+        except Exception:
+            hold_minutes = 10
+
+        clearance_cutoff = timezone.now() - timedelta(minutes=int(hold_minutes))
         eligible_sub_orders = VendorSubOrder.objects.filter(
             vendor=vendor,
             delivered_at__isnull=False,
             delivered_at__lte=clearance_cutoff,
             is_payout_settled=False,
             is_disputed=False,
-        )
+        ).exclude(
+            dispute__status="REFUNDED"
+        ).exclude(
+            wallet_ledger_entries__entry_type="ESCROW_REFUND"
+        ).distinct()
         for so in eligible_sub_orders:
             WalletService.settle_payout(so)
 

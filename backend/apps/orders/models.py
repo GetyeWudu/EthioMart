@@ -69,9 +69,13 @@ class VendorSubOrder(BaseModel):
         if not self.delivered_at:
             return False
         from django.utils import timezone
+        try:
+            from apps.core_settings.services import SettingsService
+            hold_minutes = SettingsService.get("escrow_hold_minutes", default=10)
+        except Exception:
+            hold_minutes = 10
         diff = timezone.now() - self.delivered_at
-        # 5 minutes inspection window for testing (was 48 hours)
-        return diff.total_seconds() <= (5 * 60)
+        return diff.total_seconds() <= (int(hold_minutes) * 60)
 
     @property
     def derived_status(self) -> str:

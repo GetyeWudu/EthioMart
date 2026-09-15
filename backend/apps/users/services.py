@@ -227,7 +227,7 @@ class AuthService:
                 send_mail(
                     subject=subject,
                     message=plain_message,
-                    from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "EthioMart <wudugetye@gmail.com>"),
+                    from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "EthioMart <wudugetye12@gmail.com>"),
                     recipient_list=[user.email],
                     html_message=html_message,
                     fail_silently=False,

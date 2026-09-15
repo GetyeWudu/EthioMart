@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 class NotificationService:
     @staticmethod
-    def send_notification(user, type, title, message, related_link="", send_email=True):
+    def send_notification(user, type, title, message, related_link="", send_email=True, html_message=None):
         """
         Creates an in-app Notification record and optionally queues an email.
         """
@@ -20,7 +20,18 @@ class NotificationService:
             )
             
             if send_email and user.email:
-                send_async_email.delay(user.email, title, message)
+                if not html_message:
+                    from apps.notifications.email_templates import render_general_notification_html
+                    recipient_name = user.get_full_name() or user.first_name or "Valued Customer"
+                    html_message = render_general_notification_html(
+                        title=title,
+                        message=message,
+                        user_name=recipient_name,
+                        action_url=related_link,
+                        action_label="View in EthioMart →",
+                        badge=str(type).replace("_", " ").title(),
+                    )
+                send_async_email.delay(user.email, title, message, html_message)
                 
             return notification
         except Exception as e:

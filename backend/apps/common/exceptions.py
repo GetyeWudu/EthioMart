@@ -54,7 +54,19 @@ def custom_exception_handler(exc, context):
 
         if isinstance(exc, (DRFValidationError, DjangoValidationError)):
             error_code = "VALIDATION_ERROR"
-            message = "Validation failed for one or more fields."
+            detail_data = response.data
+            if isinstance(detail_data, list) and detail_data:
+                message = str(detail_data[0])
+            elif isinstance(detail_data, dict) and detail_data:
+                first_key = next(iter(detail_data))
+                first_val = detail_data[first_key]
+                first_err = first_val[0] if isinstance(first_val, list) and first_val else str(first_val)
+                if first_key in ("non_field_errors", "detail"):
+                    message = str(first_err)
+                else:
+                    message = f"{first_key}: {first_err}"
+            else:
+                message = "Validation failed for one or more fields."
         elif isinstance(exc, (AuthenticationFailed, NotAuthenticated)):
             error_code = "UNAUTHORIZED"
             message = "Authentication credentials were not provided or are invalid."

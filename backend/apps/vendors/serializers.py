@@ -23,6 +23,7 @@ from .enums import VendorStatus, VendorType, BusinessType, DocumentType
 
 class KYCDocumentSerializer(serializers.ModelSerializer):
     document_type_display = serializers.CharField(source="get_document_type_display", read_only=True)
+    file = serializers.SerializerMethodField()
 
     class Meta:
         model  = KYCDocument
@@ -31,6 +32,18 @@ class KYCDocumentSerializer(serializers.ModelSerializer):
             "file", "document_number", "is_verified", "notes", "created_at",
         ]
         read_only_fields = ["id", "is_verified", "notes", "created_at", "document_type_display"]
+
+    def get_file(self, obj) -> str:
+        if not obj.file:
+            return ""
+        url = obj.file.url
+        # If it's a Cloudinary URL, ensure it is served with .png so Cloudinary dynamically renders it with 200 OK
+        if "res.cloudinary.com" in url and "/image/upload/" in url:
+            if url.endswith(".pdf"):
+                return url[:-4] + ".png"
+            elif not any(url.endswith(ext) for ext in [".png", ".jpg", ".jpeg", ".webp", ".gif"]):
+                return url + ".png"
+        return url
 
 
 class KYCDocumentUploadSerializer(serializers.ModelSerializer):

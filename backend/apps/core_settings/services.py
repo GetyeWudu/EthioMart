@@ -130,6 +130,7 @@ class SettingsService:
             ("base_commission_rate", "10.00", PlatformSetting.ValueType.DECIMAL, "Platform baseline commission percentage.", False),
             ("vat_rate", "15.00", PlatformSetting.ValueType.DECIMAL, "Ethiopian brokerage VAT rate (15%).", False),
             ("escrow_hold_hours", "48", PlatformSetting.ValueType.INTEGER, "Holding duration for funds in escrow post-delivery (48h inspection window).", False),
+            ("escrow_hold_minutes", "10", PlatformSetting.ValueType.INTEGER, "Holding duration in minutes for funds in escrow post-delivery before moving to available balance (configurable in admin).", False),
             ("free_shipping_minimum_etb", "2500.00", PlatformSetting.ValueType.DECIMAL, "Minimum order value qualifying for free shipping.", True),
             ("min_payout_threshold_etb", "1000.00", PlatformSetting.ValueType.DECIMAL, "Minimum vendor balance to request manual payout.", False),
             ("low_stock_threshold", "5", PlatformSetting.ValueType.INTEGER, "Threshold triggering seller low stock notifications.", True),

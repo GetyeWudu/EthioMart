@@ -85,7 +85,7 @@ export function WalletCard({ wallet, isLoading = false }: WalletCardProps) {
         <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent p-3.5 sm:p-6 backdrop-blur-xl shadow-sm dark:border-amber-500/20">
           <div className="flex items-center justify-between">
             <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400 truncate">
-              Pending (5m Escrow)
+              Pending (10m Escrow)
             </span>
             <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0">
               <Clock className="h-4 w-4" />
@@ -99,7 +99,7 @@ export function WalletCard({ wallet, isLoading = false }: WalletCardProps) {
               <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">ETB</span>
             </div>
             <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">
-              Held in 5m dispute window
+              Held in 10m dispute window
             </p>
           </div>
         </div>

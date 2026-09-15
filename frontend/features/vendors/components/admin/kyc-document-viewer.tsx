@@ -8,6 +8,7 @@
 
 "use client";
 
+import { useState } from "react";
 import {
   FileCheck2,
   FileText,
@@ -16,9 +17,29 @@ import {
   AlertCircle,
   Clock,
   ShieldCheck,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { KYCDocument, BusinessType } from "../../types";
+
+export function getDocumentPreviewUrl(url?: string | null): string {
+  if (!url) return "";
+  if (url.includes("res.cloudinary.com") && url.includes("/image/upload/")) {
+    if (url.endsWith(".pdf")) {
+      return url.replace(/\.pdf$/i, ".png");
+    }
+    if (!url.match(/\.(png|jpg|jpeg|webp|gif|svg)$/i)) {
+      return `${url}.png`;
+    }
+  }
+  return url;
+}
 
 interface KYCDocumentViewerProps {
   documents: KYCDocument[];
@@ -31,6 +52,9 @@ export function KYCDocumentViewer({
   businessType,
   tinNumber,
 }: KYCDocumentViewerProps) {
+  const [selectedDoc, setSelectedDoc] = useState<KYCDocument | null>(null);
+  const [imageError, setImageError] = useState(false);
+
   const uploadedDocTypes = new Set(documents.map((d) => d.document_type));
   const hasTIN = uploadedDocTypes.has("TIN_CERTIFICATE");
   const hasFaydaOrPassport =
@@ -126,7 +150,7 @@ export function KYCDocumentViewer({
               ) : (
                 <AlertCircle className="h-4 w-4 text-rose-500 shrink-0" />
               )}
-              <span className="font-medium">Renewed Trade License (የታደሰ ንግድ ፈቃድ)</span>
+              <span className="font-medium">Renewed Trade License (የታደሰ የንግድ ፈቃድ)</span>
             </div>
             <span className="text-[11px] font-semibold uppercase tracking-wider">
               {hasTradeLicense ? "Verified Present" : "Missing"}
@@ -135,18 +159,18 @@ export function KYCDocumentViewer({
         )}
       </div>
 
-      {/* Documents Grid */}
-      <div className="space-y-3">
-        <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+      {/* Attached Files List */}
+      <div className="space-y-3 pt-2">
+        <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
           Attached Files ({documents.length})
         </h4>
 
         {documents.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 p-8 text-center text-xs text-slate-500">
-            No KYC documents have been uploaded by this vendor yet.
+          <div className="p-8 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl text-slate-400 text-xs">
+            No KYC documents uploaded by this vendor yet.
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {documents.map((doc) => (
               <div
                 key={doc.id}
@@ -185,20 +209,18 @@ export function KYCDocumentViewer({
                   </span>
 
                   {doc.file && (
-                    <a
-                      href={doc.file}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setImageError(false);
+                        setSelectedDoc(doc);
+                      }}
+                      className="text-xs gap-1.5 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-200 dark:hover:border-indigo-800 transition-colors"
                     >
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="text-xs gap-1.5 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400"
-                      >
-                        <ExternalLink className="h-3.5 w-3.5" />
-                        Inspect Document
-                      </Button>
-                    </a>
+                      <Eye className="h-3.5 w-3.5" />
+                      Inspect Document
+                    </Button>
                   )}
                 </div>
               </div>
@@ -206,6 +228,99 @@ export function KYCDocumentViewer({
           </div>
         )}
       </div>
+
+      {/* Document Inspector Modal */}
+      <Dialog open={!!selectedDoc} onOpenChange={(open) => !open && setSelectedDoc(null)}>
+        <DialogContent className="sm:max-w-4xl max-h-[92vh] flex flex-col p-0 overflow-hidden bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-2xl">
+          {selectedDoc && (
+            <>
+              <DialogHeader className="p-5 border-b border-slate-100 dark:border-slate-800/80 flex flex-row items-center justify-between gap-4">
+                <div>
+                  <DialogTitle className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-indigo-500" />
+                    {selectedDoc.document_type_display || selectedDoc.document_type}
+                  </DialogTitle>
+                  <p className="text-xs text-slate-500 font-mono mt-0.5">
+                    {selectedDoc.document_number ? `Doc #: ${selectedDoc.document_number}` : "Document Preview"}
+                    {" • "}
+                    Uploaded {new Date(selectedDoc.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 mr-6">
+                  {selectedDoc.is_verified ? (
+                    <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+                      <CheckCircle2 className="h-3 w-3" /> Verified
+                    </span>
+                  ) : (
+                    <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center gap-1">
+                      <Clock className="h-3 w-3" /> Pending Review
+                    </span>
+                  )}
+                </div>
+              </DialogHeader>
+
+              {/* Document Canvas Preview */}
+              <div className="flex-1 overflow-auto p-6 bg-slate-100 dark:bg-slate-900/60 flex items-center justify-center min-h-[450px]">
+                {imageError ? (
+                  <div className="text-center p-8 bg-white dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm max-w-md">
+                    <FileText className="h-12 w-12 text-slate-400 mx-auto mb-3" />
+                    <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">
+                      Document Preview Unavailable
+                    </h4>
+                    <p className="text-xs text-slate-500 mt-1 mb-4">
+                      The document file may require direct download or inspection in a new tab.
+                    </p>
+                    <a
+                      href={getDocumentPreviewUrl(selectedDoc.file)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button size="sm" variant="default" className="text-xs gap-1.5">
+                        <ExternalLink className="h-3.5 w-3.5" />
+                        Open Document in New Tab
+                      </Button>
+                    </a>
+                  </div>
+                ) : (
+                  <img
+                    src={getDocumentPreviewUrl(selectedDoc.file)}
+                    alt={selectedDoc.document_type_display || "Document Preview"}
+                    className="max-h-[68vh] w-auto max-w-full rounded-xl shadow-lg border border-slate-200 dark:border-slate-800 object-contain bg-white"
+                    onError={() => setImageError(true)}
+                  />
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-4 border-t border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-950 flex items-center justify-between">
+                <span className="text-xs text-slate-500 font-medium">
+                  EthioMart Compliance Inspection
+                </span>
+                <div className="flex items-center gap-2">
+                  <a
+                    href={getDocumentPreviewUrl(selectedDoc.file)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button variant="outline" size="sm" className="text-xs gap-1.5">
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      Open in New Tab
+                    </Button>
+                  </a>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="text-xs"
+                    onClick={() => setSelectedDoc(null)}
+                  >
+                    Close
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

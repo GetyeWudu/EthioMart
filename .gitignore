@@ -59,6 +59,7 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+*.zip
 .gemini/
 .antigravity*
 *AGENTS.md

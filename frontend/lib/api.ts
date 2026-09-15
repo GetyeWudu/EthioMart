@@ -256,10 +256,21 @@ async function handleResponse<T>(response: Response): Promise<T> {
       message = typeof errorData.detail === "string" ? errorData.detail : JSON.stringify(errorData.detail);
     } else if (errorData?.message) {
       message = errorData.message;
+    } else if (errorData?.error?.details && errorData?.error?.message === "Validation failed for one or more fields.") {
+      if (typeof errorData.error.details === "object" && errorData.error.details !== null) {
+        const detailsObj = errorData.error.details;
+        const parts = Object.entries(detailsObj).map(([k, v]) => {
+          const valStr = Array.isArray(v) ? v.join(", ") : String(v);
+          return k === "non_field_errors" || k === "detail" ? valStr : `${k}: ${valStr}`;
+        });
+        message = parts.join(" | ");
+      } else {
+        message = String(errorData.error.details);
+      }
     } else if (errorData?.error?.message) {
       message = errorData.error.message;
     } else if (errorData?.error?.details) {
-      if (typeof errorData.error.details === "object") {
+      if (typeof errorData.error.details === "object" && errorData.error.details !== null) {
         message = Object.values(errorData.error.details).flat().join(" ");
       } else {
         message = String(errorData.error.details);

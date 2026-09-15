@@ -43,7 +43,7 @@ export function EarningsTable() {
       case "ESCROW_CREDIT":
         return (
           <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-800/60 gap-1 text-[11px] font-semibold">
-            <Clock className="h-3 w-3" /> Escrow Credited (5m Hold)
+            <Clock className="h-3 w-3" /> Escrow Credited (10m Hold)
           </Badge>
         );
       case "ESCROW_RELEASE":

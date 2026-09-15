@@ -238,10 +238,13 @@ class WalletService:
                     account_number = account_number or bank_details.account_number
                     account_name = account_name or bank_details.account_name
                 else:
-                    bank_code = bank_code or "32"
+                    bank_code = bank_code or "946"
                     bank_name = bank_name or "Commercial Bank of Ethiopia"
                     account_number = account_number or "100000000000"
                     account_name = account_name or vendor.store_name
+
+            if str(bank_code) in ("32", "cbe"):
+                bank_code = "946"
 
             # 1. Execute strict business rule validation
             validation = WithdrawalValidationService.validate_request(
@@ -470,6 +473,12 @@ class WalletService:
         wallet.available_balance += net_amount
         wallet.save(update_fields=["pending_balance", "available_balance", "updated_at"])
 
+        try:
+            from apps.core_settings.services import SettingsService
+            hold_minutes = SettingsService.get("escrow_hold_minutes", default=10)
+        except Exception:
+            hold_minutes = 10
+
         VendorLedgerEntry.objects.create(
             wallet=wallet,
             sub_order=sub_order,
@@ -483,7 +492,7 @@ class WalletService:
             is_vat_registered_vendor=is_vat_registered_vendor,
             net_amount=net_amount,
             notes=(
-                f"Escrow released after 5-minute delivery clearance for sub-order "
+                f"Escrow released after {hold_minutes}-minute delivery clearance for sub-order "
                 f"#{str(sub_order.id)[:8].upper()}. Funds available for withdrawal."
             ),
         )

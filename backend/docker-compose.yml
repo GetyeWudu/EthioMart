@@ -60,7 +60,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: celery -A config.celery worker --loglevel=info --concurrency=4 -Q default,high_priority,payments,notifications
+    command: celery -A config.celery worker --loglevel=info --concurrency=4 -Q celery,default,high_priority,payments,notifications
     volumes:
       - .:/app
       - media_files:/app/media
